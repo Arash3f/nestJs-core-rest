@@ -2,7 +2,7 @@ import { IsEnum, IsNumber, IsString } from "class-validator"
 import { NodeEnvType } from "src/modules/config/types/config.type"
 
 /**
- * Environment Class Model
+ * * Environment Class Model
  */
 export class EnvConfigModel {
 	@IsString()
