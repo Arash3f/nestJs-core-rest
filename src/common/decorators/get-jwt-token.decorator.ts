@@ -3,7 +3,7 @@ import { createParamDecorator } from "@nestjs/common"
 import type { FastifyRequest } from "fastify"
 
 /**
- * Decorator to get the requester's Token
+ * * Decorator to get the requester's Token
  */
 export const GetJwtToken = createParamDecorator((_data: unknown, context: ExecutionContext) => {
 	const request = context.switchToHttp().getRequest<FastifyRequest>()
