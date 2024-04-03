@@ -5,6 +5,7 @@ import { ServeStaticModule } from "@nestjs/serve-static"
 import { join } from "path"
 import { AuthModule } from "src/modules/auth/auth.module"
 import { AuthErrors } from "src/modules/auth/constants/errors"
+import { CreateUserInput } from "src/modules/auth/dto/create-user.input"
 import { BackupModule } from "src/modules/backup/backup.module"
 import { BackUpErrors } from "src/modules/backup/constants/errors"
 import { EnvConfigModule } from "src/modules/config/env-config.module"
@@ -47,8 +48,12 @@ import { PrismaModule } from "src/modules/prisma/prisma.module"
 	],
 })
 export class AppModule {
-	constructor(private init: InitService) {
-		this.generateProjectErrors()
+	constructor(
+		private init: InitService,
+		private apiConfigService: EnvConfigService,
+	) {
+		this.generateProjectErrors(),
+		this.projectSuperUser()
 	}
 
 	generateProjectErrors() {
@@ -58,4 +63,17 @@ export class AppModule {
 		]
 		this.init.generateProjectErrors(projectErrors)
 	}
+
+	/**
+	 * * Generate Super User With Admin Role
+	 */
+	async projectSuperUser() {
+		  const superUserData: CreateUserInput = {
+			  username: this.apiConfigService.defaultUser.username,
+			  name: this.apiConfigService.defaultUser.name,
+			  password: this.apiConfigService.defaultUser.password,
+			  role: this.apiConfigService.defaultUser.role,
+		  }
+		await this.init.generateSuperUserWithAdminRole( superUserData)
+	  }
 }

@@ -49,4 +49,13 @@ export class EnvConfigModel {
 
 	@IsEnum(NodeEnvType)
 	NODE_ENV: NodeEnvType
+
+	@IsString()
+	SUPER_USER_USERNAME: string
+  
+	@IsString()
+	SUPER_USER_NAME: string
+  
+	@IsString()
+	SUPER_USER_PASSWORD: string
 }
