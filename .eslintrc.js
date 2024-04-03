@@ -38,6 +38,7 @@ module.exports = {
   plugins: [
     // required to apply rules which need type information
     "@typescript-eslint",
+    "simple-import-sort",
   ],
 
   globals: {
@@ -70,7 +71,9 @@ module.exports = {
         "selector": "variable",
         "format": ["camelCase", "UPPER_CASE", "PascalCase"]
       }
-    ]
+    ],
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
   },
 }
 

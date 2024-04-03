@@ -1,16 +1,17 @@
 import { ValidationPipe } from "@nestjs/common"
 import { NestFactory } from "@nestjs/core"
+import { JwtService } from "@nestjs/jwt"
 import type { NestFastifyApplication } from "@nestjs/platform-fastify"
 import { FastifyAdapter } from "@nestjs/platform-fastify"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import type { ServerResponse } from "http"
 import { AppModule } from "src/app.module"
-import { NodeEnvType } from "src/modules/config/types/config.type"
 import { EnvConfigService } from "src/modules/config/env-config.service"
+import { NodeEnvType } from "src/modules/config/types/config.type"
 import { CoreExceptionFilter } from "src/modules/error/exception.filter"
-import { PrismaService } from "./modules/prisma/prisma.service"
-import { JwtService } from "@nestjs/jwt"
+
 import { TokenGuard } from "./common/guards/token.guard"
+import { PrismaService } from "./modules/prisma/prisma.service"
 
 declare const module: any
 

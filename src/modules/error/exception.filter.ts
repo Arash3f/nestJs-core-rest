@@ -1,8 +1,9 @@
-import { HttpStatus, ExceptionFilter, Catch, ArgumentsHost, HttpException, BadRequestException, Logger } from "@nestjs/common"
+import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common"
+import { Request, Response } from "express"
 import { NodeEnvType } from "src/modules/config/types/config.type"
 import type { ErrorType } from "src/modules/error/constants/type"
 import { GlobalError } from "src/modules/error/global-error"
-import { Request, Response } from "express"
+
 import { ErrorService } from "./error.service"
 
 @Catch()
