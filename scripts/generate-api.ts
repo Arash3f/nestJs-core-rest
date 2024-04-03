@@ -1,7 +1,7 @@
 import { Logger } from "@nestjs/common"
 import { exec } from "child_process"
-import { promisify } from "util"
 import { serverApiDocs } from "src/constants"
+import { promisify } from "util"
 
 const execAsync = promisify(exec)
 

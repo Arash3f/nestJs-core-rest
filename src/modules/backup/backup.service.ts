@@ -7,6 +7,7 @@ import { BackUpErrors } from "src/modules/backup/constants/errors"
 import { EnvConfigService } from "src/modules/config/env-config.service"
 import { ErrorService } from "src/modules/error/error.service"
 import util from "util"
+
 import type { GlobalError } from "../error/global-error"
 
 @Injectable()

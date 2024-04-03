@@ -2,8 +2,8 @@ import { Injectable, Logger } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { plainToInstance } from "class-transformer"
 import { validateSync } from "class-validator"
-import type { ConfigDatabaseType, NodeEnvType } from "src/modules/config/types/config.type"
 import { EnvConfigModel } from "src/modules/config/model/env-config.model"
+import type { ConfigDatabaseType, NodeEnvType } from "src/modules/config/types/config.type"
 
 @Injectable()
 export class EnvConfigService {
