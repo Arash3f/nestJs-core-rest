@@ -1,7 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
+import { Role } from "@prisma/client"
 import { plainToInstance } from "class-transformer"
 import { validateSync } from "class-validator"
+import { CreateUserInput } from "src/modules/auth/dto/create-user.input"
 import { EnvConfigModel } from "src/modules/config/model/env-config.model"
 import type { ConfigDatabaseType, NodeEnvType } from "src/modules/config/types/config.type"
 
@@ -94,6 +96,19 @@ export class EnvConfigService {
 		}
 		return dbConfig
 	}
+
+    /**
+     * * Get all default user config form env file and return it as object
+     */
+    get defaultUser(): CreateUserInput {
+        const defaultUserData: CreateUserInput = {
+            name: this.configService.get("SUPER_USER_NAME"),
+            username: this.configService.get("SUPER_USER_USERNAME"),
+			password: this.configService.get("SUPER_USER_PASSWORD"),
+			role: Role.Admin,
+        }
+        return defaultUserData
+    }
 
 	/**
 	 * This validation use in the setup project and check all envirements with {@link EnvConfigModel}, use in app.module.ts
