@@ -7,13 +7,13 @@ import { EnvConfigService } from "src/modules/config/env-config.service"
 import { PrismaService } from "src/modules/prisma/prisma.service"
 
 /**
- * This guard performs several activities
+ * * This guard performs several activities
  *
  * 1) Check token (It does not throw error for invalid token)
  * 2) Set requester Object in header (If exist)
  * 3) Push data in requester header (In _tokenGuard)
  *
- * !Note: This guard is used globaly in all requests
+ * ! Note: This guard is used globaly in all requests
  */
 @Injectable()
 export class TokenGuard implements CanActivate {
@@ -29,7 +29,7 @@ export class TokenGuard implements CanActivate {
 		const authorization = request.headers.authorization || ""
 
 		/**
-		 * Get User's Token
+		 * ? Get User's Token
 		 */
 		const token = authorization.replace("bearer ", "").replace("jwt ", "")
 
@@ -47,7 +47,7 @@ export class TokenGuard implements CanActivate {
 				})
 
 				/**
-				 * Set user's object in requester's header
+				 * * Set user's object in requester's header
 				 */
 				if (foundUser && foundUser.active) {
 					tokenData.user = {
@@ -62,13 +62,13 @@ export class TokenGuard implements CanActivate {
 				}
 
 				/**
-				 * ! Save data in requester's header
+				 * * Save data in requester's header
 				 */
 				request.headers._tokenGuard = tokenData as any
 			}
 		} catch (tokenError) {
 			/**
-			 * ! If requester does not have a token or it is empty
+			 * ? If requester does not have a token or it is empty
 			 */
 			const tokenData: TokenGuardData = { tokenError }
 			request.headers._tokenGuard = tokenData as any

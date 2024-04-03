@@ -6,11 +6,11 @@ import { AuthErrors } from "src/modules/auth/constants/errors"
 import { ErrorService } from "src/modules/error/error.service"
 
 /**
- * This guard verifies requester's token to have valid token
+ * * This guard verifies requester's token to have valid token
  *
- * !Note : In our's structure to generate token, we save user object in requester's header see {@link "common/guard/token.guard".TokenGuard}
+ * ! Note : In our's structure to generate token, we save user object in requester's header see {@link TokenGuard}
  *
- * So we check user object for verify token
+ * ? So we check user object for verify token
  */
 export class IsLoggedIn implements CanActivate {
 	constructor(@Inject(ErrorService) private error: ErrorService) { }
@@ -21,12 +21,8 @@ export class IsLoggedIn implements CanActivate {
 		const request = context.switchToHttp().getRequest<FastifyRequest>()
 		const tokenData = request.headers._tokenGuard as TokenGuardData
 
-		// console.log(request)
-		console.log(tokenData?.user)
-		
-
 		/**
-		 * Verify requester user
+		 * ? Verify requester user
 		 */
 		if (tokenData?.user) result = true
 		else {
