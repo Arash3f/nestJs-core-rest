@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger"
 import { IsNumber, Max, Min } from "class-validator"
 
 /**
- * Data transfer object for Pagination Input
+ * * Data transfer object for Pagination Input
  */
 export class PaginationData {
   @ApiPropertyOptional({ type: Number, default: 10, minimum: 0, maximum: 200 })
