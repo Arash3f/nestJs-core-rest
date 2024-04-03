@@ -7,7 +7,7 @@ import { AuthErrors } from "src/modules/auth/constants/errors"
 import { ErrorService } from "src/modules/error/error.service"
 
 /**
- * This guard performs user's role to be Admin
+ * * This guard performs user's role to be Admin
  */
 export class IsAdmin implements CanActivate {
 	constructor(@Inject(ErrorService) private error: ErrorService) { }
