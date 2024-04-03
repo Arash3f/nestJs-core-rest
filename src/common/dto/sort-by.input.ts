@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger"
 import { IsBoolean, IsOptional, IsString } from "class-validator"
 
 /**
- * Data transfer object for Sort By Input
+ * * Data transfer object for Sort By Input
  */
 export class SortByData {
   @ApiPropertyOptional({ type: String })
