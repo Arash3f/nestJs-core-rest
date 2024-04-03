@@ -1,5 +1,5 @@
 /**
- * This Type used for get user object from enviroment
+ * * This Type used for get user object from enviroment
  */
 export type ConfigUserType = {
 	name: string
@@ -8,7 +8,7 @@ export type ConfigUserType = {
 };
 
 /**
- * This Type used for get databse config object from enviroment
+ * * This Type used for get databse config object from enviroment
  */
 export type ConfigDatabaseType = {
 	connectionUrl: string
@@ -20,7 +20,7 @@ export type ConfigDatabaseType = {
 };
 
 /**
- * This Type used for get project MODE from enviroment
+ * * This Type used for get project MODE from enviroment
  */
 export enum NodeEnvType {
 	Production = "prod",

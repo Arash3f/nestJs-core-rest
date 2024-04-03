@@ -12,70 +12,70 @@ export class EnvConfigService {
 	constructor(private configService: ConfigService) { }
 
 	/**
-	 * Get DATABASE_CONNECTION_URL variable from env file
+	 * * Get DATABASE_CONNECTION_URL variable from env file
 	 */
 	get DATABASE_CONNECTION_URL(): string {
 		return this.configService.get("DATABASE_CONNECTION_URL")
 	}
 
 	/**
-	 * Get swaggerDocsPath variable from env file
+	 * * Get swaggerDocsPath variable from env file
 	 */
 	get swaggerDocsPath(): string {
 		return this.configService.get("swaggerDocsPath")
 	}
 
 	/**
-	 * Get swaggerPath variable from env file
+	 * * Get swaggerPath variable from env file
 	 */
 	get swaggerPath(): string {
 		return this.configService.get("swaggerPath")
 	}
 
 	/**
-	 * Get serverPort variable from env file
+	 * * Get serverPort variable from env file
 	 */
 	get serverPort(): number {
 		return this.configService.get("serverPort")
 	}
 
 	/**
-	 * Get JwtSecret variable from env file
+	 * * Get JwtSecret variable from env file
 	 */
 	get jwtSecret(): string {
 		return this.configService.get("jwtSecret")
 	}
 
 	/**
-	 * Get backupDirectory variable from env file
+	 * * Get backupDirectory variable from env file
 	 */
 	get backupDirectory(): string {
 		return this.configService.get("backupDirectory")
 	}
 
 	/**
-	 * Get uploadDirectory variable from env file
+	 * * Get uploadDirectory variable from env file
 	 */
 	get uploadDirectory(): string {
 		return this.configService.get("uploadDirectory")
 	}
 
 	/**
-	 * Get jwtExpire variable from env file
+	 * * Get jwtExpire variable from env file
 	 */
 	get jwtExpire(): number {
 		return this.configService.get("jwtExpire")
 	}
 
 	/**
-	 * Get backupCronPattern variable from env file
+	 * * Get backupCronPattern variable from env file
 	 */
 	get backupCronPattern(): string {
 		return this.configService.get("backupCronPattern")
 	}
 
 	/**
-	 * Get NODE_ENV variable from env file
+	 * * Get NODE_ENV variable from env file
 	 */
 	get nodeEnv(): NodeEnvType {
 		const nodeEnv: NodeEnvType = this.configService.get("NODE_ENV")
@@ -83,7 +83,7 @@ export class EnvConfigService {
 	}
 
 	/**
-	 * Get all Database config form env file and return it as object
+	 * * Get all Database config form env file and return it as object
 	 */
 	get databaseConfig(): ConfigDatabaseType {
 		const dbConfig: ConfigDatabaseType = {
@@ -111,7 +111,7 @@ export class EnvConfigService {
     }
 
 	/**
-	 * This validation use in the setup project and check all envirements with {@link EnvConfigModel}, use in app.module.ts
+	 * * This validation use in the setup project and check all envirements with {@link EnvConfigModel}, use in app.module.ts
 	 * @param config
 	 * @returns Environment Variables
 	 */
