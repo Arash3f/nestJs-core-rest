@@ -1,5 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common"
-import { AuthService } from "src/modules/auth/auth.service"
 import type { ErrorInfo } from "src/modules/error/constants/type"
 import { ErrorService } from "src/modules/error/error.service"
 
@@ -8,10 +7,10 @@ export class InitService {
 	constructor(
 		private error: ErrorService) { }
 
-	private readonly logger = new Logger(AuthService.name)
+	private readonly logger = new Logger(InitService.name)
 
 	/**
-	 * Generate all project errors
+	 * * Generate all project errors
 	 * @param projectErrors Collection of errors
 	 * @returns The result of the operation
 	 */
