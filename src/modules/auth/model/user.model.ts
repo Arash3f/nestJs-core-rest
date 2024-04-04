@@ -3,7 +3,7 @@ import { Role } from "@prisma/client"
 import { IsBoolean, IsDate, IsString, IsUUID } from "class-validator"
 
 /**
- * User Model Class
+ * * User Model Class
  */
 export class UserModel {
   @ApiResponseProperty({ type: String })

@@ -3,7 +3,7 @@ import { Role } from "@prisma/client"
 import { IsEnum, IsString } from "class-validator"
 
 /**
- * Data transfers object to Create User Input
+ * * Data transfers object to Create User Input
  */
 export class CreateUserInput {
   @ApiProperty({ type: String })
@@ -15,7 +15,7 @@ export class CreateUserInput {
   username: string
 
   /**
-   * No length limit
+   * * No length limit
    */
   @ApiProperty({ type: String })
   @IsString()
