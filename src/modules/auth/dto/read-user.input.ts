@@ -6,7 +6,7 @@ import { PaginationData } from "src/common/dto/pagination.input"
 import { SortByData } from "src/common/dto/sort-by.input"
 
 /**
- * Data transfers object to Read User Input
+ * * Data transfers object to Read User Input
  */
 export class ReadUserWhereData {
   @ApiPropertyOptional({ type: String })

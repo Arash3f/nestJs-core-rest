@@ -5,7 +5,7 @@ import { IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from "class-v
 import { IdInput } from "src/common/dto/id.input"
 
 /**
- * Data transfers object to Update User Input
+ * * Data transfers object to Update User Input
  */
 export class UpdateUserDataInput {
   @ApiProperty({ type: String })

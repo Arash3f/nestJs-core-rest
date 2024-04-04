@@ -4,7 +4,7 @@ import { IsString, ValidateNested } from "class-validator"
 import { IdInput } from "src/common/dto/id.input"
 
 /**
- * Data transfers object to Change Password Input
+ * * Data transfers object to Change Password Input
  */
 export class ChangePasswordDataInput {
   @ApiProperty({ type: String })

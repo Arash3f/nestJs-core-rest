@@ -4,7 +4,7 @@ import { IsArray, IsNumber, ValidateNested } from "class-validator"
 import { UserModel } from "src/modules/auth/model/user.model"
 
 /**
- * Data transfers object to Read User Output
+ * * Data transfers object to Read User Output
  */
 export class ReadUserOutput {
   @ApiResponseProperty({ type: Number })

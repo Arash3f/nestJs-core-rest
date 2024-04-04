@@ -14,7 +14,6 @@ import { ReadUserInput } from "src/modules/auth/dto/read-user.input"
 import { ReadUserOutput } from "src/modules/auth/dto/read-user.output"
 import { UpdateUserInput } from "src/modules/auth/dto/update-user.input"
 import { UserModel } from "src/modules/auth/model/user.model"
-// import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator"
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -34,10 +33,8 @@ export class AuthController {
 	@ApiResponse({ type: UserModel, status: 200 })
 	@ApiBearerAuth()
 	@UseGuards(IsLoggedIn)
-	async me(): Promise<UserModel> {
-		console.log("hi")
-		
-		return await this.authService.me("1")
+	async me(@GetUserId() requesterId: string): Promise<UserModel> {
+		return await this.authService.me(requesterId)
 	}
 
 	@Post("createUser")
