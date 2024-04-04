@@ -23,7 +23,7 @@ export type ConfigDatabaseType = {
  * * This Type used for get project MODE from enviroment
  */
 export enum NodeEnvType {
-	Production = "prod",
+	Production = "production",
 	Development = "development",
 	Test = "test",
 }
