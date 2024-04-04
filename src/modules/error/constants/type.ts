@@ -2,18 +2,19 @@ import type { HttpStatus } from "@nestjs/common"
 import type { ModuleNames } from "src/constants"
 
 /**
- * The Error Information Type
+ * * The Error Information Type
  */
 export type ErrorInfo = {
 	code: number
 	module: ModuleNames
-	translation: string
+	persianTranslation: string
 	message: string
+	developerMessage?: string
 	statusCode?: HttpStatus
 };
 
 /**
- * This type used for the object that collects all the errors
+ * * This type used for the object that collects all the errors
  */
 export type TranslationMapRecordType = Record<string, ErrorUnit>;
 export type ErrorUnit = {
@@ -21,7 +22,7 @@ export type ErrorUnit = {
 };
 
 /**
- * Used for Find Error
+ * * Used for Find Error
  */
 export type FindErrorInput = Omit<CreateErrorInput, "error">;
 export type CreateErrorInput = {
@@ -31,12 +32,13 @@ export type CreateErrorInput = {
 };
 
 /**
- * Used for creating new error
+ * * Used for creating new error
  */
 export type GenerateErrorType = Record<string, ErrorType>;
 export type ErrorType = {
 	message: string
-	translation?: string
+	developerMessage?: string
+	persianTranslation?: string
 	code?: number
 	module?: ModuleNames
 	statusCode?: number

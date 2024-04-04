@@ -19,7 +19,7 @@ async function bootstrap() {
 	const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
 	const configService = app.get(EnvConfigService)
 
-	setupGlobalValidation(app)
+	setupGlobalValidation(app, configService)
 	// setupFastifyUpload(app)
 	setupGlobalGuard(app)
 	setupSwagger(app, configService)
@@ -80,8 +80,8 @@ function setupCors(app: NestFastifyApplication) {
  * Set Global Validation
  * @param app
  */
-function setupGlobalValidation(app: NestFastifyApplication) {
-	app.useGlobalFilters(new CoreExceptionFilter())
+function setupGlobalValidation(app: NestFastifyApplication, configService: EnvConfigService) {
+	app.useGlobalFilters(new CoreExceptionFilter(configService))
 	app.useGlobalPipes(new ValidationPipe({
 		transform: true,
 		whitelist: true,

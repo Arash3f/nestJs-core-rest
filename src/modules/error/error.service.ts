@@ -6,12 +6,12 @@ import { GlobalError } from "src/modules/error/global-error"
 @Injectable()
 export class ErrorService {
 	/**
-	 * All project errors are saved in this object
+	 * ! All project errors are saved in this object
 	 */
 	private translationMap: TranslationMapRecordType = {}
 
 	/**
-	 * Generate new Translation for Error
+	 * * Generate new Translation for Error
 	 * @param errInfo Target error for generate
 	 * @returns The result of the operation
 	 */
@@ -23,7 +23,7 @@ export class ErrorService {
 	}
 
 	/**
-	 * Find error in translationMap
+	 * * Find error in translationMap
 	 * @param error Target Error
 	 * @returns Error found or null
 	 */
@@ -33,7 +33,7 @@ export class ErrorService {
 	}
 
 	/**
-	 * Throw error to Client
+	 * * Throw error to Client
 	 * @param errorData Target error data
 	 * @returns Throw Error to Client
 	 * @example
@@ -60,9 +60,10 @@ export class ErrorService {
 	 * }
 	 * ```
 	 */
-	throwErrorToClient({ errorData }: { errorData: CreateErrorInput }): GlobalError {
+	throwErrorToClient({ errorData }: { errorData: CreateErrorInput, developerMessage?: string }): GlobalError {
 		const { code, error, module } = errorData
 		const candidateError = this.findErrorTranslation({ module, code }) || this.findErrorTranslation(AuthErrors.UserIsNotAuthorized)
+		candidateError.developerMessage = candidateError.developerMessage || ""
 		
 		return new GlobalError(candidateError, error)
 	}

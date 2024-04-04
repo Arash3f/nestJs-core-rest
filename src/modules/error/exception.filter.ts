@@ -1,19 +1,18 @@
 import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common"
 import { Request, Response } from "express"
+import { EnvConfigService } from "src/modules/config/env-config.service"
 import { NodeEnvType } from "src/modules/config/types/config.type"
 import type { ErrorType } from "src/modules/error/constants/type"
+import { ErrorService } from "src/modules/error/error.service"
 import { GlobalError } from "src/modules/error/global-error"
-
-import { ErrorService } from "./error.service"
 
 @Catch()
 export class CoreExceptionFilter implements ExceptionFilter {
+
+	constructor(private config : EnvConfigService) { }
+
 	catch(exception: unknown, host: ArgumentsHost) {
 		const logger = new Logger(ErrorService.name)
-		// TODO should be resolved from config service
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-		const productMode = process.env.NODE_ENV == NodeEnvType.Production
-
 		const ctx = host.switchToHttp()
 		const context = host.switchToHttp()
 		const response = context.getResponse<Response>()
@@ -22,15 +21,21 @@ export class CoreExceptionFilter implements ExceptionFilter {
 		const errorData: ErrorType = {
 			path: request.url,
 			message: null,
+			persianTranslation: null,
+			developerMessage: null,
+			code: null,
+			statusCode: null,
+			debugError: null,
 			timestamp: new Date().toISOString(),
 		}
 
 		/**
-		 * Parsing error
+		 * ? Parsing error
 		 */
 		if (exception instanceof GlobalError) {
 			errorData.message = exception.errorContext.message
-			errorData.translation = exception.errorContext.translation
+			errorData.persianTranslation = exception.errorContext.persianTranslation
+			errorData.developerMessage = exception.errorContext.developerMessage
 			errorData.statusCode = exception.errorContext.statusCode
 			errorData.debugError = exception.error
 			errorData.code = exception.errorContext.code
@@ -52,12 +57,11 @@ export class CoreExceptionFilter implements ExceptionFilter {
 			errorData.debugError = new Error(errorData.message)
 		}
 
-		logger.error(errorData)
-
-		if (productMode) {
+		if (this.config.nodeEnv == NodeEnvType.Production) {
 			delete errorData.debugError
-			delete errorData.code
-			delete errorData.module
+			delete errorData.developerMessage
+		} else if (this.config.nodeEnv == NodeEnvType.Development) {
+			logger.error(errorData)
 		}
 		response.status(errorData.statusCode).send(errorData)
 	}
