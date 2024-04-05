@@ -6,12 +6,11 @@ import { FastifyAdapter } from "@nestjs/platform-fastify"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import type { ServerResponse } from "http"
 import { AppModule } from "src/app.module"
+import { TokenGuard } from "src/common/guards/token.guard"
 import { EnvConfigService } from "src/modules/config/env-config.service"
 import { NodeEnvType } from "src/modules/config/types/config.type"
 import { CoreExceptionFilter } from "src/modules/error/exception.filter"
-
-import { TokenGuard } from "./common/guards/token.guard"
-import { PrismaService } from "./modules/prisma/prisma.service"
+import { PrismaService } from "src/modules/prisma/prisma.service"
 
 declare const module: any
 
@@ -58,6 +57,7 @@ function setupSwagger(app: NestFastifyApplication, configService: EnvConfigServi
 		.setTitle("My Project APIs")
 		.setDescription("The Project APIs description")
 		.setVersion("1.0")
+		.addBearerAuth()
 		.build()
 
 	const document = SwaggerModule.createDocument(app, config)

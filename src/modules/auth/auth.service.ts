@@ -26,6 +26,12 @@ export class AuthService {
 		private error: ErrorService,
 	) { }
 
+    /**
+     * * Takes the user's information and after validate the information returns the user's jwt Token 
+     * @param input Necessary data for login user
+     * @returns User's jwt Token
+     * @throws {IncorrectUsernameOrPassword}
+     */
 	async logIn(data: LoginInput): Promise<LoginOutput> {
 		const { password, username } = data
 
@@ -36,6 +42,11 @@ export class AuthService {
 		return { jwt: token }
 	}
 
+    /**
+     * * return the requester informations by requester Token
+     * @param requesterId Get the userId from the Token
+     * @returns User informations
+     */
 	async me(requesterId: string): Promise<UserModel> {
 		const user: UserModel = await this.prisma.users.findUnique({
 			where: {
@@ -56,6 +67,12 @@ export class AuthService {
 		return user
 	}
 
+    /**
+     * * Takes the user's information and after validate the information create new User
+     * @param input Necessary data for create user
+     * @returns New User informations or throw error
+     * @throws {UsernameIsDuplicated}
+     */
 	async createUser(data: CreateUserInput): Promise<UserModel> {
 		const { password, username, name, role } = data
 		await this.verifyDuplicateUsernameWithException(username)
@@ -85,9 +102,12 @@ export class AuthService {
 		return user
 	}
 
+    /**
+     * * Takes the information for search and sends the found items 
+     * @param input Information for search, pagination, sort
+     * @returns Users found	
+     */
 	async readUsers(entryData: ReadUserInput): Promise<ReadUserOutput> {
-		console.log("123")
-		
 		const rawWhere = entryData.where || {}
 
 		let whereClause: Prisma.UsersWhereInput = {
@@ -120,6 +140,12 @@ export class AuthService {
 		return { count, data }
 	}
 
+    /**
+     * * Takes the necessary information for update user and sends the updated user
+     * @param input Necessary data for update user
+     * @returns Updated user Information or throw error
+     * @throws {UserNotFound, UsernameIsDuplicated}
+     */
 	async updateUser(input: UpdateUserInput): Promise<UserModel> {
 		const { data, where: { id } } = input
 
@@ -153,6 +179,12 @@ export class AuthService {
 		return updatedUser
 	}
 
+    /**
+     * * Take the information for find user and delete it
+     * @param where Information for find the user 
+     * @returns True value or throw Error
+     * @throws {UserNotFound}
+     */
 	async deleteUser(where: IdInput): Promise<SuccessOutput> {
 		const { id } = where
 		await this.verifyUserExistanceByUserId(id)
@@ -165,6 +197,12 @@ export class AuthService {
 		return { success: true }
 	}
 
+    /**
+     * * Take the information for find user and update password
+     * @param input Necessary data for update user's password
+     * @returns True value or throw Error
+     * @throws {UserNotFound}
+     */
 	async changePassword(input: ChangePasswordInput): Promise<SuccessOutput> {
 		const {
 			data: { newPassword },
@@ -191,6 +229,13 @@ export class AuthService {
 		return await hasha.async(password, { algorithm: "sha1" })
 	}
 
+    /**
+     * * Verify User with UserPassword
+     * @param userId Target userId
+     * @param password Target User password
+     * @returns User Object or throw Error
+     * @throws {IncorrectUsernameOrPassword}
+     */
 	private async verifyUserPassword(userId: string, password: string): Promise<Users> {
 		const hashedPassword = await this.generatedHashedPassword(password)
 
@@ -206,6 +251,13 @@ export class AuthService {
 		return user
 	}
 
+    /**
+     * * Verify duplicate username with exception name
+     * @param username Target username for Verify
+     * @param exceptionName The username that should not be considered in the verification operation (Optional)
+     * @returns result of operation
+     * @throws {UsernameIsDuplicated}
+     */
 	private async verifyDuplicateUsernameWithException(username: string, exceptionName?: string): Promise<boolean> {
 		const user = await this.prisma.users.findFirst({
 			where: {
@@ -221,6 +273,12 @@ export class AuthService {
 		return true
 	}
 
+	/**
+     * * Verify User Existance By UserID
+     * @param userId Target User Id for Verify Existance
+     * @returns User Object or throw Error
+     * @throws {UserNotFound}
+     */
 	private async verifyUserExistanceByUserId(userId: string): Promise<Users> {
 		const user = await this.prisma.users.findUnique({
 			where: {
@@ -233,6 +291,12 @@ export class AuthService {
 		return user
 	}
 
+    /**
+     * * Verify User Existance By Username
+     * @param username Target username for Verify
+     * @returns User Object or throw Error
+     * @throws {IncorrectUsernameOrPassword}
+     */
 	private async verifyUserExistanceByUsername(username: string): Promise<Users> {
 		const user = await this.prisma.users.findUnique({
 			where: {
@@ -245,6 +309,12 @@ export class AuthService {
 		return user
 	}
 
+    /**
+     * * Generate Token
+     * @param username user username
+     * @param userId user id
+     * @returns user token
+     */
 	private async generateToken(username: string, userId: string): Promise<string> {
 		const payload: JwtPayloadType = {
 			username: username.toLowerCase(),

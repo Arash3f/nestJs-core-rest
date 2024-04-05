@@ -31,7 +31,7 @@ export class TokenGuard implements CanActivate {
 		/**
 		 * ? Get User's Token
 		 */
-		const token = authorization.replace("bearer ", "").replace("jwt ", "")
+		const token = authorization.replace("Bearer ", "").replace("jwt ", "")
 
 		try {
 			const bodyData: JwtType = this.jwt.verify(token, {
