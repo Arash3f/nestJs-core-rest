@@ -18,6 +18,11 @@ export class IsAdmin implements CanActivate {
 
 		if (tokenData?.user) {
 			if (tokenData.user.role == Role.Admin) return true
+			else {
+				throw this.error.throwErrorToClient({
+					errorData: AuthErrors.UserIsNotAuthorized,
+				})
+			}
 		}
 		throw this.error.throwErrorToClient({ errorData: AuthErrors.AccessDenied })
 	}
