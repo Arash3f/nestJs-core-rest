@@ -4,4 +4,3 @@
 .eslintrc.js
 jest.config.js
 webpack-hmr.config.js
-webpack.config.js
