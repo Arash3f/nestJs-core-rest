@@ -50,31 +50,10 @@ export class EnvConfigService {
     }
 
     /**
-     * * Get backupDirectory variable from env file
-     */
-    get backupDirectory(): string {
-        return this.configService.get("backupDirectory")
-    }
-
-    /**
-     * * Get uploadDirectory variable from env file
-     */
-    get uploadDirectory(): string {
-        return this.configService.get("uploadDirectory")
-    }
-
-    /**
      * * Get jwtExpire variable from env file
      */
     get jwtExpire(): number {
         return this.configService.get("jwtExpire")
-    }
-
-    /**
-     * * Get backupCronPattern variable from env file
-     */
-    get backupCronPattern(): string {
-        return this.configService.get("backupCronPattern")
     }
 
     /**

@@ -25,6 +25,7 @@ async function bootstrap() {
     setupGlobalGuard(app)
     setupSwagger(app, configService)
     setupCors(app)
+    setupLogger(app, configService)
 
     await app.listen(configService.serverPort)
 

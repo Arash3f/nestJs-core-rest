@@ -12,7 +12,6 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install
 
 COPY --chown=node:node . .
 
-RUN pnpm build
+RUN pnpm build:docker
 
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+EXPOSE 3000

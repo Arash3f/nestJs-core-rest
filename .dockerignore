@@ -6,3 +6,6 @@ dist
 disdocumentationt
 .git
 .gitignore
+.husky
+scripts
+.env.sample

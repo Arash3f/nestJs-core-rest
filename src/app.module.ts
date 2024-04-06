@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
 import { ScheduleModule } from "@nestjs/schedule"
-import { ServeStaticModule } from "@nestjs/serve-static"
 import { AuthModule } from "@src/modules/auth/auth.module"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
 import { CreateUserInput } from "@src/modules/auth/dto/create-user.input"
@@ -12,7 +11,6 @@ import { ErrorModule } from "@src/modules/error/error.module"
 import { InitModule } from "@src/modules/init/init.module"
 import { InitService } from "@src/modules/init/init.service"
 import { PrismaModule } from "@src/modules/prisma/prisma.module"
-import { join } from "path"
 
 @Module({
     imports: [
@@ -26,25 +24,6 @@ import { join } from "path"
         ErrorModule,
         EnvConfigModule,
         InitModule,
-        ServeStaticModule.forRootAsync({
-            imports: [EnvConfigModule],
-            inject: [EnvConfigService],
-            useFactory: (apiConfigService: EnvConfigService) => [
-                {
-                    serveRoot: "/upload/",
-                    rootPath: join(
-                        __dirname,
-                        "..",
-                        apiConfigService.uploadDirectory,
-                    ),
-                    /**
-                     * @example
-                     * From this request --> 127.0.0.1/{serveRoot}/NestJsIcon.png
-                     * Looking for this location --> ./{uploadDirectory}/NestJsIcon.png
-                     */
-                },
-            ],
-        }),
     ],
 })
 export class AppModule {
