@@ -1,5 +1,6 @@
 Dockerfile
 .dockerignore
+documentation
 node_modules
 dist
 disdocumentationt
