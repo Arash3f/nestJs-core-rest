@@ -1,5 +1,5 @@
 import { BadRequestException } from "@nestjs/common"
-import type { ErrorInfo } from "src/modules/error/constants/type"
+import type { ErrorInfo } from "@src/modules/error/constants/type"
 
 /**
  * * Create new error exception for Override Project Errors

@@ -4,13 +4,13 @@ import { JwtService } from "@nestjs/jwt"
 import type { NestFastifyApplication } from "@nestjs/platform-fastify"
 import { FastifyAdapter } from "@nestjs/platform-fastify"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
+import { AppModule } from "@src/app.module"
+import { TokenGuard } from "@src/common/guards/token.guard"
+import { EnvConfigService } from "@src/modules/config/env-config.service"
+import { NodeEnvType } from "@src/modules/config/types/config.type"
+import { CoreExceptionFilter } from "@src/modules/error/exception.filter"
+import { PrismaService } from "@src/modules/prisma/prisma.service"
 import type { ServerResponse } from "http"
-import { AppModule } from "src/app.module"
-import { TokenGuard } from "src/common/guards/token.guard"
-import { EnvConfigService } from "src/modules/config/env-config.service"
-import { NodeEnvType } from "src/modules/config/types/config.type"
-import { CoreExceptionFilter } from "src/modules/error/exception.filter"
-import { PrismaService } from "src/modules/prisma/prisma.service"
 
 declare const module: any
 
@@ -22,7 +22,6 @@ async function bootstrap() {
     const configService = app.get(EnvConfigService)
 
     setupGlobalValidation(app, configService)
-    // setupFastifyUpload(app)
     setupGlobalGuard(app)
     setupSwagger(app, configService)
     setupCors(app)
@@ -47,10 +46,6 @@ function setupLogger(
             : [],
     )
 }
-
-// function setupFastifyUpload(app: NestFastifyApplication) {
-// 	app.register(fastyfyMultipart)
-// }
 
 /**
  * Generate Swagger Api
