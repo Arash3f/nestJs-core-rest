@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common"
-import { ErrorModule } from "src/modules/error/error.module"
-import { InitService } from "src/modules/init/init.service"
-import { PrismaModule } from "src/modules/prisma/prisma.module"
+import { ErrorModule } from "@src/modules/error/error.module"
+import { InitService } from "@src/modules/init/init.service"
+import { PrismaModule } from "@src/modules/prisma/prisma.module"
 
 @Module({
     providers: [InitService],

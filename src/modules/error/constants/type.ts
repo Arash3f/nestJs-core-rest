@@ -1,5 +1,5 @@
 import type { HttpStatus } from "@nestjs/common"
-import type { ModuleNames } from "src/constants"
+import type { ModuleNames } from "@src/constants"
 
 /**
  * * The Error Information Type

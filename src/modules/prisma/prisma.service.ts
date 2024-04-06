@@ -1,8 +1,8 @@
 import type { OnModuleDestroy, OnModuleInit } from "@nestjs/common"
 import { Injectable, Logger } from "@nestjs/common"
 import { Prisma, PrismaClient } from "@prisma/client"
-import { EnvConfigService } from "src/modules/config/env-config.service"
-import { NodeEnvType } from "src/modules/config/types/config.type"
+import { EnvConfigService } from "@src/modules/config/env-config.service"
+import { NodeEnvType } from "@src/modules/config/types/config.type"
 
 @Injectable()
 export class PrismaService

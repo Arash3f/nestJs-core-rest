@@ -1,5 +1,7 @@
 import { ApiPropertyOptional } from "@nestjs/swagger"
 import { Role } from "@prisma/client"
+import { PaginationData } from "@src/common/dto/pagination.input"
+import { SortByData } from "@src/common/dto/sort-by.input"
 import { Type } from "class-transformer"
 import {
     IsBoolean,
@@ -9,8 +11,6 @@ import {
     IsUUID,
     ValidateNested,
 } from "class-validator"
-import { PaginationData } from "src/common/dto/pagination.input"
-import { SortByData } from "src/common/dto/sort-by.input"
 
 /**
  * * Data transfers object to Read User Input

@@ -1,14 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { Role } from "@prisma/client"
-import { plainToInstance } from "class-transformer"
-import { validateSync } from "class-validator"
-import { CreateUserInput } from "src/modules/auth/dto/create-user.input"
-import { EnvConfigModel } from "src/modules/config/model/env-config.model"
+import { CreateUserInput } from "@src/modules/auth/dto/create-user.input"
+import { EnvConfigModel } from "@src/modules/config/model/env-config.model"
 import type {
     ConfigDatabaseType,
     NodeEnvType,
-} from "src/modules/config/types/config.type"
+} from "@src/modules/config/types/config.type"
+import { plainToInstance } from "class-transformer"
+import { validateSync } from "class-validator"
 
 @Injectable()
 export class EnvConfigService {

@@ -1,5 +1,5 @@
+import { NodeEnvType } from "@src/modules/config/types/config.type"
 import { IsEnum, IsNumber, IsString } from "class-validator"
-import { NodeEnvType } from "src/modules/config/types/config.type"
 
 /**
  * * Environment Class Model

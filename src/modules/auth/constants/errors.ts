@@ -1,5 +1,5 @@
 import { HttpStatus } from "@nestjs/common"
-import { ModuleNames } from "src/constants"
+import { ModuleNames } from "@src/constants"
 
 /**
  * * Definition of auth module errors | All module's errors Collected in {@link GenerateProjectErrors}

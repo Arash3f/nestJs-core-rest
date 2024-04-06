@@ -1,12 +1,12 @@
 import { HttpStatus, Injectable } from "@nestjs/common"
-import { AuthErrors } from "src/modules/auth/constants/errors"
+import { AuthErrors } from "@src/modules/auth/constants/errors"
 import type {
     CreateErrorInput,
     ErrorInfo,
     FindErrorInput,
     TranslationMapRecordType,
-} from "src/modules/error/constants/type"
-import { GlobalError } from "src/modules/error/global-error"
+} from "@src/modules/error/constants/type"
+import { GlobalError } from "@src/modules/error/global-error"
 
 @Injectable()
 export class ErrorService {

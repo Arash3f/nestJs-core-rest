@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { Role } from "@prisma/client"
+import { IdInput } from "@src/common/dto/id.input"
 import { Type } from "class-transformer"
 import {
     IsBoolean,
@@ -8,7 +9,6 @@ import {
     IsString,
     ValidateNested,
 } from "class-validator"
-import { IdInput } from "src/common/dto/id.input"
 
 /**
  * * Data transfers object to Update User Input

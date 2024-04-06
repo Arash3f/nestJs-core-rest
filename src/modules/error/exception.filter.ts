@@ -7,12 +7,12 @@ import {
     HttpStatus,
     Logger,
 } from "@nestjs/common"
+import { EnvConfigService } from "@src/modules/config/env-config.service"
+import { NodeEnvType } from "@src/modules/config/types/config.type"
+import type { ErrorType } from "@src/modules/error/constants/type"
+import { ErrorService } from "@src/modules/error/error.service"
+import { GlobalError } from "@src/modules/error/global-error"
 import { Request, Response } from "express"
-import { EnvConfigService } from "src/modules/config/env-config.service"
-import { NodeEnvType } from "src/modules/config/types/config.type"
-import type { ErrorType } from "src/modules/error/constants/type"
-import { ErrorService } from "src/modules/error/error.service"
-import { GlobalError } from "src/modules/error/global-error"
 
 @Catch()
 export class CoreExceptionFilter implements ExceptionFilter {
