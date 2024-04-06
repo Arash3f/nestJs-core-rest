@@ -38,15 +38,6 @@ export class EnvConfigModel {
     @IsString()
     databaseHost: string
 
-    @IsString()
-    uploadDirectory: string
-
-    @IsString()
-    backupCronPattern: string
-
-    @IsString()
-    backupDirectory: string
-
     @IsEnum(NodeEnvType)
     NODE_ENV: NodeEnvType
 

@@ -1,6 +1,5 @@
 import { Logger } from "@nestjs/common"
 import { exec } from "child_process"
-import { serverApiDocs } from "src/constants"
 import { promisify } from "util"
 
 const execAsync = promisify(exec)
@@ -10,8 +9,9 @@ const execAsync = promisify(exec)
  * @see https://github.com/acacode/swagger-typescript-api
  */
 async function generateSwagger() {
-    const schemaPath = serverApiDocs
-    const outputPath = "./swagger"
+    const serverAddress = `${process.env.serverAddress}:${process.env.serverPort}`
+    const schemaPath = `${serverAddress}/${process.env.swaggerDocsPath}`
+    const outputPath = "src/utils/swagger"
     const command = `npx swagger-typescript-api -p ${schemaPath} -o ${outputPath} --axios`
     const { stderr, stdout } = await execAsync(command)
     Logger.verbose(stdout)
