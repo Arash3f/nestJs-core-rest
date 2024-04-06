@@ -14,8 +14,7 @@
 .env.test
 .env.dev
 .env.prod
-# docker.env
-docker2.env
+docker.env
 /files
 /temp
 shell.ts
