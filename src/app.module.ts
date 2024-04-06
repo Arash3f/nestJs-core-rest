@@ -18,62 +18,66 @@ import { InitService } from "src/modules/init/init.service"
 import { PrismaModule } from "src/modules/prisma/prisma.module"
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({
-			validate: (config) => EnvConfigService.environmentValidation(config),
-		}),
-		ScheduleModule.forRoot(),
-		PrismaModule,
-		AuthModule,
-		ErrorModule,
-		// MulterModule,
-		EnvConfigModule,
-		InitModule,
-		BackupModule,
-		ServeStaticModule.forRootAsync({
-			imports: [EnvConfigModule],
-			inject: [EnvConfigService],
-			useFactory: (apiConfigService: EnvConfigService) => [
-				{
-					serveRoot: "/upload/",
-					rootPath: join(__dirname, "..", apiConfigService.uploadDirectory),
-					/**
-					 * @example
-					 * From this request --> 127.0.0.1/{serveRoot}/NestJsIcon.png
-					 * Looking for this location --> ./{uploadDirectory}/NestJsIcon.png
-					 */
-				},
-			],
-		}),
-	],
+    imports: [
+        ConfigModule.forRoot({
+            validate: (config) =>
+                EnvConfigService.environmentValidation(config),
+        }),
+        ScheduleModule.forRoot(),
+        PrismaModule,
+        AuthModule,
+        ErrorModule,
+        // MulterModule,
+        EnvConfigModule,
+        InitModule,
+        BackupModule,
+        ServeStaticModule.forRootAsync({
+            imports: [EnvConfigModule],
+            inject: [EnvConfigService],
+            useFactory: (apiConfigService: EnvConfigService) => [
+                {
+                    serveRoot: "/upload/",
+                    rootPath: join(
+                        __dirname,
+                        "..",
+                        apiConfigService.uploadDirectory,
+                    ),
+                    /**
+                     * @example
+                     * From this request --> 127.0.0.1/{serveRoot}/NestJsIcon.png
+                     * Looking for this location --> ./{uploadDirectory}/NestJsIcon.png
+                     */
+                },
+            ],
+        }),
+    ],
 })
 export class AppModule {
-	constructor(
-		private init: InitService,
-		private apiConfigService: EnvConfigService,
-	) {
-		this.generateProjectErrors(),
-		this.projectSuperUser()
-	}
+    constructor(
+        private init: InitService,
+        private apiConfigService: EnvConfigService,
+    ) {
+        this.generateProjectErrors(), this.projectSuperUser()
+    }
 
-	generateProjectErrors() {
-		const projectErrors: ErrorInfo[] = [
-			...Object.values(AuthErrors),
-			...Object.values(BackUpErrors),
-		]
-		this.init.generateProjectErrors(projectErrors)
-	}
+    generateProjectErrors() {
+        const projectErrors: ErrorInfo[] = [
+            ...Object.values(AuthErrors),
+            ...Object.values(BackUpErrors),
+        ]
+        this.init.generateProjectErrors(projectErrors)
+    }
 
-	/**
-	 * * Generate Super User With Admin Role
-	 */
-	async projectSuperUser() {
-		  const superUserData: CreateUserInput = {
-			  username: this.apiConfigService.defaultUser.username,
-			  name: this.apiConfigService.defaultUser.name,
-			  password: this.apiConfigService.defaultUser.password,
-			  role: this.apiConfigService.defaultUser.role,
-		  }
-		await this.init.generateSuperUserWithAdminRole( superUserData)
-	  }
+    /**
+     * * Generate Super User With Admin Role
+     */
+    async projectSuperUser() {
+        const superUserData: CreateUserInput = {
+            username: this.apiConfigService.defaultUser.username,
+            name: this.apiConfigService.defaultUser.name,
+            password: this.apiConfigService.defaultUser.password,
+            role: this.apiConfigService.defaultUser.role,
+        }
+        await this.init.generateSuperUserWithAdminRole(superUserData)
+    }
 }

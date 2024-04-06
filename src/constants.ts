@@ -2,13 +2,13 @@
  * This enum keeps all module names
  */
 export enum ModuleNames {
-	AuthModule = "AuthModule",
-	ErrorModule = "ErrorModule",
-	ConfigModule = "ConfigModule",
-	InitModule = "InitModule",
-	PrismaModule = "PrismaModule",
-	MulterModule = "MulterModule",
-	BackupModule = "BackupModule"
+    AuthModule = "AuthModule",
+    ErrorModule = "ErrorModule",
+    ConfigModule = "ConfigModule",
+    InitModule = "InitModule",
+    PrismaModule = "PrismaModule",
+    MulterModule = "MulterModule",
+    BackupModule = "BackupModule",
 }
 
 /**

@@ -7,8 +7,8 @@ import type { SortByData } from "src/common/dto/sort-by.input"
  * layer with this type
  */
 export type ApiCreateType<T extends Record<string, any>> = {
-	data: T
-};
+    data: T
+}
 
 /**
  * The final type for the input of read API, When sending a request
@@ -16,25 +16,28 @@ export type ApiCreateType<T extends Record<string, any>> = {
  * layer with this type
  */
 export type ApiReadType<T extends Record<string, any>> = {
-	pagination?: PaginationData
-	sortBy?: SortByData
-	where: T
-};
+    pagination?: PaginationData
+    sortBy?: SortByData
+    where: T
+}
 
 /**
  * The final type for the input of update API, When sending a request
  * after the resolver layer the information is sent to the service
  * layer with this type
  */
-export type ApiUpdateType<T extends Record<string, any>, B extends Record<string, any>> = {
-	data: T
-	where: B
-};
+export type ApiUpdateType<
+    T extends Record<string, any>,
+    B extends Record<string, any>,
+> = {
+    data: T
+    where: B
+}
 
 /**
  * It is implemented only for the output type of the
  * {@link "common/input/sort-by.input".SortByData.convertToPrismaFilter} method
  */
 export type OrderByType = {
-	orderBy: Record<string, any>
-};
+    orderBy: Record<string, any>
+}

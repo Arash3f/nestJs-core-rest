@@ -10,20 +10,22 @@ import { ErrorService } from "src/modules/error/error.service"
  * * This guard performs user's role to be Admin
  */
 export class IsAdmin implements CanActivate {
-	constructor(@Inject(ErrorService) private error: ErrorService) { }
+    constructor(@Inject(ErrorService) private error: ErrorService) {}
 
-	canActivate(context: ExecutionContext) {
-		const request = context.switchToHttp().getRequest<FastifyRequest>()
-		const tokenData = request.headers._tokenGuard as TokenGuardData
+    canActivate(context: ExecutionContext) {
+        const request = context.switchToHttp().getRequest<FastifyRequest>()
+        const tokenData = request.headers._tokenGuard as TokenGuardData
 
-		if (tokenData?.user) {
-			if (tokenData.user.role == Role.Admin) return true
-			else {
-				throw this.error.throwErrorToClient({
-					errorData: AuthErrors.UserIsNotAuthorized,
-				})
-			}
-		}
-		throw this.error.throwErrorToClient({ errorData: AuthErrors.AccessDenied })
-	}
+        if (tokenData?.user) {
+            if (tokenData.user.role == Role.Admin) return true
+            else {
+                throw this.error.throwErrorToClient({
+                    errorData: AuthErrors.UserIsNotAuthorized,
+                })
+            }
+        }
+        throw this.error.throwErrorToClient({
+            errorData: AuthErrors.AccessDenied,
+        })
+    }
 }

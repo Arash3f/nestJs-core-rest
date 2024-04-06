@@ -4,12 +4,7 @@ import { EnvConfigModule } from "src/modules/config/env-config.module"
 import { ErrorModule } from "src/modules/error/error.module"
 
 @Module({
-	imports: [
-		EnvConfigModule,
-		ErrorModule,
-	],
-	providers: [
-		BackupService,
-	],
+    imports: [EnvConfigModule, ErrorModule],
+    providers: [BackupService],
 })
-export class BackupModule { }
+export class BackupModule {}

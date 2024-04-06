@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5435:5432
+    env_file:
+    - docker.env
+    volumes:
+      - /data/postgres:/data/postgres
+    networks:
+      - nest-rest-core-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-rest-core-app
+    command: bash -c "pnpnpm run start:dev"
+    ports:
+      - '8001:8001'
+    depends_on:
+      - postgres
+    env_file:
+      - '.env.dev'
+    networks:
+      - nest-rest-core-network
+
+networks:
+  nest-rest-core-network:
+    driver: bridge  

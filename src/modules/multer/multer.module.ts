@@ -4,10 +4,8 @@ import { EnvConfigModule } from "src/modules/config/env-config.module"
 import { FileUploaderInterceptor } from "./interceptors/file-uploader.interceptor"
 
 @Module({
-	imports: [
-		EnvConfigModule,
-	],
-	providers: [FileUploaderInterceptor],
-	exports: [FileUploaderInterceptor],
+    imports: [EnvConfigModule],
+    providers: [FileUploaderInterceptor],
+    exports: [FileUploaderInterceptor],
 })
-export class MulterModule { }
+export class MulterModule {}

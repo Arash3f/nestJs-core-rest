@@ -15,32 +15,37 @@ import { PrismaService } from "src/modules/prisma/prisma.service"
 declare const module: any
 
 async function bootstrap() {
-	const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
-	const configService = app.get(EnvConfigService)
+    const app = await NestFactory.create<NestFastifyApplication>(
+        AppModule,
+        new FastifyAdapter(),
+    )
+    const configService = app.get(EnvConfigService)
 
-	setupGlobalValidation(app, configService)
-	// setupFastifyUpload(app)
-	setupGlobalGuard(app)
-	setupSwagger(app, configService)
-	setupCors(app)
-	
-	await app.listen(configService.serverPort)
+    setupGlobalValidation(app, configService)
+    // setupFastifyUpload(app)
+    setupGlobalGuard(app)
+    setupSwagger(app, configService)
+    setupCors(app)
 
-	if (module.hot) {
-		module.hot.accept()
-		module.hot.dispose(() => app.close())
-	}
+    await app.listen(configService.serverPort)
 
-	return app
+    if (module.hot) {
+        module.hot.accept()
+        module.hot.dispose(() => app.close())
+    }
+
+    return app
 }
 
-
-function setupLogger(app: NestFastifyApplication, configService: EnvConfigService) {
-	app.useLogger(
-		configService.nodeEnv === NodeEnvType.Development
-			? ["log", "debug", "error", "verbose", "warn"]
-			: [],
-	)
+function setupLogger(
+    app: NestFastifyApplication,
+    configService: EnvConfigService,
+) {
+    app.useLogger(
+        configService.nodeEnv === NodeEnvType.Development
+            ? ["log", "debug", "error", "verbose", "warn"]
+            : [],
+    )
 }
 
 // function setupFastifyUpload(app: NestFastifyApplication) {
@@ -52,20 +57,23 @@ function setupLogger(app: NestFastifyApplication, configService: EnvConfigServic
  * @param app Nest Application object
  * @returns Swagger documentation
  */
-function setupSwagger(app: NestFastifyApplication, configService: EnvConfigService) {
-	const config = new DocumentBuilder()
-		.setTitle("My Project APIs")
-		.setDescription("The Project APIs description")
-		.setVersion("1.0")
-		.addBearerAuth()
-		.build()
+function setupSwagger(
+    app: NestFastifyApplication,
+    configService: EnvConfigService,
+) {
+    const config = new DocumentBuilder()
+        .setTitle("My Project APIs")
+        .setDescription("The Project APIs description")
+        .setVersion("1.0")
+        .addBearerAuth()
+        .build()
 
-	const document = SwaggerModule.createDocument(app, config)
-	SwaggerModule.setup(configService.swaggerPath, app, document)
-	app.use(`/${configService.swaggerDocsPath}`, (_, res: ServerResponse) =>
-		res.end(JSON.stringify(document)),
-	)
-	return document
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup(configService.swaggerPath, app, document)
+    app.use(`/${configService.swaggerDocsPath}`, (_, res: ServerResponse) =>
+        res.end(JSON.stringify(document)),
+    )
+    return document
 }
 
 /**
@@ -73,19 +81,24 @@ function setupSwagger(app: NestFastifyApplication, configService: EnvConfigServi
  * @param app Nest Application object
  */
 function setupCors(app: NestFastifyApplication) {
-	app.enableCors()
+    app.enableCors()
 }
 
 /**
  * Set Global Validation
  * @param app
  */
-function setupGlobalValidation(app: NestFastifyApplication, configService: EnvConfigService) {
-	app.useGlobalFilters(new CoreExceptionFilter(configService))
-	app.useGlobalPipes(new ValidationPipe({
-		transform: true,
-		whitelist: true,
-	}))
+function setupGlobalValidation(
+    app: NestFastifyApplication,
+    configService: EnvConfigService,
+) {
+    app.useGlobalFilters(new CoreExceptionFilter(configService))
+    app.useGlobalPipes(
+        new ValidationPipe({
+            transform: true,
+            whitelist: true,
+        }),
+    )
 }
 
 /**
@@ -93,12 +106,12 @@ function setupGlobalValidation(app: NestFastifyApplication, configService: EnvCo
  * @param app Nest Application object
  */
 function setupGlobalGuard(app: NestFastifyApplication) {
-	const prismaService = app.get(PrismaService)
-	const jwtService = app.get(JwtService)
-	const apiConfigService = app.get(EnvConfigService)
-	app.useGlobalGuards(
-		new TokenGuard(jwtService, prismaService, apiConfigService),
-	)
+    const prismaService = app.get(PrismaService)
+    const jwtService = app.get(JwtService)
+    const apiConfigService = app.get(EnvConfigService)
+    app.useGlobalGuards(
+        new TokenGuard(jwtService, prismaService, apiConfigService),
+    )
 }
 
 bootstrap()

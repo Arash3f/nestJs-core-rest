@@ -20,52 +20,52 @@ import { PrismaService } from "src/modules/prisma/prisma.service"
 
 @Injectable()
 export class AuthService {
-	constructor(
-		private prisma: PrismaService,
-		private jwt: JwtService,
-		private error: ErrorService,
-	) { }
+    constructor(
+        private prisma: PrismaService,
+        private jwt: JwtService,
+        private error: ErrorService,
+    ) {}
 
     /**
-     * * Takes the user's information and after validate the information returns the user's jwt Token 
+     * * Takes the user's information and after validate the information returns the user's jwt Token
      * @param input Necessary data for login user
      * @returns User's jwt Token
      * @throws {IncorrectUsernameOrPassword}
      */
-	async logIn(data: LoginInput): Promise<LoginOutput> {
-		const { password, username } = data
+    async logIn(data: LoginInput): Promise<LoginOutput> {
+        const { password, username } = data
 
-		const user = await this.verifyUserExistanceByUsername(username)
-		await this.verifyUserPassword(user.id, password)
-		const token = await this.generateToken(user.username, user.id)
+        const user = await this.verifyUserExistanceByUsername(username)
+        await this.verifyUserPassword(user.id, password)
+        const token = await this.generateToken(user.username, user.id)
 
-		return { jwt: token }
-	}
+        return { jwt: token }
+    }
 
     /**
      * * return the requester informations by requester Token
      * @param requesterId Get the userId from the Token
      * @returns User informations
      */
-	async me(requesterId: string): Promise<UserModel> {
-		const user: UserModel = await this.prisma.users.findUnique({
-			where: {
-				id: requesterId,
-			},
-			select: {
-				id: true,
-				username: true,
-				active: true,
-				name: true,
-				role: true,
-				createdDate: true,
-				updatedDate: true,
-				password: false,
-			},
-		})
+    async me(requesterId: string): Promise<UserModel> {
+        const user: UserModel = await this.prisma.users.findUnique({
+            where: {
+                id: requesterId,
+            },
+            select: {
+                id: true,
+                username: true,
+                active: true,
+                name: true,
+                role: true,
+                createdDate: true,
+                updatedDate: true,
+                password: false,
+            },
+        })
 
-		return user
-	}
+        return user
+    }
 
     /**
      * * Takes the user's information and after validate the information create new User
@@ -73,72 +73,75 @@ export class AuthService {
      * @returns New User informations or throw error
      * @throws {UsernameIsDuplicated}
      */
-	async createUser(data: CreateUserInput): Promise<UserModel> {
-		const { password, username, name, role } = data
-		await this.verifyDuplicateUsernameWithException(username)
-		const hashedPassword = await this.generatedHashedPassword(password)
+    async createUser(data: CreateUserInput): Promise<UserModel> {
+        const { password, username, name, role } = data
+        await this.verifyDuplicateUsernameWithException(username)
+        const hashedPassword = await this.generatedHashedPassword(password)
 
-		const createUserInput: Prisma.UsersCreateInput = {
-			name,
-			password: hashedPassword,
-			username: username.toLowerCase(),
-			role,
-		}
+        const createUserInput: Prisma.UsersCreateInput = {
+            name,
+            password: hashedPassword,
+            username: username.toLowerCase(),
+            role,
+        }
 
-		const user = await this.prisma.users.create({
-			data: createUserInput,
-			select: {
-				id: true,
-				username: true,
-				active: true,
-				name: true,
-				role: true,
-				createdDate: true,
-				updatedDate: true,
-				password: false,
-			},
-		})
+        const user = await this.prisma.users.create({
+            data: createUserInput,
+            select: {
+                id: true,
+                username: true,
+                active: true,
+                name: true,
+                role: true,
+                createdDate: true,
+                updatedDate: true,
+                password: false,
+            },
+        })
 
-		return user
-	}
+        return user
+    }
 
     /**
-     * * Takes the information for search and sends the found items 
+     * * Takes the information for search and sends the found items
      * @param input Information for search, pagination, sort
-     * @returns Users found	
+     * @returns Users found
      */
-	async readUsers(entryData: ReadUserInput): Promise<ReadUserOutput> {
-		const rawWhere = entryData.where || {}
+    async readUsers(entryData: ReadUserInput): Promise<ReadUserOutput> {
+        const rawWhere = entryData.where || {}
 
-		let whereClause: Prisma.UsersWhereInput = {
-			id: rawWhere.id,
-			active: rawWhere.active,
-			username: { mode: "insensitive", contains: rawWhere.username },
-			name: { mode: "insensitive", contains: rawWhere.name },
-			role: rawWhere.role,
-		}
+        let whereClause: Prisma.UsersWhereInput = {
+            id: rawWhere.id,
+            active: rawWhere.active,
+            username: {
+                mode: "insensitive",
+                contains: rawWhere.username,
+            },
+            name: { mode: "insensitive", contains: rawWhere.name },
+            role: rawWhere.role,
+        }
 
-		whereClause = cleanDeep(whereClause)
+        whereClause = cleanDeep(whereClause)
 
-		const count = await this.prisma.users.count({ where: whereClause })
-		const data = await this.prisma.users.findMany({
-			where: whereClause,
-			...entryData?.sortBy?.convertToPrismaFilter(),
-			...entryData?.pagination?.convertToPrismaFilter(),
-			select: {
-				id: true,
-				username: true,
-				active: true,
-				name: true,
-				role: true,
-				createdDate: true,
-				updatedDate: true,
-				password: false,
-			},
-		})
+        const count = await this.prisma.users.count({ where: whereClause })
+        const data = await this.prisma.users.findMany({
+            where: whereClause,
+            ...entryData?.sortBy?.convertToPrismaFilter(),
+            ...entryData?.pagination?.convertToPrismaFilter(),
+            select: {
+                id: true,
+                username: true,
+                active: true,
+                name: true,
+                role: true,
+                createdDate: true,
+                updatedDate: true,
+                password: false,
+            },
+        })
 
-		return { count, data }
-	}
+        return { count, data }
+    }
 
     /**
      * * Takes the necessary information for update user and sends the updated user
@@ -146,56 +149,59 @@ export class AuthService {
      * @returns Updated user Information or throw error
      * @throws {UserNotFound, UsernameIsDuplicated}
      */
-	async updateUser(input: UpdateUserInput): Promise<UserModel> {
-		const { data, where: { id } } = input
+    async updateUser(input: UpdateUserInput): Promise<UserModel> {
+        const {
+            data,
+            where: { id },
+        } = input
 
-		const user = await this.verifyUserExistanceByUserId(id)
-		await this.verifyDuplicateUsernameWithException(
-			data.username,
-			user.username,
-		)
+        const user = await this.verifyUserExistanceByUserId(id)
+        await this.verifyDuplicateUsernameWithException(
+            data.username,
+            user.username,
+        )
 
-		const updatedUser = await this.prisma.users.update({
-			where: {
-				id,
-			},
-			data: {
-				name: data.name,
-				username: data.username.toLowerCase(),
-				active: data.active,
-			},
-			select: {
-				id: true,
-				username: true,
-				active: true,
-				name: true,
-				role: true,
-				createdDate: true,
-				updatedDate: true,
-				password: false,
-			},
-		})
+        const updatedUser = await this.prisma.users.update({
+            where: {
+                id,
+            },
+            data: {
+                name: data.name,
+                username: data.username.toLowerCase(),
+                active: data.active,
+            },
+            select: {
+                id: true,
+                username: true,
+                active: true,
+                name: true,
+                role: true,
+                createdDate: true,
+                updatedDate: true,
+                password: false,
+            },
+        })
 
-		return updatedUser
-	}
+        return updatedUser
+    }
 
     /**
      * * Take the information for find user and delete it
-     * @param where Information for find the user 
+     * @param where Information for find the user
      * @returns True value or throw Error
      * @throws {UserNotFound}
      */
-	async deleteUser(where: IdInput): Promise<SuccessOutput> {
-		const { id } = where
-		await this.verifyUserExistanceByUserId(id)
+    async deleteUser(where: IdInput): Promise<SuccessOutput> {
+        const { id } = where
+        await this.verifyUserExistanceByUserId(id)
 
-		await this.prisma.users.update({
-			where: { id },
-			data: { active: false },
-		})
+        await this.prisma.users.update({
+            where: { id },
+            data: { active: false },
+        })
 
-		return { success: true }
-	}
+        return { success: true }
+    }
 
     /**
      * * Take the information for find user and update password
@@ -203,31 +209,31 @@ export class AuthService {
      * @returns True value or throw Error
      * @throws {UserNotFound}
      */
-	async changePassword(input: ChangePasswordInput): Promise<SuccessOutput> {
-		const {
-			data: { newPassword },
-			where: { id },
-		} = input
+    async changePassword(input: ChangePasswordInput): Promise<SuccessOutput> {
+        const {
+            data: { newPassword },
+            where: { id },
+        } = input
 
-		await this.verifyUserExistanceByUserId(id)
-		const hashedPassword =  await this.generatedHashedPassword(newPassword)
+        await this.verifyUserExistanceByUserId(id)
+        const hashedPassword = await this.generatedHashedPassword(newPassword)
 
-		await this.prisma.users.update({
-			where: { id },
-			data: { password: hashedPassword },
-		})
+        await this.prisma.users.update({
+            where: { id },
+            data: { password: hashedPassword },
+        })
 
-		return { success: true }
-	}
+        return { success: true }
+    }
 
-	/**
-	 * * Hash Password
-	 * @param password The user's password to be Hashed
-	 * @returns Hashed password
-	 */
-	private async generatedHashedPassword(password: string): Promise<string> {
-		return await hasha.async(password, { algorithm: "sha1" })
-	}
+    /**
+     * * Hash Password
+     * @param password The user's password to be Hashed
+     * @returns Hashed password
+     */
+    private async generatedHashedPassword(password: string): Promise<string> {
+        return await hasha.async(password, { algorithm: "sha1" })
+    }
 
     /**
      * * Verify User with UserPassword
@@ -236,20 +242,26 @@ export class AuthService {
      * @returns User Object or throw Error
      * @throws {IncorrectUsernameOrPassword}
      */
-	private async verifyUserPassword(userId: string, password: string): Promise<Users> {
-		const hashedPassword = await this.generatedHashedPassword(password)
+    private async verifyUserPassword(
+        userId: string,
+        password: string,
+    ): Promise<Users> {
+        const hashedPassword = await this.generatedHashedPassword(password)
 
-		const user = await this.prisma.users.findFirst({
-			where: {
-				id: userId,
-				password: hashedPassword,
-			},
-		})
+        const user = await this.prisma.users.findFirst({
+            where: {
+                id: userId,
+                password: hashedPassword,
+            },
+        })
 
-		if (!user) throw this.error.throwErrorToClient({ errorData: AuthErrors.IncorrectUsernameOrPassword })
+        if (!user)
+            throw this.error.throwErrorToClient({
+                errorData: AuthErrors.IncorrectUsernameOrPassword,
+            })
 
-		return user
-	}
+        return user
+    }
 
     /**
      * * Verify duplicate username with exception name
@@ -258,38 +270,47 @@ export class AuthService {
      * @returns result of operation
      * @throws {UsernameIsDuplicated}
      */
-	private async verifyDuplicateUsernameWithException(username: string, exceptionName?: string): Promise<boolean> {
-		const user = await this.prisma.users.findFirst({
-			where: {
-				username: username.toLowerCase(),
-				NOT: {
-					username: exceptionName,
-				},
-			},
-		})
+    private async verifyDuplicateUsernameWithException(
+        username: string,
+        exceptionName?: string,
+    ): Promise<boolean> {
+        const user = await this.prisma.users.findFirst({
+            where: {
+                username: username.toLowerCase(),
+                NOT: {
+                    username: exceptionName,
+                },
+            },
+        })
 
-		if (user) throw this.error.throwErrorToClient({ errorData: AuthErrors.UsernameIsDuplicated })
+        if (user)
+            throw this.error.throwErrorToClient({
+                errorData: AuthErrors.UsernameIsDuplicated,
+            })
 
-		return true
-	}
+        return true
+    }
 
-	/**
+    /**
      * * Verify User Existance By UserID
      * @param userId Target User Id for Verify Existance
      * @returns User Object or throw Error
      * @throws {UserNotFound}
      */
-	private async verifyUserExistanceByUserId(userId: string): Promise<Users> {
-		const user = await this.prisma.users.findUnique({
-			where: {
-				id: userId,
-			},
-		})
+    private async verifyUserExistanceByUserId(userId: string): Promise<Users> {
+        const user = await this.prisma.users.findUnique({
+            where: {
+                id: userId,
+            },
+        })
 
-		if (!user) throw this.error.throwErrorToClient({ errorData: AuthErrors.UserNotFound })
+        if (!user)
+            throw this.error.throwErrorToClient({
+                errorData: AuthErrors.UserNotFound,
+            })
 
-		return user
-	}
+        return user
+    }
 
     /**
      * * Verify User Existance By Username
@@ -297,17 +318,22 @@ export class AuthService {
      * @returns User Object or throw Error
      * @throws {IncorrectUsernameOrPassword}
      */
-	private async verifyUserExistanceByUsername(username: string): Promise<Users> {
-		const user = await this.prisma.users.findUnique({
-			where: {
-				username: username.toLowerCase(),
-			},
-		})
+    private async verifyUserExistanceByUsername(
+        username: string,
+    ): Promise<Users> {
+        const user = await this.prisma.users.findUnique({
+            where: {
+                username: username.toLowerCase(),
+            },
+        })
 
-		if (!user) throw this.error.throwErrorToClient({ errorData: AuthErrors.IncorrectUsernameOrPassword })
+        if (!user)
+            throw this.error.throwErrorToClient({
+                errorData: AuthErrors.IncorrectUsernameOrPassword,
+            })
 
-		return user
-	}
+        return user
+    }
 
     /**
      * * Generate Token
@@ -315,11 +341,14 @@ export class AuthService {
      * @param userId user id
      * @returns user token
      */
-	private async generateToken(username: string, userId: string): Promise<string> {
-		const payload: JwtPayloadType = {
-			username: username.toLowerCase(),
-			id: userId,
-		}
-		return await this.jwt.signAsync(payload)
-	}
+    private async generateToken(
+        username: string,
+        userId: string,
+    ): Promise<string> {
+        const payload: JwtPayloadType = {
+            username: username.toLowerCase(),
+            id: userId,
+        }
+        return await this.jwt.signAsync(payload)
+    }
 }

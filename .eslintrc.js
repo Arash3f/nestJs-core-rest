@@ -1,17 +1,8 @@
 const { resolve } = require("path")
 module.exports = {
-  // https://eslint.org/docs/user-guide/configuring#configuration-cascading-and-hierarchy
-  // This option interrupts the configuration hierarchy at this file
-  // Remove this if you have an higher level ESLint config file (it usually happens into a monorepos)
   root: true,
 
-  // https://eslint.vuejs.org/user-guide/#how-to-use-custom-parser
-  // Must use parserOptions instead of "parser" to allow vue-eslint-parser to keep working
-  // `parser: 'vue-eslint-parser'` is already included with any 'plugin:vue/**' config and should be omitted
   parserOptions: {
-    // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser#configuration
-    // https://github.com/TypeStrong/fork-ts-checker-webpack-plugin#eslint
-    // Needed to make the parser take into account 'vue' files
     parser: "@typescript-eslint/parser",
     project: resolve(__dirname, "./tsconfig.json"),
     tsconfigRootDir: __dirname,
@@ -23,35 +14,27 @@ module.exports = {
     browser: true,
   },
 
-  // Rules order is important, please avoid shuffling them
   extends: [
-    // Base ESLint recommended rules
-    // 'eslint:recommended',
-    // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
-    // ESLint typescript rules
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    // consider disabling this class of rules if linting takes too long
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier",
   ],
 
   plugins: [
-    // required to apply rules which need type information
+    "prettier",
     "@typescript-eslint",
     "simple-import-sort",
+    '@stylistic/js',
   ],
 
   globals: {
     process: true,
   },
 
-  // add your custom rules here
   rules: {
     "no-param-reassign": "off",
-    // TypeScript
     quotes: [1, "double"],
-    "semi": ["error", "never"],
-    "comma-dangle": [2, "always-multiline"],
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-return": "off",
@@ -73,7 +56,16 @@ module.exports = {
       }
     ],
     "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error"
+    "prettier/prettier":[  //or whatever plugin that is causing the clash
+      "error",
+      {
+        "parser": "typescript",
+        "tabWidth": 4,
+        "semi": false,
+        "trailingComma": "all",
+        "bracketSameLine": true
+      },
+    ]
   },
 }
 

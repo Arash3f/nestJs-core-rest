@@ -18,11 +18,11 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
     "tsBuildInfoFile": "./dist/build-info.json",
     "paths": {
-      "src/*": [
+      "@src/*": [
         "./src/*"
       ]
     }
