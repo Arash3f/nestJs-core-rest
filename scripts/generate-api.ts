@@ -10,14 +10,14 @@ const execAsync = promisify(exec)
  * @see https://github.com/acacode/swagger-typescript-api
  */
 async function generateSwagger() {
-  const schemaPath = serverApiDocs
-  const outputPath = "./swagger"
-  const command = `npx swagger-typescript-api -p ${schemaPath} -o ${outputPath} --axios`
-  const { stderr, stdout } = await execAsync(command)
-  Logger.verbose(stdout)
-  if (stderr) {
-    Logger.error(stderr)
-  }
+    const schemaPath = serverApiDocs
+    const outputPath = "./swagger"
+    const command = `npx swagger-typescript-api -p ${schemaPath} -o ${outputPath} --axios`
+    const { stderr, stdout } = await execAsync(command)
+    Logger.verbose(stdout)
+    if (stderr) {
+        Logger.error(stderr)
+    }
 }
 
 generateSwagger()

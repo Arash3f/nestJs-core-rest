@@ -8,34 +8,35 @@ import { PrismaService } from "src/modules/prisma/prisma.service"
 
 @Injectable()
 export class InitService {
-	constructor(
-		private error: ErrorService,
-	    private prisma: PrismaService,
-) { }
+    constructor(
+        private error: ErrorService,
+        private prisma: PrismaService,
+    ) {}
 
-	private readonly logger = new Logger(InitService.name)
+    private readonly logger = new Logger(InitService.name)
 
-	/**
-	 * * Generate all project errors
-	 * @param projectErrors Collection of errors
-	 * @returns The result of the operation
-	 */
-	generateProjectErrors(projectErrors: ErrorInfo[]): boolean {
-		for (const errInfo of projectErrors) {
-			this.error.createNewErrorTranslation(errInfo)
-		}
-		this.logger.log("All project errors were created Successfully")
+    /**
+     * * Generate all project errors
+     * @param projectErrors Collection of errors
+     * @returns The result of the operation
+     */
+    generateProjectErrors(projectErrors: ErrorInfo[]): boolean {
+        for (const errInfo of projectErrors) {
+            this.error.createNewErrorTranslation(errInfo)
+        }
+        this.logger.log("All project errors were created Successfully")
 
-		return true
-	}
+        return true
+    }
 
     /**
      * * Generate Super User With Admin Role
      * @param superUserData SuperUser Data
      * @param adminRole Admin Role
      */
-    async generateSuperUserWithAdminRole(superUserData: CreateUserInput): Promise<void> {
-
+    async generateSuperUserWithAdminRole(
+        superUserData: CreateUserInput,
+    ): Promise<void> {
         /**
          * ? Find Super User
          */
@@ -47,7 +48,9 @@ export class InitService {
          * ! Admin User not Found ---> Create Admin User
          */
         if (!adminUser?.id) {
-            superUserData.password = await hasha.async(superUserData.password, { algorithm: "sha1" })
+            superUserData.password = await hasha.async(superUserData.password, {
+                algorithm: "sha1",
+            })
 
             adminUser = await this.prisma.users.create({
                 data: superUserData,
@@ -62,8 +65,8 @@ export class InitService {
                 id: adminUser.id,
             },
             data: {
-				role: Role.Admin,
-				active: true,
+                role: Role.Admin,
+                active: true,
             },
         })
     }

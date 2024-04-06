@@ -5,44 +5,44 @@ import type { ModuleNames } from "src/constants"
  * * The Error Information Type
  */
 export type ErrorInfo = {
-	code: number
-	module: ModuleNames
-	persianTranslation: string
-	message: string
-	developerMessage?: string
-	statusCode?: HttpStatus
-};
+    code: number
+    module: ModuleNames
+    persianTranslation: string
+    message: string
+    developerMessage?: string
+    statusCode?: HttpStatus
+}
 
 /**
  * * This type used for the object that collects all the errors
  */
-export type TranslationMapRecordType = Record<string, ErrorUnit>;
+export type TranslationMapRecordType = Record<string, ErrorUnit>
 export type ErrorUnit = {
-	[key: number]: ErrorInfo
-};
+    [key: number]: ErrorInfo
+}
 
 /**
  * * Used for Find Error
  */
-export type FindErrorInput = Omit<CreateErrorInput, "error">;
+export type FindErrorInput = Omit<CreateErrorInput, "error">
 export type CreateErrorInput = {
-	module: string
-	code: number
-	error?: Error
-};
+    module: string
+    code: number
+    error?: Error
+}
 
 /**
  * * Used for creating new error
  */
-export type GenerateErrorType = Record<string, ErrorType>;
+export type GenerateErrorType = Record<string, ErrorType>
 export type ErrorType = {
-	message: string
-	developerMessage?: string
-	persianTranslation?: string
-	code?: number
-	module?: ModuleNames
-	statusCode?: number
-	timestamp: string
-	path: string
-	debugError?: Error
-};
+    message: string
+    developerMessage?: string
+    persianTranslation?: string
+    code?: number
+    module?: ModuleNames
+    statusCode?: number
+    timestamp: string
+    path: string
+    debugError?: Error
+}

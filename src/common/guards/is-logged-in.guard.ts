@@ -13,24 +13,24 @@ import { ErrorService } from "src/modules/error/error.service"
  * ? So we check user object for verify token
  */
 export class IsLoggedIn implements CanActivate {
-	constructor(@Inject(ErrorService) private error: ErrorService) { }
+    constructor(@Inject(ErrorService) private error: ErrorService) {}
 
-	canActivate(context: ExecutionContext) {
-		let result = false
+    canActivate(context: ExecutionContext) {
+        let result = false
 
-		const request = context.switchToHttp().getRequest<FastifyRequest>()
-		const tokenData = request.headers._tokenGuard as TokenGuardData
+        const request = context.switchToHttp().getRequest<FastifyRequest>()
+        const tokenData = request.headers._tokenGuard as TokenGuardData
 
-		/**
-		 * ? Verify requester user
-		 */
-		if (tokenData?.user) result = true
-		else {
-			throw this.error.throwErrorToClient({
-				errorData: AuthErrors.UserIsNotAuthorized,
-			})
-		}
+        /**
+         * ? Verify requester user
+         */
+        if (tokenData?.user) result = true
+        else {
+            throw this.error.throwErrorToClient({
+                errorData: AuthErrors.UserIsNotAuthorized,
+            })
+        }
 
-		return result
-	}
+        return result
+    }
 }

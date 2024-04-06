@@ -4,14 +4,8 @@ import { PrismaService } from "src/modules/prisma/prisma.service"
 import { EnvConfigModule } from "../config/env-config.module"
 
 @Module({
-  exports: [
-    PrismaService,
-  ],
-  imports: [
-    EnvConfigModule,
-  ],
-  providers: [
-    PrismaService,
-  ],
+    exports: [PrismaService],
+    imports: [EnvConfigModule],
+    providers: [PrismaService],
 })
-export class PrismaModule { }
+export class PrismaModule {}
