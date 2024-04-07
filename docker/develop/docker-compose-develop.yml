@@ -3,32 +3,32 @@ version: '3'
 services:
   postgres:
     image: postgres:latest
-    container_name: nest-rest-core-postgres
+    container_name: nest-rest-core-dev-postgres
     ports:
       - 5435:5432
     env_file:
-    - docker.env
+    - docker.env.dev
     volumes:
       - /data/postgres:/data/postgres
     networks:
-      - nest
+      - nest-rest-core-dev
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: nest-rest-core-app
+      context: ../../
+      dockerfile: docker/develop/Dockerfile.dev
+    container_name: nest-rest-core-dev-app
     command: bash -c "pnpm run start:dev:docker"
     ports:
-      - '8085:3001'
+      - '8085:3000'
     depends_on:
       - postgres
     env_file:
-      - '.env.dev.docker'
+      - '.env.docker.dev'
     networks:
-      - nest
+      - nest-rest-core-dev
 
 networks:
-  nest: 
+  nest-rest-core-dev: 
     driver: bridge
      

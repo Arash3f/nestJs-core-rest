@@ -27,7 +27,7 @@ async function bootstrap() {
     setupCors(app)
     setupLogger(app, configService)
 
-    await app.listen(configService.serverPort)
+    await app.listen(configService.serverPort, "0.0.0.0")
 
     if (module.hot) {
         module.hot.accept()
