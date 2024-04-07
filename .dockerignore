@@ -3,9 +3,7 @@ Dockerfile
 documentation
 node_modules
 dist
-disdocumentationt
 .git
 .gitignore
 .husky
 scripts
-.env.sample

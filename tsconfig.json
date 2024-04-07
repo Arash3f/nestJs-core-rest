@@ -36,7 +36,11 @@
     "./scripts/generate-api.ts",
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/doc/**",
+    "**/coverage/**",
+    "**/zeus/**",
+    "**/swagger/**"
   ]
 }

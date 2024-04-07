@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: nest-rest-core-prod-nginx
+    build: nginx
+    volumes:
+      - .:/app
+    ports:
+      - "8010:80"
+    depends_on:
+      - app
+    networks:
+      - nest-rest-core-prod
+
+  postgres:
+    image: postgres:latest
+    container_name: nest-rest-core-prod-postgres
+    env_file:
+    - docker.env.prod
+    volumes:
+      - /data/postgres:/data/postgres
+    networks:
+      - nest-rest-core-prod
+
+  app:
+    build:
+      context: ../../
+      dockerfile: docker/production/Dockerfile.prod
+    container_name: nest-rest-core-prod-app
+    command: bash -c "pnpm run start:prod:docker"
+    depends_on:
+      - postgres
+    env_file:
+      - '.env.docker.prod'
+    networks:
+      - nest-rest-core-prod
+
+networks:
+  nest-rest-core-prod: 
+    driver: bridge
+     

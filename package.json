@@ -8,15 +8,20 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+
     "api": "env-cmd -f ./.env.dev npx ts-node scripts/generate-api.ts",
-    "doc": "npx compodoc -p tsconfig.doc.json -n 'NestJs Core Rest'",
-    "build": "env-cmd -f ./.env.prod swc --delete-dir-on-start --out-dir dist/ src/",
+    "doc": "npx compodoc -p tsconfig.json -n 'NestJs Core Rest'",
+    
+    "start:build": "env-cmd -f ./.env.prod npx swc --delete-dir-on-start --out-dir dist/ src/",
     "start:prod": "env-cmd -f ./.env.prod node dist/src/main.js",
-    "start:dev": "env-cmd -f ./.env.dev nest build --webpack --webpackPath webpack-hmr.config.js --watch",
+    "start:dev": "env-cmd -f ./.env.dev nest build --webpack --webpackPath ./src/webpack-hmr.config.js --watch",
+    
     "build:docker": "swc --delete-dir-on-start --out-dir dist/ src/",
     "start:prod:docker": "npx prisma generate && npx prisma db push && node dist/src/main.js",
-    "start:dev:docker": "npx prisma generate && npx prisma db push && nest build --webpack --webpackPath webpack-hmr.config.js --watch",
+    "start:dev:docker": "npx prisma generate && npx prisma db push && nest build --webpack --webpackPath ./src/webpack-hmr.config.js --watch",
+    
     "test": "env-cmd -f ./.env.dev jest --config jest.config.js"
+  
   },
   "dependencies": {
     "@fastify/static": "^7.0.2",
@@ -86,22 +91,5 @@
     "cz-customizable": {
       "config": "config/path/to/my/config.js"
     }
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }

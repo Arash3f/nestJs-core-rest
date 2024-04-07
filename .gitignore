@@ -16,6 +16,7 @@
 .env.dev.docker
 .env.prod
 .env.prod.docker
+
 docker.env
 /files
 /temp
@@ -53,3 +54,5 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+docker/develop/docker.env.dev.sample
+docker/production/docker.env.prod.sample
