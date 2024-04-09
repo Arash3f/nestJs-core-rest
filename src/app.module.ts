@@ -11,9 +11,26 @@ import { ErrorModule } from "@src/modules/error/error.module"
 import { InitModule } from "@src/modules/init/init.module"
 import { InitService } from "@src/modules/init/init.service"
 import { PrismaModule } from "@src/modules/prisma/prisma.module"
+import { PrometheusModule } from "@willsoto/nestjs-prometheus"
+import { LokiLoggerModule } from "nestjs-loki-logger"
 
 @Module({
     imports: [
+        LokiLoggerModule.forRootAsync({
+            imports: [EnvConfigModule],
+            inject: [EnvConfigService],
+            useFactory: (apiConfigService: EnvConfigService) => ({
+                lokiUrl: apiConfigService.lokiServerAddress,
+                labels: {
+                    label: "testing",
+                },
+                logToConsole: true,
+                gzip: false,
+            }),
+        }),
+        PrometheusModule.register({
+            path: "/metrics",
+        }),
         ConfigModule.forRoot({
             validate: (config) =>
                 EnvConfigService.environmentValidation(config),
