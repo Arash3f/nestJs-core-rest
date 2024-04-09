@@ -57,6 +57,20 @@ export class EnvConfigService {
     }
 
     /**
+     * * Get serverAddress variable from env file
+     */
+    get serverAddress(): string {
+        return this.configService.get("serverAddress")
+    }
+
+    /**
+     * * Get lokiServerAddress variable from env file
+     */
+    get lokiServerAddress(): string {
+        return this.configService.get("lokiServerAddress")
+    }
+
+    /**
      * * Get NODE_ENV variable from env file
      */
     get nodeEnv(): NodeEnvType {

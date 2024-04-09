@@ -24,6 +24,12 @@ export class EnvConfigModel {
     DATABASE_CONNECTION_URL: string
 
     @IsString()
+    serverAddress: string
+
+    @IsString()
+    lokiServerAddress: string
+
+    @IsString()
     databaseName: string
 
     @IsString()
