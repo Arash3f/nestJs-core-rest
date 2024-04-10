@@ -1,5 +1,5 @@
 import { NodeEnvType } from "@src/modules/config/types/config.type"
-import { IsEnum, IsNumber, IsString } from "class-validator"
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator"
 
 /**
  * * Environment Class Model
@@ -55,4 +55,16 @@ export class EnvConfigModel {
 
     @IsString()
     SUPER_USER_PASSWORD: string
+
+    @IsOptional()
+    @IsString()
+    MEMBER_USER_USERNAME?: string
+
+    @IsOptional()
+    @IsString()
+    MEMBER_USER_NAME?: string
+
+    @IsOptional()
+    @IsString()
+    MEMBER_USER_PASSWORD?: string
 }

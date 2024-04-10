@@ -94,14 +94,27 @@ export class EnvConfigService {
     }
 
     /**
-     * * Get all default user config form env file and return it as object
+     * * Get all default super user config form env file and return it as object
      */
-    get defaultUser(): CreateUserInput {
+    get defaultSuperUser(): CreateUserInput {
         const defaultUserData: CreateUserInput = {
             name: this.configService.get("SUPER_USER_NAME"),
             username: this.configService.get("SUPER_USER_USERNAME"),
             password: this.configService.get("SUPER_USER_PASSWORD"),
             role: Role.Admin,
+        }
+        return defaultUserData
+    }
+
+    /**
+     * * Get all default member user config form env file and return it as object
+     */
+    get defaultMemberUser(): CreateUserInput {
+        const defaultUserData: CreateUserInput = {
+            name: this.configService.get("MEMBER_USER_NAME"),
+            username: this.configService.get("MEMBER_USER_USERNAME"),
+            password: this.configService.get("MEMBER_USER_PASSWORD"),
+            role: Role.Member,
         }
         return defaultUserData
     }
