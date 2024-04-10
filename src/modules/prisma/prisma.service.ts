@@ -12,8 +12,10 @@ export class PrismaService
     private readonly logger = new Logger(PrismaService.name)
 
     constructor(private readonly envConfigService: EnvConfigService) {
-        super({
-            log: [
+        const logConfig: (Prisma.LogLevel | Prisma.LogDefinition)[] = []
+
+        if (envConfigService.nodeEnv === NodeEnvType.Development) {
+            logConfig.push(
                 {
                     emit: "event",
                     level: "query",
@@ -30,7 +32,11 @@ export class PrismaService
                     emit: "stdout",
                     level: "warn",
                 },
-            ],
+            )
+        }
+
+        super({
+            log: logConfig,
         })
     }
 
