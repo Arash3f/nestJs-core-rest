@@ -351,7 +351,6 @@ describe("Auth", () => {
      */
 
     it("+ ReadUsers API Successfuly (Where)", async () => {
-        expect(1).toBe(2)
         /**
          * * Create some user
          */
