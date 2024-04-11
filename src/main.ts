@@ -37,6 +37,11 @@ async function bootstrap() {
     return app
 }
 
+/**
+ * * Config project logger
+ * @param app Nest Application object
+ * @param configService Application Env object
+ */
 function setupLogger(
     app: NestFastifyApplication,
     configService: EnvConfigService,
@@ -49,8 +54,9 @@ function setupLogger(
 }
 
 /**
- * Generate Swagger Api
+ * * Generate Swagger Api
  * @param app Nest Application object
+ * @param configService Application Env object
  * @returns Swagger documentation
  */
 function setupSwagger(
@@ -73,7 +79,7 @@ function setupSwagger(
 }
 
 /**
- * Enable Cors
+ * * Enable Cors
  * @param app Nest Application object
  */
 function setupCors(app: NestFastifyApplication) {
@@ -81,8 +87,9 @@ function setupCors(app: NestFastifyApplication) {
 }
 
 /**
- * Set Global Validation
- * @param app
+ * * Set Global Validation
+ * @param app Nest Application object
+ * @param configService Application Env object
  */
 function setupGlobalValidation(
     app: NestFastifyApplication,
@@ -98,7 +105,7 @@ function setupGlobalValidation(
 }
 
 /**
- * Use global guard for all client requests
+ * * Use global guard for all client requests
  * @param app Nest Application object
  */
 function setupGlobalGuard(app: NestFastifyApplication) {

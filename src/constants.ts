@@ -7,8 +7,6 @@ export enum ModuleNames {
     ConfigModule = "ConfigModule",
     InitModule = "InitModule",
     PrismaModule = "PrismaModule",
-    MulterModule = "MulterModule",
-    BackupModule = "BackupModule",
 }
 
 /**

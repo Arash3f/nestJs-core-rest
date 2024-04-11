@@ -32,7 +32,6 @@ export class InitService {
     /**
      * * Generate Super User With Admin Role
      * @param superUserData SuperUser Data
-     * @param adminRole Admin Role
      */
     async generateSuperUserWithAdminRole(
         superUserData: CreateUserInput,
