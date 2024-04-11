@@ -1,19 +1,19 @@
 module.exports = {
-  globals: {
-    "ts-jest": {
-      isolatedModules: true,
-    },
-  },
-  moduleFileExtensions: ["js", "json", "ts"],
   rootDir: ".",
+  moduleFileExtensions: ["js", "json", "ts"],
+  extensionsToTreatAsEsm: ['.ts'],
   modulePaths: ["<rootDir>"],
-  testRegex: ".e2e-spec.ts$",
+  testRegex: ".e2e.spec.ts$",
   coverageDirectory: "./coverage",
+  coverageReporters: ["html"],
   testEnvironment: "node",
-  moduleNameMapper: {
-    "@src/$1": "src/$1"
-},
+  coveragePathIgnorePatterns: [
+      "<rootDir>/src/utils",
+  ],
   transform: {
-    "^.+\\.(t|j)s$": "ts-jest",
+    "^.+\\.(t|j)s$": ["ts-jest"],
+  },
+  moduleNameMapper: {
+    "^@src/(.*)$": "src/$1"
   },
 };
