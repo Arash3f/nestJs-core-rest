@@ -1,7 +1,7 @@
 import type { Role } from "@prisma/client"
 
 /**
- * This type is used to generate _tokenGuard in request header
+ * * This type is used to generate _tokenGuard in request header
  */
 export type TokenGuardData = {
     user?: {
@@ -22,7 +22,7 @@ export type TokenGuardData = {
 }
 
 /**
- * This type is used to generate jwt token without any field
+ * * This type is used to generate jwt token without any field
  */
 export type JwtPayloadType = {
     username: string
@@ -30,7 +30,7 @@ export type JwtPayloadType = {
 }
 
 /**
- * This type is used to generate jwt token
+ * * This type is used to generate jwt token
  */
 export type JwtType = {
     username: string

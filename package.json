@@ -16,11 +16,14 @@
     "build:docker": "swc --delete-dir-on-start --out-dir dist/ src/",
     "start:prod:docker": "npx prisma generate && npx prisma db push && node dist/src/main.js",
     "start:dev:docker": "npx prisma generate && npx prisma db push && nest build --webpack --webpackPath ./src/webpack-hmr.config.js --watch",
-    "test": "env-cmd -f ./.env.dev jest --config jest.config.js"
+    "test:migrate": "env-cmd -f ./.env.test npx prisma db push",
+    "test": "env-cmd -f ./.env.test jest --config jest.config.js --detectOpenHandles --forceExit ",
+    "test:cov": "env-cmd -f ./.env.test jest --config jest.config.js  --detectOpenHandles --forceExit --coverage"
   },
   "dependencies": {
     "@fastify/static": "^7.0.2",
     "@nanogiants/nestjs-swagger-api-exception-decorator": "^1.6.11",
+    "@nestjs/axios": "^3.0.2",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/common": "^10.3.7",
     "@nestjs/config": "^3.2.1",

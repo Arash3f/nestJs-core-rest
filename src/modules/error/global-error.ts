@@ -9,6 +9,6 @@ export class GlobalError extends BadRequestException {
         public errorContext: ErrorInfo,
         public error?: Error,
     ) {
-        super(errorContext.message)
+        super(errorContext)
     }
 }

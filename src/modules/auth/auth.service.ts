@@ -169,6 +169,7 @@ export class AuthService {
                 name: data.name,
                 username: data.username.toLowerCase(),
                 active: data.active,
+                role: data.role,
             },
             select: {
                 id: true,

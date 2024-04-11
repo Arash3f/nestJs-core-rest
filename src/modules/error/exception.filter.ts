@@ -1,9 +1,7 @@
 import {
     ArgumentsHost,
-    BadRequestException,
     Catch,
     ExceptionFilter,
-    HttpException,
     HttpStatus,
     Logger,
 } from "@nestjs/common"
