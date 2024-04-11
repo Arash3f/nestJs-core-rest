@@ -55,6 +55,9 @@ export class AppModule {
         }
     }
 
+    /**
+     * * Generate Project Errors
+     */
     generateProjectErrors() {
         const projectErrors: ErrorInfo[] = [...Object.values(AuthErrors)]
         this.init.generateProjectErrors(projectErrors)

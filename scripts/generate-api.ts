@@ -5,7 +5,7 @@ import { promisify } from "util"
 const execAsync = promisify(exec)
 
 /**
- * To update Swagger Api file, we use (npm run type) and make this function to run
+ * To update Swagger Api file, we use (pnpm run api) and make this function to run
  * @see https://github.com/acacode/swagger-typescript-api
  */
 async function generateSwagger() {
