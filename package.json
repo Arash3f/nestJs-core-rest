@@ -16,6 +16,8 @@
     "start:build:docker": "swc --delete-dir-on-start --out-dir dist/ src/",
     "start:prod:docker": "npx prisma generate && npx prisma db push && node dist/src/main.js",
     "start:dev:docker": "npx prisma generate && npx prisma db push && nest build --webpack --webpackPath ./src/webpack-hmr.config.js --watch",
+    "migrate:prod": "env-cmd -f ./.env.prod npx prisma db push",
+    "migrate:dev": "env-cmd -f ./.env.dev npx prisma db push",
     "test:migrate": "env-cmd -f ./.env.test npx prisma db push",
     "test:e2e": "env-cmd -f ./.env.test jest --config jest.config.js --detectOpenHandles --forceExit ",
     "test:cov": "env-cmd -f ./.env.test jest --config jest.config.js  --detectOpenHandles --forceExit --coverage"
