@@ -5,11 +5,17 @@ import { IsString } from "class-validator"
  * * Data transfers object for Login Input
  */
 export class LoginInput {
-    @ApiProperty({ type: String })
-    @IsString()
-    username: string
+  /**
+   * user username
+   */
+  @ApiProperty({ type: String })
+  @IsString()
+  username: string
 
-    @ApiProperty({ type: String })
-    @IsString()
-    password: string
+  /**
+   * user password
+   */
+  @ApiProperty({ type: String })
+  @IsString()
+  password: string
 }

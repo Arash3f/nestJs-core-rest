@@ -5,34 +5,40 @@ import { IsBoolean, IsOptional, IsString } from "class-validator"
  * * Data transfer object for Sort By Input
  */
 export class SortByData {
-    @ApiPropertyOptional({ type: String })
-    @IsOptional()
-    @IsString()
-    field?: string
+  /**
+   * sort by which field
+   */
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  field?: string
 
-    @ApiPropertyOptional({ type: Boolean, default: true })
-    @IsOptional()
-    @IsBoolean()
-    descending = true
+  /**
+   * descending or ascending
+   */
+  @ApiPropertyOptional({ type: Boolean, default: true })
+  @IsOptional()
+  @IsBoolean()
+  descending = true
 
-    /**
-     * The internal function that prepares the final object for pagination filter, when working with prisma
-     * @returns pagination object
-     * @example
-     * In Auth module --> service.ts
-     * ```ts
-     * const entity = this.prisma.users.findMany({
-     * 		where: whereClause,
-     * 		...input?.sortBy?.convertToPrismaFilter(),
-     * 		...input?.pagination?.convertToPrismaFilter()
-     * })
-     * ```
-     */
-    convertToPrismaFilter?() {
-        const result = { orderBy: {} }
-        if (this.field)
-            result.orderBy[this.field] = this.descending ? "desc" : "asc"
+  /**
+   * The internal function that prepares the final object for pagination filter, when working with prisma
+   * @returns pagination object
+   * @example
+   * In Auth module --> service.ts
+   * ```ts
+   * const entity = this.prisma.users.findMany({
+   * 		where: whereClause,
+   * 		...input?.sortBy?.convertToPrismaFilter(),
+   * 		...input?.pagination?.convertToPrismaFilter()
+   * })
+   * ```
+   */
+  convertToPrismaFilter() {
+    const result: { orderBy: Record<string, "asc" | "desc"> } = { orderBy: {} }
 
-        return result
-    }
+    if (this.field) result.orderBy[this.field] = this.descending ? "desc" : "asc"
+
+    return result
+  }
 }

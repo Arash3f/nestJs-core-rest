@@ -3,61 +3,81 @@ import { Role } from "@prisma/client"
 import { PaginationData } from "@src/common/dto/pagination.input"
 import { SortByData } from "@src/common/dto/sort-by.input"
 import { Type } from "class-transformer"
-import {
-    IsBoolean,
-    IsEnum,
-    IsOptional,
-    IsString,
-    IsUUID,
-    ValidateNested,
-} from "class-validator"
+import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator"
 
 /**
  * * Data transfers object to Read User Input
  */
 export class ReadUserWhereData {
-    @ApiPropertyOptional({ type: String })
-    @IsOptional()
-    @IsUUID()
-    id?: string
+  /**
+   * user id
+   */
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsUUID()
+  id?: string
 
-    @ApiPropertyOptional({ type: String })
-    @IsOptional()
-    @IsString()
-    username?: string
+  /**
+   * user username
+   */
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  username?: string
 
-    @ApiPropertyOptional({ type: String })
-    @IsOptional()
-    @IsString()
-    name?: string
+  /**
+   * user name
+   */
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  name?: string
 
-    @ApiPropertyOptional({ enum: Role })
-    @IsOptional()
-    @IsEnum(Role)
-    role?: Role
+  /**
+   * user role
+   */
+  @ApiPropertyOptional({ enum: Role })
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role
 
-    @ApiPropertyOptional({ type: Boolean })
-    @IsOptional()
-    @IsBoolean()
-    active?: boolean
+  /**
+   * user activity
+   */
+  @ApiPropertyOptional({ type: Boolean })
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean
 }
 
+/**
+ * read user input
+ */
 export class ReadUserInput {
-    @Type(() => ReadUserWhereData)
-    @ApiPropertyOptional({ type: ReadUserWhereData })
-    @IsOptional()
-    @ValidateNested()
-    where?: ReadUserWhereData
+  /**
+   * find target user
+   */
+  @Type(() => ReadUserWhereData)
+  @ApiPropertyOptional({ type: ReadUserWhereData })
+  @IsOptional()
+  @ValidateNested()
+  where?: ReadUserWhereData
 
-    @Type(() => PaginationData)
-    @ApiPropertyOptional({ type: PaginationData })
-    @IsOptional()
-    @ValidateNested()
-    pagination?: PaginationData
+  /**
+   * response pagination
+   */
+  @Type(() => PaginationData)
+  @ApiPropertyOptional({ type: PaginationData })
+  @IsOptional()
+  @ValidateNested()
+  pagination?: PaginationData
 
-    @Type(() => SortByData)
-    @ApiPropertyOptional({ type: SortByData })
-    @IsOptional()
-    @ValidateNested()
-    sortBy?: SortByData
+  /**
+   * response sorting
+   */
+  @Type(() => SortByData)
+  @ApiPropertyOptional({ type: SortByData })
+  @IsOptional()
+  @ValidateNested()
+  sortBy?: SortByData
 }

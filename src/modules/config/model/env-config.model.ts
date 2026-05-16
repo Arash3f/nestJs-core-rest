@@ -5,66 +5,132 @@ import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator"
  * * Environment Class Model
  */
 export class EnvConfigModel {
-    @IsString()
-    swaggerDocsPath: string
+  /**
+   * app swagger doc path
+   */
+  @IsString()
+  swaggerDocsPath: string
 
-    @IsString()
-    swaggerPath: string
+  /**
+   * app swagger main path
+   */
+  @IsString()
+  swaggerPath: string
 
-    @IsNumber()
-    serverPort: number
+  /**
+   * app server port
+   */
+  @IsNumber()
+  serverPort: number
 
-    @IsString()
-    jwtSecret: string
+  /**
+   * jwt secret key
+   */
+  @IsString()
+  jwtSecret: string
 
-    @IsNumber()
-    jwtExpire: number
+  /**
+   * jwt expire time
+   */
+  @IsNumber()
+  jwtExpire: number
 
-    @IsString()
-    DATABASE_CONNECTION_URL: string
+  /**
+   * database connection url
+   */
+  @IsString()
+  DATABASE_CONNECTION_URL: string
 
-    @IsString()
-    serverAddress: string
+  /**
+   * app server address
+   */
+  @IsString()
+  serverAddress: string
 
-    @IsString()
-    lokiServerAddress: string
+  /**
+   * loki server path
+   */
+  @IsString()
+  lokiServerAddress: string
 
-    @IsString()
-    databaseName: string
+  /**
+   * database name
+   */
+  @IsString()
+  databaseName: string
 
-    @IsString()
-    databaseUsername: string
+  /**
+   * database username
+   */
+  @IsString()
+  databaseUsername: string
 
-    @IsString()
-    databasePassword: string
+  /**
+   * database password
+   */
+  @IsString()
+  databasePassword: string
 
-    @IsString()
-    databasePort: string
+  /**
+   * database port
+   */
+  @IsString()
+  databasePort: string
 
-    @IsString()
-    databaseHost: string
+  /**
+   * database host
+   */
+  @IsString()
+  databaseHost: string
 
-    @IsEnum(NodeEnvType)
-    NODE_ENV: NodeEnvType
+  /**
+   * app node env mode
+   */
+  @IsEnum(NodeEnvType)
+  NODE_ENV: NodeEnvType
 
-    @IsString()
-    SUPER_USER_USERNAME: string
+  /**
+   * super user username
+   */
+  @IsString()
+  SUPER_USER_USERNAME: string
 
-    @IsString()
-    SUPER_USER_NAME: string
+  /**
+   * super user name
+   */
+  @IsString()
+  SUPER_USER_NAME: string
 
-    @IsString()
-    SUPER_USER_PASSWORD: string
+  /**
+   * sure user password
+   */
+  @IsString()
+  SUPER_USER_PASSWORD: string
 
-    @IsOptional()
-    @IsString()
-    MEMBER_USER_USERNAME?: string
+  /**
+   * member use username
+   */
+  @IsOptional()
+  @IsString()
+  MEMBER_USER_USERNAME?: string
 
-    @IsOptional()
-    @IsString()
-    MEMBER_USER_NAME?: string
+  /**
+   * member user name
+   */
+  @IsOptional()
+  @IsString()
+  MEMBER_USER_NAME?: string
 
-    @IsOptional()
-    @IsString()
-    MEMBER_USER_PASSWORD?: string
+  /**
+   * member user password
+   */
+  @IsOptional()
+  @IsString()
+  MEMBER_USER_PASSWORD?: string
+
+  /**
+   * upload directory
+   */
+  @IsString()
+  UPLOAD_DIR: string
 }

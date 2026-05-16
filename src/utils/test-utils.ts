@@ -1,104 +1,139 @@
-import { PrismaClient, Role } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
+import { Role } from "@prisma/client"
 import { serverAddress } from "@src/constants"
-import { EnvConfigService } from "@src/modules/config/env-config.service"
-import { Api as APPApi } from "@src/utils/swagger/Api"
+import type { EnvConfigService } from "@src/modules/config/env-config.service"
+import * as argon2 from "argon2"
 import axios from "axios"
-import hasha from "hasha"
+import { Api as APPApi } from "swagger/Api"
 
+/**
+ * ? Helper function for app test
+ */
 export class TestApiCaller {
-    private apiConfigService: EnvConfigService = null
-    private prisma: PrismaClient = null
+  /**
+   * config service variable
+   */
+  private apiConfigService: EnvConfigService
+  /**
+   * prisma service variable
+   */
+  private prisma: PrismaClient
 
-    main = new APPApi({
-        baseURL: serverAddress,
+  /**
+   * config server address
+   */
+  main = new APPApi({
+    baseURL: serverAddress,
+  })
+
+  /**
+   * ? fill config service object
+   * @param apiConfigService app config service
+   */
+  setApiConfig(apiConfigService: EnvConfigService) {
+    this.apiConfigService = apiConfigService
+  }
+
+  /**
+   * ? fill prisma service object
+   * @param apiConfigService app config service
+   */
+  setPrismaClient(prisma: PrismaClient) {
+    this.prisma = prisma
+  }
+
+  /**
+   * ? config token as admin user
+   */
+  async setAdminMode() {
+    const {
+      data: { jwt },
+    } = await this.main.auth.logIn({
+      username: this.apiConfigService.defaultSuperUser.username,
+      password: this.apiConfigService.defaultSuperUser.username,
     })
 
-    setApiConfig(apiConfigService: EnvConfigService) {
-        this.apiConfigService = apiConfigService
-    }
+    this.main.instance.request = axios.create({
+      headers: { authorization: "Bearer " + jwt },
+    })
+  }
 
-    setPrismaClient(prisma: PrismaClient) {
-        this.prisma = prisma
-    }
+  /**
+   * ? config token as normall user
+   */
+  async setMemberMode() {
+    const {
+      data: { jwt },
+    } = await this.main.auth.logIn({
+      username: this.apiConfigService.defaultMemberUser.username,
+      password: this.apiConfigService.defaultMemberUser.username,
+    })
 
-    async setAdminMode() {
-        const {
-            data: { jwt },
-        } = await this.main.auth.logIn({
-            username: this.apiConfigService.defaultSuperUser.username,
-            password: this.apiConfigService.defaultSuperUser.username,
-        })
+    this.main.instance.request = axios.create({
+      headers: { authorization: "Bearer " + jwt },
+    })
+  }
 
-        this.main.instance.request = axios.create({
-            headers: { authorization: "Bearer " + jwt },
-        })
-    }
+  /**
+   * ? remove token
+   */
+  setAnonymousMode() {
+    this.main.instance.request = axios.create({
+      headers: { authorization: null },
+    })
+  }
 
-    async setMemberMode() {
-        const {
-            data: { jwt },
-        } = await this.main.auth.logIn({
-            username: this.apiConfigService.defaultMemberUser.username,
-            password: this.apiConfigService.defaultMemberUser.username,
-        })
+  /**
+   * ? login user
+   * @param username user's username
+   * @param password user's password
+   */
+  async loginAs(username: string, password: string) {
+    this.setAnonymousMode()
 
-        this.main.instance.request = axios.create({
-            headers: { authorization: "Bearer " + jwt },
-        })
-    }
+    const {
+      data: { jwt },
+    } = await this.main.auth.logIn({ username, password })
 
-    setAnonymousMode() {
-        this.main.instance.request = axios.create({
-            headers: { authorization: null },
-        })
-    }
+    this.main.instance.request = axios.create({
+      headers: { authorization: "Bearer " + jwt },
+    })
+  }
 
-    async loginAs(username: string, password: string) {
-        this.setAnonymousMode()
+  /**
+   * ? reset database
+   * ! complete this function if create new table
+   */
+  async resetDatabase() {
+    await Promise.all([this.prisma.users.deleteMany()])
+  }
 
-        const {
-            data: { jwt },
-        } = await this.main.auth.logIn({ username, password })
+  /**
+   * ? create default super user
+   */
+  async createSuperUser() {
+    const password = await argon2.hash(this.apiConfigService.defaultSuperUser.password)
+    await this.prisma.users.create({
+      data: {
+        name: this.apiConfigService.defaultSuperUser.name,
+        password,
+        username: this.apiConfigService.defaultSuperUser.username,
+        role: Role.Admin,
+      },
+    })
+  }
 
-        this.main.instance.request = axios.create({
-            headers: { authorization: "Bearer " + jwt },
-        })
-    }
-
-    async resetDatabase() {
-        await Promise.all([await this.prisma.users.deleteMany()])
-    }
-
-    async createSuperUser() {
-        const password = await hasha.async(
-            this.apiConfigService.defaultSuperUser.password,
-            {
-                algorithm: "sha1",
-            },
-        )
-        await this.prisma.users.create({
-            data: {
-                name: this.apiConfigService.defaultSuperUser.name,
-                password,
-                username: this.apiConfigService.defaultSuperUser.username,
-                role: Role.Admin,
-            },
-        })
-    }
-
-    async createMemberUser() {
-        const password = await hasha.async(
-            this.apiConfigService.defaultMemberUser.password,
-            {
-                algorithm: "sha1",
-            },
-        )
-        await this.prisma.users.create({
-            data: {
-                name: this.apiConfigService.defaultMemberUser.name,
-                password,
-                username: this.apiConfigService.defaultMemberUser.username,
-            },
-        })
-    }
+  /**
+   * ? create normall user
+   */
+  async createMemberUser() {
+    const password = await argon2.hash(this.apiConfigService.defaultMemberUser.password)
+    await this.prisma.users.create({
+      data: {
+        name: this.apiConfigService.defaultMemberUser.name,
+        password,
+        username: this.apiConfigService.defaultMemberUser.username,
+      },
+    })
+  }
 }

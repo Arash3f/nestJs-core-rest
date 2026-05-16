@@ -1,13 +1,13 @@
-import type { PaginationData } from "src/common/dto/pagination.input"
-import type { SortByData } from "src/common/dto/sort-by.input"
+import type { PaginationData } from "@src/common/dto/pagination.input"
+import type { SortByData } from "@src/common/dto/sort-by.input"
 
 /**
  * The final type for the input of create API, When sending a request
  * after the resolver layer the information is sent to the service
  * layer with this type
  */
-export type ApiCreateType<T extends Record<string, any>> = {
-    data: T
+export type ApiCreateType<T extends Record<string, unknown>> = {
+  data: T
 }
 
 /**
@@ -15,10 +15,10 @@ export type ApiCreateType<T extends Record<string, any>> = {
  * after the resolver layer the information is sent to the service
  * layer with this type
  */
-export type ApiReadType<T extends Record<string, any>> = {
-    pagination?: PaginationData
-    sortBy?: SortByData
-    where: T
+export type ApiReadType<T extends Record<string, unknown>> = {
+  pagination?: PaginationData
+  sortBy?: SortByData
+  where: T
 }
 
 /**
@@ -26,12 +26,9 @@ export type ApiReadType<T extends Record<string, any>> = {
  * after the resolver layer the information is sent to the service
  * layer with this type
  */
-export type ApiUpdateType<
-    T extends Record<string, any>,
-    B extends Record<string, any>,
-> = {
-    data: T
-    where: B
+export type ApiUpdateType<T extends Record<string, unknown>, B extends Record<string, unknown>> = {
+  data: T
+  where: B
 }
 
 /**
@@ -39,5 +36,5 @@ export type ApiUpdateType<
  * {@link "common/input/sort-by.input".SortByData.convertToPrismaFilter} method
  */
 export type OrderByType = {
-    orderBy: Record<string, any>
+  orderBy: Record<string, unknown>
 }

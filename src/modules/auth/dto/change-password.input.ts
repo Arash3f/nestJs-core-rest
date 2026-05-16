@@ -7,19 +7,31 @@ import { IsString, ValidateNested } from "class-validator"
  * * Data transfers object to Change Password Input
  */
 export class ChangePasswordDataInput {
-    @ApiProperty({ type: String })
-    @IsString()
-    newPassword: string
+  /**
+   * user new password
+   */
+  @ApiProperty({ type: String })
+  @IsString()
+  newPassword: string
 }
 
+/**
+ * change password input
+ */
 export class ChangePasswordInput {
-    @Type(() => IdInput)
-    @ApiProperty({ type: IdInput })
-    @ValidateNested()
-    where: IdInput
+  /**
+   * find target user
+   */
+  @Type(() => IdInput)
+  @ApiProperty({ type: IdInput })
+  @ValidateNested()
+  where: IdInput
 
-    @Type(() => ChangePasswordDataInput)
-    @ApiProperty({ type: ChangePasswordDataInput })
-    @ValidateNested()
-    data: ChangePasswordDataInput
+  /**
+   * update data
+   */
+  @Type(() => ChangePasswordDataInput)
+  @ApiProperty({ type: ChangePasswordDataInput })
+  @ValidateNested()
+  data: ChangePasswordDataInput
 }

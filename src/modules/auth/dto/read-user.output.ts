@@ -7,13 +7,19 @@ import { IsArray, IsNumber, ValidateNested } from "class-validator"
  * * Data transfers object to Read User Output
  */
 export class ReadUserOutput {
-    @ApiResponseProperty({ type: Number })
-    @IsNumber()
-    count: number
+  /**
+   * users count
+   */
+  @ApiResponseProperty({ type: Number })
+  @IsNumber()
+  count: number
 
-    @ApiResponseProperty({ type: [UserModel] })
-    @IsArray()
-    @Type(() => UserModel)
-    @ValidateNested()
-    data: UserModel[]
+  /**
+   * users list
+   */
+  @ApiResponseProperty({ type: [UserModel] })
+  @IsArray()
+  @Type(() => UserModel)
+  @ValidateNested()
+  data: UserModel[]
 }
