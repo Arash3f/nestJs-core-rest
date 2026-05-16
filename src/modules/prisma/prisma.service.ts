@@ -20,7 +20,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const adapter = new PrismaPg(pool)
 
     // Configure logging
-    const logConfig: any[] = []
+    const logConfig: Prisma.LogDefinition[] = []
 
     if (envConfigService.nodeEnv === NodeEnvType.Development) {
       logConfig.push(
