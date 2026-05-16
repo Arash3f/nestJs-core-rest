@@ -73,7 +73,7 @@ export class TokenGuard implements CanActivate {
         /**
          * * Save data in requester's header
          */
-        request.headers._tokenGuard = tokenData as any
+        request.headers._tokenGuard = tokenData as never
       }
     } catch (tokenError) {
       const error = tokenError as Error
@@ -88,7 +88,7 @@ export class TokenGuard implements CanActivate {
         },
       }
 
-      request.headers._tokenGuard = tokenData as any
+      request.headers._tokenGuard = tokenData as never
     }
 
     return true
