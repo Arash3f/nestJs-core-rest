@@ -4,8 +4,8 @@ import { InitService } from "@src/modules/init/init.service"
 import { PrismaModule } from "@src/modules/prisma/prisma.module"
 
 @Module({
-    providers: [InitService],
-    imports: [ErrorModule, PrismaModule],
-    exports: [InitService],
+  providers: [InitService],
+  imports: [ErrorModule, PrismaModule],
+  exports: [InitService],
 })
 export class InitModule {}

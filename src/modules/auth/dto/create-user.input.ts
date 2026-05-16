@@ -6,22 +6,33 @@ import { IsEnum, IsString } from "class-validator"
  * * Data transfers object to Create User Input
  */
 export class CreateUserInput {
-    @ApiProperty({ type: String })
-    @IsString()
-    name: string
+  /**
+   * user name
+   */
+  @ApiProperty({ type: String })
+  @IsString()
+  name: string
 
-    @ApiProperty({ type: String })
-    @IsString()
-    username: string
+  /**
+   * user username
+   */
+  @ApiProperty({ type: String })
+  @IsString()
+  username: string
 
-    /**
-     * * No length limit
-     */
-    @ApiProperty({ type: String })
-    @IsString()
-    password: string
+  /**
+   * user password
+   *
+   * ! No length limit
+   */
+  @ApiProperty({ type: String })
+  @IsString()
+  password: string
 
-    @ApiProperty({ enum: Role })
-    @IsEnum(Role)
-    role: Role
+  /**
+   * user role
+   */
+  @ApiProperty({ enum: Role })
+  @IsEnum(Role)
+  role: Role
 }

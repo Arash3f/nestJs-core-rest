@@ -5,12 +5,12 @@ import type { ModuleNames } from "@src/constants"
  * * The Error Information Type
  */
 export type ErrorInfo = {
-    code: number
-    module: ModuleNames
-    persianTranslation: string
-    message: string
-    developerMessage?: string
-    statusCode?: HttpStatus
+  code: number
+  module: ModuleNames
+  persianTranslation: string
+  message: string
+  developerMessage?: string
+  statusCode?: HttpStatus
 }
 
 /**
@@ -18,7 +18,7 @@ export type ErrorInfo = {
  */
 export type TranslationMapRecordType = Record<string, ErrorUnit>
 export type ErrorUnit = {
-    [key: number]: ErrorInfo
+  [key: number]: ErrorInfo
 }
 
 /**
@@ -26,9 +26,9 @@ export type ErrorUnit = {
  */
 export type FindErrorInput = Omit<CreateErrorInput, "error">
 export type CreateErrorInput = {
-    module: string
-    code: number
-    error?: Error
+  module: string
+  code: number
+  error?: Error
 }
 
 /**
@@ -36,13 +36,13 @@ export type CreateErrorInput = {
  */
 export type GenerateErrorType = Record<string, ErrorType>
 export type ErrorType = {
-    message: string
-    developerMessage?: string
-    persianTranslation?: string
-    code?: number
-    module?: ModuleNames
-    statusCode?: number
-    timestamp: string
-    path: string
-    debugError?: Error
+  message: string
+  developerMessage?: string
+  persianTranslation?: string
+  code?: number
+  module?: ModuleNames
+  statusCode?: number
+  timestamp: string
+  path: string
+  debugError?: Error
 }

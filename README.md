@@ -4,15 +4,44 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# NestJS Core REST API Starter
 
-Core project for NestJs framework
+A clean and scalable **NestJS REST API starter template** designed for building production-ready backend services.
+
+This project provides a solid foundation including containerization, database integration, and automated testing.
+
+---
+
+## Features
+
+- NestJS framework (modular architecture)
+- RESTful API structure
+- PostgreSQL database
+- Docker & Docker Compose support
+- Unit & e2e & integration testing
+- Environment-based configuration
+- Scalable project structure
+
+---
+
+## Tech Stack
+
+- **Node.js**
+- **NestJS**
+- **PostgreSQL**
+- **Docker / Docker Compose**
+- **Jest** (testing)
+
+---
 
 ## Installation
 
 ```bash
 pnpm  install
 ```
+
+## Environment Variables
+Create a .env.dev file in the project root based on .env.sample
 
 ## Hasky
 
@@ -80,14 +109,11 @@ $  pnpm  run  test:e2e
 $  pnpm  run  test:cov
 ```
 
-## Documentation
+## Database
+The project includes the following containers:
 
-```bash
-
-# generate
-
-$  pnpm  run  doc
-```
+- app → NestJS application
+- postgres → PostgreSQL database
 
 ## Support
 

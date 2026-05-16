@@ -12,67 +12,75 @@ import { ErrorModule } from "@src/modules/error/error.module"
 import { InitModule } from "@src/modules/init/init.module"
 import { InitService } from "@src/modules/init/init.service"
 import { PrismaModule } from "@src/modules/prisma/prisma.module"
-import { PrometheusModule } from "@willsoto/nestjs-prometheus"
-import { LokiLoggerModule } from "nestjs-loki-logger"
+// import { PrometheusModule } from "@willsoto/nestjs-prometheus"
+// import { LoggerModule } from "nestjs-pino"
 
 @Module({
-    imports: [
-        LokiLoggerModule.forRootAsync({
-            imports: [EnvConfigModule],
-            inject: [EnvConfigService],
-            useFactory: (apiConfigService: EnvConfigService) => ({
-                lokiUrl: apiConfigService.lokiServerAddress,
-                labels: {
-                    label: "testing",
-                },
-                logToConsole: true,
-                gzip: false,
-            }),
-        }),
-        PrometheusModule.register({
-            path: "/metrics",
-        }),
-        ConfigModule.forRoot({
-            validate: (config) =>
-                EnvConfigService.environmentValidation(config),
-        }),
-        ScheduleModule.forRoot(),
-        PrismaModule,
-        AuthModule,
-        ErrorModule,
-        EnvConfigModule,
-        InitModule,
-    ],
+  imports: [
+    // LoggerModule.forRootAsync({
+    //   imports: [EnvConfigModule],
+    //   inject: [EnvConfigService],
+    //   useFactory: (apiConfigService: EnvConfigService) => ({
+    //     pinoHttp: {
+    //       transport: {
+    //         target: "pino-loki",
+    //         options: {
+    //           host: apiConfigService.lokiServerAddress,
+    //           labels: {
+    //             app: "nestjs-api",
+    //             env: apiConfigService.nodeEnv,
+    //           },
+    //         },
+    //       },
+    //     },
+    //   }),
+    // }),
+    // PrometheusModule.register({
+    //   path: "/metrics",
+    //   defaultMetrics: {
+    //     enabled: false,
+    //   },
+    // }),
+    ConfigModule.forRoot({
+      validate: (config) => EnvConfigService.environmentValidation(config),
+    }),
+    ScheduleModule.forRoot(),
+    PrismaModule,
+    AuthModule,
+    ErrorModule,
+    EnvConfigModule,
+    InitModule,
+  ],
 })
 export class AppModule {
-    constructor(
-        private init: InitService,
-        private apiConfigService: EnvConfigService,
-    ) {
-        this.generateProjectErrors()
-        if (apiConfigService.nodeEnv !== NodeEnvType.Test) {
-            this.projectSuperUser()
-        }
+  constructor(
+    private init: InitService,
+    private apiConfigService: EnvConfigService,
+  ) {
+    this.generateProjectErrors()
+    if (apiConfigService.nodeEnv !== NodeEnvType.Test) {
+      void this.projectSuperUser()
     }
+  }
 
-    /**
-     * * Generate Project Errors
-     */
-    generateProjectErrors() {
-        const projectErrors: ErrorInfo[] = [...Object.values(AuthErrors)]
-        this.init.generateProjectErrors(projectErrors)
-    }
+  /**
+   * * Generate Project Errors
+   */
+  generateProjectErrors() {
+    const projectErrors: ErrorInfo[] = [...Object.values(AuthErrors)]
+    this.init.generateProjectErrors(projectErrors)
+  }
 
-    /**
-     * * Generate Super User With Admin Role
-     */
-    async projectSuperUser() {
-        const superUserData: CreateUserInput = {
-            username: this.apiConfigService.defaultSuperUser.username,
-            name: this.apiConfigService.defaultSuperUser.name,
-            password: this.apiConfigService.defaultSuperUser.password,
-            role: this.apiConfigService.defaultSuperUser.role,
-        }
-        await this.init.generateSuperUserWithAdminRole(superUserData)
+  /**
+   * * Generate Super User With Admin Role
+   */
+  async projectSuperUser() {
+    const superUserData: CreateUserInput = {
+      username: this.apiConfigService.defaultSuperUser.username,
+      name: this.apiConfigService.defaultSuperUser.name,
+      password: this.apiConfigService.defaultSuperUser.password,
+      role: this.apiConfigService.defaultSuperUser.role,
     }
+    await this.init.generateSuperUserWithAdminRole(superUserData)
+  }
 }

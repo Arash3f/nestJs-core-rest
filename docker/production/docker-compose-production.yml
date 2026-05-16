@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   nginx:
@@ -19,7 +19,7 @@ services:
     image: postgres:latest
     container_name: nest-rest-core-prod-postgres
     env_file:
-    - docker.env.prod
+      - docker.env.prod
     volumes:
       - /data/postgres:/data/postgres
     networks:
@@ -35,7 +35,7 @@ services:
       - postgres
       - prometheus
     env_file:
-      - '.env.docker.prod'
+      - ".env.docker.prod"
     networks:
       - nest-rest-core-prod
 
@@ -67,9 +67,8 @@ services:
       - nest-rest-core-prod
 
 networks:
-  nest-rest-core-prod: 
+  nest-rest-core-prod:
     driver: bridge
-     
+
 volumes:
   grafana-data:
-     

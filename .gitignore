@@ -64,3 +64,7 @@ docker/develop/.env.docker2.dev
 docker/develop/docker.env2.dev
 docker/production/.env.docker2.prod
 docker/production/docker.env2.prod
+
+
+query_engine-windows.dll.node
+schema-engine-windows.exe

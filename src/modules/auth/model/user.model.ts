@@ -6,30 +6,51 @@ import { IsBoolean, IsDate, IsString, IsUUID } from "class-validator"
  * * User Model Class
  */
 export class UserModel {
-    @ApiResponseProperty({ type: String })
-    @IsUUID()
-    id: string
+  /**
+   * user id
+   */
+  @ApiResponseProperty({ type: String })
+  @IsUUID()
+  id: string
 
-    @ApiResponseProperty({ type: String })
-    @IsString()
-    name: string
+  /**
+   * user name
+   */
+  @ApiResponseProperty({ type: String })
+  @IsString()
+  name: string
 
-    @ApiResponseProperty({ type: String })
-    @IsString()
-    username: string
+  /**
+   * user username
+   */
+  @ApiResponseProperty({ type: String })
+  @IsString()
+  username: string
 
-    @ApiResponseProperty({ type: Boolean })
-    @IsBoolean()
-    active: boolean
+  /**
+   * user activity
+   */
+  @ApiResponseProperty({ type: Boolean })
+  @IsBoolean()
+  active: boolean
 
-    @ApiResponseProperty({ enum: Role })
-    role: string
+  /**
+   * user roel
+   */
+  @ApiResponseProperty({ enum: Role })
+  role: string
 
-    @ApiResponseProperty({ type: Date })
-    @IsDate()
-    createdDate: Date
+  /**
+   * user created date
+   */
+  @ApiResponseProperty({ type: Date })
+  @IsDate()
+  createdDate: Date
 
-    @ApiResponseProperty({ type: Date })
-    @IsDate()
-    updatedDate: Date
+  /**
+   * user updated date
+   */
+  @ApiResponseProperty({ type: Date })
+  @IsDate()
+  updatedDate: Date
 }
