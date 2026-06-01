@@ -1,9 +1,6 @@
 import { HttpStatus } from "@nestjs/common"
 import { ModuleNames } from "@src/constants"
 
-/**
- * * Definition of auth module errors | All module's errors Collected in {@link GenerateProjectErrors}
- */
 export const AuthErrors = {
   UserIsNotAuthorized: {
     code: 1,

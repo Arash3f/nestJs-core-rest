@@ -34,20 +34,6 @@ export class InitService implements OnApplicationBootstrap {
     this.logger.verbose("Seed service finished :)")
   }
 
-  // /**
-  //  * * Generate all project errors
-  //  * @param projectErrors Collection of errors
-  //  * @returns The result of the operation
-  //  */
-  // generateProjectErrors(projectErrors: ErrorInfo[]): boolean {
-  //   for (const errInfo of projectErrors) {
-  //     this.error.createNewErrorTranslation(errInfo)
-  //   }
-  //   this.logger.log("All project errors were created Successfully")
-
-  //   return true
-  // }
-
   private async seedAdmin() {
     const name = this.envConf.defaultSuperUser.name
     const username = this.envConf.defaultSuperUser.username

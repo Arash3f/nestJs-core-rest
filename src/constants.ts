@@ -4,7 +4,6 @@
 export enum ModuleNames {
   AppModule = "AppModule",
   AuthModule = "AuthModule",
-  ErrorModule = "ErrorModule",
   ConfigModule = "ConfigModule",
   InitModule = "InitModule",
   PrismaModule = "PrismaModule",
