@@ -1,20 +1,12 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
+import { Role } from "@prisma/client"
 import { CreateUserInput } from "@src/modules/auth/dto/create-user.input"
 import { EnvConfigModel } from "@src/modules/config/model/env-config.model"
 import type { ConfigDatabaseType, EnvType } from "@src/modules/config/types/config.type"
 
-import { Role } from "../auth/model/user.model"
-
-/**
- * Config Service
- */
 @Injectable()
 export class EnvConfigService {
-  /**
-   * import config sevice
-   * @param configService app config service
-   */
   constructor(private configService: ConfigService<EnvConfigModel>) {}
 
   get DATABASE_CONNECTION_URL(): string {
@@ -37,7 +29,7 @@ export class EnvConfigService {
     return this.configService.getOrThrow("JWT_SECRET")
   }
 
-  get jwtExpire(): number {
+  get jwtAccessExpire(): number {
     return this.configService.getOrThrow("JWT_ACCESS_EXPIRE")
   }
 
@@ -51,6 +43,18 @@ export class EnvConfigService {
 
   get seedOnBoot(): boolean {
     return this.configService.getOrThrow("SEED_ON_BOOT")
+  }
+
+  get memoryCost(): number {
+    return this.configService.get<number>("PASSWORD_HASH_MEMORY_COST") as number
+  }
+
+  get timeCost(): number {
+    return this.configService.get<number>("PASSWORD_HASH_TIME_COST") as number
+  }
+
+  get parallelism(): number {
+    return this.configService.get<number>("PASSWORD_HASH_PARALLELISM") as number
   }
 
   get nodeEnv(): EnvType {

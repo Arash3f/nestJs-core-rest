@@ -4,6 +4,7 @@ import type { NestExpressApplication } from "@nestjs/platform-express"
 import { Test } from "@nestjs/testing"
 import { Role } from "@prisma/client"
 import { AppModule } from "@src/app.module"
+import { CoreExceptionFilter } from "@src/common/filters/core-exception.filter"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
@@ -37,6 +38,8 @@ describe("Auth", () => {
      */
     apiConfig = module.get(EnvConfigService)
     prisma = module.get(PrismaService)
+
+    app.useGlobalFilters(new CoreExceptionFilter(apiConfig))
 
     await app.listen(apiConfig.serverPort)
   }
@@ -81,7 +84,7 @@ describe("Auth", () => {
       data: {
         name,
         username: username.toLowerCase(),
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
     })
 
@@ -89,7 +92,7 @@ describe("Auth", () => {
      * * Test login Api
      */
     await api.main.auth.logIn({
-      username: "username",
+      username,
       password,
     })
   })
@@ -110,7 +113,7 @@ describe("Auth", () => {
       data: {
         name,
         username: username.toLowerCase(),
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
     })
 
@@ -124,8 +127,9 @@ describe("Auth", () => {
       })
       fail("Test failed!")
     } catch (err) {
+      console.log(err)
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.IncorrectUsernameOrPassword)
+      expect(error.response?.data).toMatchObject(AuthErrors.IncorrectUsernameOrPassword)
     }
   })
 
@@ -151,7 +155,7 @@ describe("Auth", () => {
       data: {
         name,
         username: username.toLowerCase(),
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
     })
 
@@ -179,7 +183,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserIsNotAuthorized)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
     }
   })
 
@@ -224,7 +228,7 @@ describe("Auth", () => {
     })
 
     expect(prismaData.id).toBe(createResponse.id)
-    expect(await argon2.verify(prismaData.password, password)).toBe(true)
+    expect(await argon2.verify(prismaData.passwordHash, password)).toBe(true)
     expect(prismaData.active).toBe(true)
     expect(prismaData.name).toBe(name)
     expect(prismaData.username).toBe(username.toLowerCase())
@@ -253,7 +257,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserIsNotAuthorized)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
     }
   })
 
@@ -284,7 +288,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.AccessDenied)
+      expect(error.response?.data).toMatchObject(AuthErrors.AccessDenied)
     }
   })
 
@@ -302,7 +306,7 @@ describe("Auth", () => {
       data: {
         name,
         username: username.toLowerCase(),
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
     })
 
@@ -324,7 +328,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UsernameIsDuplicated)
+      expect(error.response?.data).toMatchObject(AuthErrors.UsernameIsDuplicated)
     }
   })
 
@@ -343,7 +347,7 @@ describe("Auth", () => {
     const user01 = await prisma.users.create({
       data: {
         name: "uUsS00001798465489484",
-        password: userPassword01,
+        passwordHash: userPassword01,
         role: Role.Member,
         username: "user01",
         active: true,
@@ -355,7 +359,7 @@ describe("Auth", () => {
     const user02 = await prisma.users.create({
       data: {
         name: "user02",
-        password: userPassword02,
+        passwordHash: userPassword02,
         role: Role.Admin,
         username: "AAsspvoijvdiodfV--78941684",
         active: true,
@@ -367,7 +371,7 @@ describe("Auth", () => {
     const user03 = await prisma.users.create({
       data: {
         name: "user03",
-        password: userPassword03,
+        passwordHash: userPassword03,
         role: Role.Admin,
         username: "user03",
         active: false,
@@ -437,7 +441,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserIsNotAuthorized)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
     }
   })
 
@@ -456,7 +460,7 @@ describe("Auth", () => {
     const user01 = await prisma.users.create({
       data: {
         name: "uUsS00001798465489484",
-        password: userPassword01,
+        passwordHash: userPassword01,
         role: Role.Member,
         username: "user01",
       },
@@ -529,7 +533,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.AccessDenied)
+      expect(error.response?.data).toMatchObject(AuthErrors.AccessDenied)
     }
   })
 
@@ -557,7 +561,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserNotFound)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserNotFound)
     }
   })
 
@@ -571,7 +575,7 @@ describe("Auth", () => {
       data: {
         username: username01,
         name: "user01",
-        password: userPassword01,
+        passwordHash: userPassword01,
         role: Role.Member,
       },
     })
@@ -582,7 +586,7 @@ describe("Auth", () => {
       data: {
         username: username02,
         name: "user02",
-        password: userPassword02,
+        passwordHash: userPassword02,
         role: Role.Member,
       },
     })
@@ -610,7 +614,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UsernameIsDuplicated)
+      expect(error.response?.data).toMatchObject(AuthErrors.UsernameIsDuplicated)
     }
   })
 
@@ -633,7 +637,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserIsNotAuthorized)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
     }
   })
 
@@ -653,7 +657,7 @@ describe("Auth", () => {
       data: {
         username: "user01",
         name: "uUsS00001798465489484",
-        password: userPassword01,
+        passwordHash: userPassword01,
         role: Role.Member,
       },
     })
@@ -696,7 +700,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.AccessDenied)
+      expect(error.response?.data).toMatchObject(AuthErrors.AccessDenied)
     }
   })
 
@@ -716,7 +720,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserNotFound)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserNotFound)
     }
   })
 
@@ -731,7 +735,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserIsNotAuthorized)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
     }
   })
 
@@ -758,7 +762,7 @@ describe("Auth", () => {
       data: {
         username,
         name,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         role,
       },
     })
@@ -787,7 +791,7 @@ describe("Auth", () => {
       },
     })
     expect(findUser.id).toBe(newUser.id)
-    const isValid = await argon2.verify(findUser.password, newPassword)
+    const isValid = await argon2.verify(findUser.passwordHash, newPassword)
     expect(isValid).toBe(true)
   })
 
@@ -812,7 +816,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.AccessDenied)
+      expect(error.response?.data).toMatchObject(AuthErrors.AccessDenied)
     }
   })
 
@@ -837,7 +841,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserNotFound)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserNotFound)
     }
   })
 
@@ -857,7 +861,7 @@ describe("Auth", () => {
       fail("Test failed!")
     } catch (err) {
       const error = err as AxiosError
-      expect(error.response?.data).toEqual(AuthErrors.UserIsNotAuthorized)
+      expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
     }
   })
 })

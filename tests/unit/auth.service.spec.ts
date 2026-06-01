@@ -4,7 +4,6 @@ import { Test } from "@nestjs/testing"
 import { Role } from "@prisma/client"
 import { AuthService } from "@src/modules/auth/auth.service"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
-import { ErrorService } from "@src/modules/error/error.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import * as argon2 from "argon2"
 
@@ -47,10 +46,6 @@ describe("AuthService", () => {
         {
           provide: JwtService,
           useValue: mockJwtService,
-        },
-        {
-          provide: ErrorService,
-          useValue: mockErrorService,
         },
       ],
     }).compile()
@@ -160,7 +155,7 @@ describe("AuthService", () => {
         username: "duplicate",
         name: "user",
         password: "123",
-        role: "Member",
+        role: Role.Member,
       }),
     ).rejects.toThrow(AuthErrors.UsernameIsDuplicated.message)
   })

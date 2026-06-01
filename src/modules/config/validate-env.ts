@@ -1,9 +1,8 @@
 import { Logger } from "@nestjs/common"
+import { EnvConfigService } from "@src/modules/config/env-config.service"
+import { EnvConfigModel } from "@src/modules/config/model/env-config.model"
 import { plainToInstance } from "class-transformer"
 import { validateSync } from "class-validator"
-
-import { EnvConfigService } from "./env-config.service"
-import { EnvConfigModel } from "./model/env-config.model"
 
 /**
  * Validates environment variables against the expected configuration model.

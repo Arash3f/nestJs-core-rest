@@ -50,7 +50,7 @@ export class TestApiCaller {
       data: { jwt },
     } = await this.main.auth.logIn({
       username: this.apiConfigService.defaultSuperUser.username,
-      password: this.apiConfigService.defaultSuperUser.username,
+      password: this.apiConfigService.defaultSuperUser.password,
     })
 
     this.main.instance.request = axios.create({
@@ -66,7 +66,7 @@ export class TestApiCaller {
       data: { jwt },
     } = await this.main.auth.logIn({
       username: this.apiConfigService.defaultMemberUser.username,
-      password: this.apiConfigService.defaultMemberUser.username,
+      password: this.apiConfigService.defaultMemberUser.password,
     })
 
     this.main.instance.request = axios.create({
@@ -112,11 +112,11 @@ export class TestApiCaller {
    * ? create default super user
    */
   async createSuperUser() {
-    const password = await argon2.hash(this.apiConfigService.defaultSuperUser.password)
+    const passwordHash = await argon2.hash(this.apiConfigService.defaultSuperUser.password)
     await this.prisma.users.create({
       data: {
         name: this.apiConfigService.defaultSuperUser.name,
-        password,
+        passwordHash,
         username: this.apiConfigService.defaultSuperUser.username,
         role: Role.Admin,
       },
@@ -127,11 +127,11 @@ export class TestApiCaller {
    * ? create normall user
    */
   async createMemberUser() {
-    const password = await argon2.hash(this.apiConfigService.defaultMemberUser.password)
+    const passwordHash = await argon2.hash(this.apiConfigService.defaultMemberUser.password)
     await this.prisma.users.create({
       data: {
         name: this.apiConfigService.defaultMemberUser.name,
-        password,
+        passwordHash,
         username: this.apiConfigService.defaultMemberUser.username,
       },
     })
