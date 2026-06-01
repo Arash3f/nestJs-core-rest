@@ -1,120 +1,136 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+# nest-core-rest
 
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+A production-ready REST API boilerplate built with [NestJS](https://nestjs.com/), featuring a clean architecture, error handling, and modern development tools.
 
-# NestJS Core REST API Starter
+## ✨ Features
 
-A clean and scalable **NestJS REST API starter template** designed for building production-ready backend services.
+- 🚀 **NestJS** - Progressive Node.js framework
+- 🗄️ **Prisma ORM** - Type-safe database client with PostgreSQL  
+- 🐳 **Docker** - Containerized development environment
+- 🧪 **Jest** - Complete testing suite (unit + e2e)
+- ⚙️ **Config Module** - Environment configuration management
+- 🧱 **Init Module** - Application initialization & bootstrap logic
+- 🛡️ **Global Error Handling** - Centralized exception filter for consistent error responses
+- 👥 **User Management** - Complete CRUD APIs for user model
 
-This project provides a solid foundation including containerization, database integration, and automated testing.
+## 🏗️ Tech Stack
 
+| Technology | Purpose |
+|------------|---------|
+| NestJS     | Backend framework |
+| Prisma     | ORM & database migrations |
+| PostgreSQL | Relational database |
+| Docker     | Containerization |
+| Jest       | Testing |
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/arash.alfooneh/nest-core-rest.git
+cd nest-core-rest
+```
+
+### 2. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Configure environment variables
+
+Create a .env.dev file in the project root based on .env.example.
+
+### 4. Setup database & run migrations
+
+```bash
+# Generate Prisma client
+pnpm run prisma:generate:dev
+
+# Run migrations
+pnpm run prisma:migrate:dev
+
+# (Optional) Seed database
+# pnpm run prisma:push:dev
+```
+
+### 5. Run the application
+
+#### Development mode:
+
+```bash
+npm run start:dev
+```
+
+#### Using Docker (recommended):
+
+```bash
+docker-compose up -d
+```
+
+#### Production mode:
+
+```bash
+pnpm run start:build
+pnpm run start:prod
+```
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+pnpm run test
+
+# Test coverage
+npm run test:cov
+```
+
+## 🐳 Docker Commands
+
+```bash
+# Build and start containers
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop containers
+docker-compose down
+
+# Stop and remove volumes (clear database)
+docker-compose down -v
+```
+
+## 🔧 Configuration
+
+The Config module supports different environments through `.env` files:
+
+- `.env.dev` - Development environment
+- `.env.prod` - Production environment  
+- `.env.test` - Test environment
 ---
 
-## Features
+# 🗺 Roadmap / Pending Work
 
-- NestJS framework (modular architecture)
-- RESTful API structure
-- PostgreSQL database
-- Docker & Docker Compose support
-- Unit & e2e & integration testing
-- Environment-based configuration
-- Scalable project structure
+The following features are planned or not yet fully implemented:
 
----
-
-## Tech Stack
-
-- **Node.js**
-- **NestJS**
-- **PostgreSQL**
-- **Docker / Docker Compose**
-- **Jest** (testing)
+- ☐ Update dockers
+- ☐ Add github actions
+- ☐ Update error filter
+- ☐ test:
+  - ☐ unit
+  - ☐ integration
+- ...
 
 ---
+## 📝 License
 
-## Installation
+[MIT](LICENSE)
 
-```bash
-pnpm  install
-```
+## 👥 Author
 
-## Environment Variables
-Create a .env.dev file in the project root based on .env.sample
+Your Name - [@arash alfooneh](https://github.com/arash.alfooneh)
 
-## Hasky
 
-  For better comment message in git use hasky library with cz-customizable
-
-```bash
-# prepare
-
-$  pnpm  run  prepare
-
-# use
-
-$ git commit
-```
-
-## Running the app
-
-```bash
-
-# development mode
-
-$  pnpm  run  start:dev
-
-# production mode
-
-$  pnpm  run  start:build
-$  pnpm  run  start:prod
-
-# watch mode
-
-$  pnpm  run  start:dev
-```
-
-## Running the app with Docker
-
-```bash
-
-# development mode
-
-$  docker compose -f "docker/develop/docker-compose-develop.yml" up --build
-
-# production mode
-
-$  docker compose -f "docker/production/docker-compose-production.yml" up --build
-```
-
-## Test
-
-```bash
-
-# migrate database
-
-$  pnpm  run  test:migrate
-
-# prepare api client
-
-$  pnpm  run  api
-
-# e2e tests
-
-$  pnpm  run  test:e2e
- 
-# test coverage
-
-$  pnpm  run  test:cov
-```
-
-## Database
-The project includes the following containers:
-
-- app → NestJS application
-- postgres → PostgreSQL database
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Built with ❤️ using NestJS**
