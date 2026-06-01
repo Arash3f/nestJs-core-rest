@@ -89,7 +89,7 @@ describe("Auth", () => {
      * * Test login Api
      */
     await api.main.auth.logIn({
-      username,
+      username: "username",
       password,
     })
   })
