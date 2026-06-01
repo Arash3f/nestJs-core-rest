@@ -7,15 +7,14 @@ datasource db {
 }
 
 model Users {
-  id       String  @id @default(uuid()) @db.Uuid
-  username String  @unique
-  password String
-  name     String
-  active   Boolean @default(true)
-  role     Role    @default(Member)
-
-  createdDate DateTime @default(now())
-  updatedDate DateTime @updatedAt()
+  id           String   @id @default(uuid()) @db.Uuid
+  username     String   @unique
+  name         String
+  active       Boolean  @default(true)
+  role         Role     @default(Member)
+  createdDate  DateTime @default(now())
+  updatedDate  DateTime @updatedAt
+  passwordHash String
 }
 
 enum Role {

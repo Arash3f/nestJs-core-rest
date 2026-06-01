@@ -2,6 +2,7 @@
  * This enum keeps all module names
  */
 export enum ModuleNames {
+  AppModule = "AppModule",
   AuthModule = "AuthModule",
   ErrorModule = "ErrorModule",
   ConfigModule = "ConfigModule",
@@ -12,9 +13,4 @@ export enum ModuleNames {
 /**
  * This address is used for testing
  */
-export const serverAddress = `${process.env.serverAddress}:${process.env.serverPort}`
-
-/**
- * This address is used for creating api swagger
- */
-export const serverApiDocs = `${serverAddress}/${process.env.swaggerDocsPath}`
+export const serverAddress = `http://${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}`

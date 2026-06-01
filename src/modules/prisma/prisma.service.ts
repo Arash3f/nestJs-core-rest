@@ -3,69 +3,61 @@ import { Injectable, Logger } from "@nestjs/common"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { Prisma, PrismaClient } from "@prisma/client"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
-import { NodeEnvType } from "@src/modules/config/types/config.type"
+import { EnvType } from "@src/modules/config/types/config.type"
 import { Pool } from "pg"
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient<Prisma.PrismaClientOptions, "query">
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(PrismaService.name)
+  private readonly pool: Pool
+  private readonly isDev: boolean
 
-  constructor(private readonly envConfigService: EnvConfigService) {
-    // Set up the PG connection pool
+  constructor(env: EnvConfigService) {
+    const isDev = env.nodeEnv === EnvType.Development
+
+    const log: Prisma.LogDefinition[] = isDev
+      ? [
+          { emit: "event", level: "query" },
+          { emit: "stdout", level: "info" },
+          { emit: "stdout", level: "warn" },
+          { emit: "stdout", level: "error" },
+        ]
+      : [{ emit: "stdout", level: "error" }]
+
     const pool = new Pool({
-      connectionString: envConfigService.DATABASE_CONNECTION_URL,
+      connectionString: env.databaseConfig.connectionUrl,
     })
 
-    // Create the Prisma adapter using the pool
     const adapter = new PrismaPg(pool)
 
-    // Configure logging
-    const logConfig: Prisma.LogDefinition[] = []
-
-    if (envConfigService.nodeEnv === NodeEnvType.Development) {
-      logConfig.push(
-        {
-          emit: "event",
-          level: "query",
-        },
-        {
-          emit: "stdout",
-          level: "error",
-        },
-        {
-          emit: "stdout",
-          level: "info",
-        },
-        {
-          emit: "stdout",
-          level: "warn",
-        },
-      )
-    }
-
-    // Pass the adapter to PrismaClient
     super({
       adapter,
-      log: logConfig,
+      log,
     })
+
+    this.pool = pool
+    this.isDev = isDev
   }
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     await this.$connect()
 
-    if (this.envConfigService.nodeEnv === NodeEnvType.Development) {
-      // Use proper typing with Prisma.QueryEvent
-      this.$on("query" as never, (event: Prisma.QueryEvent) => {
+    if (this.isDev) {
+      this.$on("query", (event: Prisma.QueryEvent) => {
         this.logger.verbose({
-          Query: event.query,
-          Params: event.params,
-          Duration: `${event.duration}ms`,
+          query: event.query,
+          params: event.params,
+          durationMs: event.duration,
         })
       })
     }
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     await this.$disconnect()
+    await this.pool.end()
   }
 }

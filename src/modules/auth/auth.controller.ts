@@ -1,13 +1,11 @@
-import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator"
-import { BadRequestException, Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common"
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
 import { IdInput } from "@src/common/dto/id.input"
 import { SuccessOutput } from "@src/common/dto/success.output"
-import { IsAdmin } from "@src/common/guards/is-admin.guard"
-import { IsLoggedIn } from "@src/common/guards/is-logged-in.guard"
+import { IsAdminGuard } from "@src/common/guards/is-admin.guard"
+import { IsLoggedInGuard } from "@src/common/guards/is-logged-in.guard"
 import { AuthService } from "@src/modules/auth/auth.service"
-import { AuthErrors } from "@src/modules/auth/constants/errors"
 import { ChangePasswordInput } from "@src/modules/auth/dto/change-password.input"
 import { CreateUserInput } from "@src/modules/auth/dto/create-user.input"
 import { LoginInput } from "@src/modules/auth/dto/login.input"
@@ -44,9 +42,6 @@ export class AuthController {
   })
   @ApiBody({ type: LoginInput })
   @ApiResponse({ type: LoginOutput, status: 200 })
-  @ApiException(() => [new BadRequestException()], {
-    template: [AuthErrors.IncorrectUsernameOrPassword],
-  })
   async logIn(@Body() data: LoginInput): Promise<LoginOutput> {
     return await this.authService.logIn(data)
   }
@@ -67,10 +62,7 @@ export class AuthController {
     status: 200,
   })
   @ApiBearerAuth()
-  @UseGuards(IsLoggedIn)
-  @ApiException(() => [new BadRequestException()], {
-    template: [AuthErrors.UserIsNotAuthorized],
-  })
+  @UseGuards(IsLoggedInGuard)
   async me(@GetUserId() requesterId: string): Promise<UserModel> {
     return await this.authService.me(requesterId)
   }
@@ -93,14 +85,7 @@ export class AuthController {
     status: 201,
   })
   @ApiBearerAuth()
-  @UseGuards(IsAdmin)
-  @ApiException(() => [new BadRequestException()], {
-    template: [
-      AuthErrors.UsernameIsDuplicated,
-      AuthErrors.AccessDenied,
-      AuthErrors.UserIsNotAuthorized,
-    ],
-  })
+  @UseGuards(IsAdminGuard)
   async createUser(@Body() data: CreateUserInput): Promise<UserModel> {
     return await this.authService.createUser(data)
   }
@@ -122,10 +107,7 @@ export class AuthController {
     status: 200,
   })
   @ApiBearerAuth()
-  @UseGuards(IsLoggedIn)
-  @ApiException(() => [new BadRequestException()], {
-    template: [AuthErrors.UserIsNotAuthorized],
-  })
+  @UseGuards(IsLoggedInGuard)
   async readUsers(@Body() data: ReadUserInput): Promise<ReadUserOutput> {
     return await this.authService.readUsers(data)
   }
@@ -148,15 +130,7 @@ export class AuthController {
     status: 200,
   })
   @ApiBearerAuth()
-  @UseGuards(IsAdmin)
-  @ApiException(() => [new BadRequestException()], {
-    template: [
-      AuthErrors.UserNotFound,
-      AuthErrors.UsernameIsDuplicated,
-      AuthErrors.AccessDenied,
-      AuthErrors.UserIsNotAuthorized,
-    ],
-  })
+  @UseGuards(IsAdminGuard)
   async updateUser(@Body() data: UpdateUserInput): Promise<UserModel> {
     return await this.authService.updateUser(data)
   }
@@ -179,10 +153,7 @@ export class AuthController {
     status: 200,
   })
   @ApiBearerAuth()
-  @UseGuards(IsAdmin)
-  @ApiException(() => [new BadRequestException()], {
-    template: [AuthErrors.UserNotFound, AuthErrors.AccessDenied, AuthErrors.UserIsNotAuthorized],
-  })
+  @UseGuards(IsAdminGuard)
   async deleteUser(@Body() where: IdInput): Promise<SuccessOutput> {
     return await this.authService.deleteUser(where)
   }
@@ -202,10 +173,7 @@ export class AuthController {
   @ApiBody({ type: ChangePasswordInput })
   @ApiResponse({ type: SuccessOutput, status: 200 })
   @ApiBearerAuth()
-  @UseGuards(IsAdmin)
-  @ApiException(() => [new BadRequestException()], {
-    template: [AuthErrors.UserNotFound, AuthErrors.AccessDenied, AuthErrors.UserIsNotAuthorized],
-  })
+  @UseGuards(IsAdminGuard)
   async changePassword(@Body() data: ChangePasswordInput) {
     return await this.authService.changePassword(data)
   }

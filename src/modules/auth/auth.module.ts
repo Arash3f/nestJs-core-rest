@@ -6,7 +6,6 @@ import { AuthController } from "@src/modules/auth/auth.controller"
 import { AuthService } from "@src/modules/auth/auth.service"
 import { EnvConfigModule } from "@src/modules/config/env-config.module"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
-import { ErrorModule } from "@src/modules/error/error.module"
 import { PrismaModule } from "@src/modules/prisma/prisma.module"
 
 @Module({
@@ -18,14 +17,13 @@ import { PrismaModule } from "@src/modules/prisma/prisma.module"
     },
   ],
   imports: [
-    ErrorModule,
     PrismaModule,
     EnvConfigModule,
     JwtModule.registerAsync({
       imports: [EnvConfigModule],
       useFactory: (apiConfigService: EnvConfigService) => ({
-        privateKey: apiConfigService.jwtSecret,
-        signOptions: { expiresIn: apiConfigService.jwtExpire },
+        secret: apiConfigService.jwtSecret,
+        signOptions: { expiresIn: apiConfigService.jwtAccessExpire },
       }),
       inject: [EnvConfigService],
     }),

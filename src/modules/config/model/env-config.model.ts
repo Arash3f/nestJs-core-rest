@@ -1,9 +1,6 @@
 import { EnvType } from "@src/modules/config/types/config.type"
 import { IsBoolean, IsEnum, IsNumber, IsString } from "class-validator"
 
-/**
- * Environment Class Model
- */
 export class EnvConfigModel {
   @IsString()
   SWAGGER_DOCS_PATH: string
@@ -67,4 +64,13 @@ export class EnvConfigModel {
 
   @IsString()
   MEMBER_USER_PASSWORD: string
+
+  @IsNumber()
+  PASSWORD_HASH_MEMORY_COST: number
+
+  @IsNumber()
+  PASSWORD_HASH_TIME_COST: number
+
+  @IsNumber()
+  PASSWORD_HASH_PARALLELISM: number
 }

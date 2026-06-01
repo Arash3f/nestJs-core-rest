@@ -4,16 +4,19 @@ import { JwtService } from "@nestjs/jwt"
 import type { NestExpressApplication } from "@nestjs/platform-express"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import { AppModule } from "@src/app.module"
+import { CoreExceptionFilter } from "@src/common/filters/core-exception.filter"
 import { TokenGuard } from "@src/common/guards/token.guard"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
-import { NodeEnvType } from "@src/modules/config/types/config.type"
-import { CoreExceptionFilter } from "@src/modules/error/exception.filter"
-import { PrismaService } from "@src/modules/prisma/prisma.service"
-// import promBundle from "express-prom-bundle"
+import { EnvType } from "@src/modules/config/types/config.type"
 import type { ServerResponse } from "http"
 
 /**
- * Hot Module Replacement interface for Webpack
+ * Webpack Hot Module Replacement (HMR) contract for Node.js bundles.
+ *
+ * @remarks
+ * When HMR is enabled, Webpack injects a `module.hot` object that can:
+ * - accept updated modules without restarting the process
+ * - run cleanup logic before replacing the current module
  */
 interface HotModule {
   hot: {
@@ -21,10 +24,6 @@ interface HotModule {
     dispose: (callback: () => Promise<void> | void) => void
   }
 }
-
-/**
- * use for hot mode
- */
 declare const module: HotModule
 
 /**
@@ -36,15 +35,25 @@ async function bootstrap() {
   const configService = app.get(EnvConfigService)
 
   setupGlobalValidation(app, configService)
-
-  // setupPorm(app)
   setupGlobalGuard(app)
   setupSwagger(app, configService)
   setupCors(app)
   setupLogger(app, configService)
 
+  /**
+   * Trust the first proxy hop.
+   *
+   * @remarks
+   * Useful when running behind a reverse proxy (e.g., Nginx) so that
+   * `req.ip` and related fields can be resolved correctly.
+   */
+  app.set("trust proxy", 1)
+
   await app.listen(configService.serverPort, configService.serverAddress)
 
+  /**
+   * HMR support (development only).
+   */
   if (module.hot) {
     module.hot.accept()
     module.hot.dispose(() => app.close())
@@ -53,44 +62,36 @@ async function bootstrap() {
   return app
 }
 
-// /**
-//  * * Config prom
-//  * @param app Nest Application object
-//  */
-// function setupPorm(app: NestExpressApplication) {
-//   const metricsMiddleware = promBundle({
-//     includeMethod: true,
-//     includePath: true,
-//     includeStatusCode: true,
-
-//     promClient: {
-//       collectDefaultMetrics: {},
-//     },
-
-//     metricsPath: "/metrics",
-//   })
-
-//   app.use(metricsMiddleware)
-// }
-
 /**
- * * Config project logger
- * @param app Nest Application object
- * @param configService Application Env object
+ * Configures NestJS logger levels based on the runtime environment.
+ *
+ * @param app - NestJS application instance.
+ * @param configService - Configuration provider.
+ *
+ * @remarks
+ * - Development: enables detailed logs.
+ * - Other environments: restricts output to warnings/errors.
  */
 function setupLogger(app: NestExpressApplication, configService: EnvConfigService) {
   app.useLogger(
-    configService.nodeEnv === NodeEnvType.Development
+    configService.nodeEnv === EnvType.Development
       ? ["log", "debug", "error", "verbose", "warn"]
-      : [],
+      : ["error", "warn"],
   )
 }
 
 /**
- * * Generate Swagger Api
- * @param app Nest Application object
- * @param configService Application Env object
- * @returns Swagger documentation
+ * Configures Swagger (OpenAPI) for the application.
+ *
+ * @param app - NestJS application instance.
+ * @param configService - Configuration provider.
+ *
+ * @remarks
+ * Exposes:
+ * - Swagger UI at `configService.swaggerPath`
+ * - Raw OpenAPI JSON at `/{configService.swaggerDocsPath}`
+ *
+ * @returns The generated OpenAPI document.
  */
 function setupSwagger(app: NestExpressApplication, configService: EnvConfigService) {
   const config = new DocumentBuilder()
@@ -101,25 +102,35 @@ function setupSwagger(app: NestExpressApplication, configService: EnvConfigServi
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
+
   SwaggerModule.setup(configService.swaggerPath, app, document)
-  app.use(`/${configService.swaggerDocsPath}`, (_req: Request, res: ServerResponse) =>
-    res.end(JSON.stringify(document)),
-  )
+
+  app.use(`/${configService.swaggerDocsPath}`, (_req: Request, res: ServerResponse) => {
+    res.setHeader("Content-Type", "application/json")
+    res.end(JSON.stringify(document))
+  })
+
   return document
 }
 
 /**
- * * Enable Cors
- * @param app Nest Application object
+ * Enables Cross-Origin Resource Sharing (CORS).
+ *
+ * @param app - NestJS application instance.
  */
 function setupCors(app: NestExpressApplication) {
   app.enableCors()
 }
 
 /**
- * * Set Global Validation
- * @param app Nest Application object
- * @param configService Application Env object
+ * Applies global validation pipeline and exception filter.
+ *
+ * @param app - NestJS application instance.
+ * @param configService - Configuration provider.
+ *
+ * @remarks
+ * - `transform: true` converts input payloads to DTO instances/types.
+ * - `whitelist: true` removes unknown properties not present on the DTO.
  */
 function setupGlobalValidation(app: NestExpressApplication, configService: EnvConfigService) {
   app.useGlobalFilters(new CoreExceptionFilter(configService))
@@ -132,14 +143,20 @@ function setupGlobalValidation(app: NestExpressApplication, configService: EnvCo
 }
 
 /**
- * * Use global guard for all client requests
- * @param app Nest Application object
+ * Configures and registers global guards for the NestJS application.
+ *
+ * @description
+ * This function sets up global guards that will be applied to all routes
+ * across the entire application. Currently, it registers the `TokenGuard`
+ * to handle JWT token validation and authentication for every incoming request.
+ *
+ * @param app - The NestJS Express application instance
+ *
+ * @see {@link TokenGuard} - The guard being registered globally
  */
 function setupGlobalGuard(app: NestExpressApplication) {
-  const prismaService = app.get(PrismaService)
   const jwtService = app.get(JwtService)
-  const apiConfigService = app.get(EnvConfigService)
-  app.useGlobalGuards(new TokenGuard(jwtService, prismaService, apiConfigService))
+  app.useGlobalGuards(new TokenGuard(jwtService))
 }
 
 void bootstrap()

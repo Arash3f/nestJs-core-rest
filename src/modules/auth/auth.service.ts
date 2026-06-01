@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
-import type { Prisma, Users } from "@prisma/client"
+import type { Prisma, Role, Users } from "@prisma/client"
+import { AppException } from "@src/app.exception"
 import type { IdInput } from "@src/common/dto/id.input"
 import type { SuccessOutput } from "@src/common/dto/success.output"
-import type { JwtPayloadType } from "@src/common/types/token.type"
+import { JwtPayload } from "@src/common/types/token.type"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
 import type { ChangePasswordInput } from "@src/modules/auth/dto/change-password.input"
 import type { CreateUserInput } from "@src/modules/auth/dto/create-user.input"
@@ -13,7 +14,6 @@ import type { ReadUserInput } from "@src/modules/auth/dto/read-user.input"
 import type { ReadUserOutput } from "@src/modules/auth/dto/read-user.output"
 import type { UpdateUserInput } from "@src/modules/auth/dto/update-user.input"
 import type { UserModel } from "@src/modules/auth/model/user.model"
-import { ErrorService } from "@src/modules/error/error.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import * as argon2 from "argon2"
 import cleanDeep from "clean-deep"
@@ -32,7 +32,6 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-    private error: ErrorService,
   ) {}
 
   /**
@@ -45,8 +44,8 @@ export class AuthService {
     const { password, username } = data
 
     const user = await this.verifyUserExistanceByUsername(username)
-    await this.verifyUserPassword(user.password, password)
-    const token = await this.generateToken(user.username, user.id)
+    await this.verifyUserPassword(user.passwordHash, password)
+    const token = await this.generateToken(user.username, user.id, user.role)
 
     return { jwt: token }
   }
@@ -69,12 +68,12 @@ export class AuthService {
         role: true,
         createdDate: true,
         updatedDate: true,
-        password: false,
+        passwordHash: false,
       },
     })
 
     if (!user) {
-      throw this.error.throwErrorToClient({ errorData: AuthErrors.UserNotFound })
+      throw new AppException(AuthErrors.UserNotFound)
     }
 
     return user
@@ -93,7 +92,7 @@ export class AuthService {
 
     const createUserInput: Prisma.UsersCreateInput = {
       name,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       username: username.toLowerCase(),
       role,
     }
@@ -108,7 +107,7 @@ export class AuthService {
         role: true,
         createdDate: true,
         updatedDate: true,
-        password: false,
+        passwordHash: false,
       },
     })
 
@@ -149,7 +148,7 @@ export class AuthService {
         role: true,
         createdDate: true,
         updatedDate: true,
-        password: false,
+        passwordHash: false,
       },
     })
 
@@ -189,7 +188,7 @@ export class AuthService {
         role: true,
         createdDate: true,
         updatedDate: true,
-        password: false,
+        passwordHash: false,
       },
     })
 
@@ -231,7 +230,7 @@ export class AuthService {
 
     await this.prisma.users.update({
       where: { id },
-      data: { password: hashedPassword },
+      data: { passwordHash: hashedPassword },
     })
 
     return { success: true }
@@ -256,10 +255,7 @@ export class AuthService {
   private async verifyUserPassword(userPassword: string, password: string): Promise<boolean> {
     const valid = await argon2.verify(userPassword, password)
 
-    if (!valid)
-      throw this.error.throwErrorToClient({
-        errorData: AuthErrors.IncorrectUsernameOrPassword,
-      })
+    if (!valid) throw new AppException(AuthErrors.IncorrectUsernameOrPassword)
 
     return valid
   }
@@ -284,10 +280,7 @@ export class AuthService {
       },
     })
 
-    if (user)
-      throw this.error.throwErrorToClient({
-        errorData: AuthErrors.UsernameIsDuplicated,
-      })
+    if (user) throw new AppException(AuthErrors.UsernameIsDuplicated)
 
     return true
   }
@@ -305,10 +298,7 @@ export class AuthService {
       },
     })
 
-    if (!user)
-      throw this.error.throwErrorToClient({
-        errorData: AuthErrors.UserNotFound,
-      })
+    if (!user) throw new AppException(AuthErrors.UserNotFound)
 
     return user
   }
@@ -326,10 +316,7 @@ export class AuthService {
       },
     })
 
-    if (!user)
-      throw this.error.throwErrorToClient({
-        errorData: AuthErrors.IncorrectUsernameOrPassword,
-      })
+    if (!user) throw new AppException(AuthErrors.IncorrectUsernameOrPassword)
 
     return user
   }
@@ -340,9 +327,10 @@ export class AuthService {
    * @param userId user id
    * @returns user token
    */
-  private async generateToken(username: string, userId: string): Promise<string> {
-    const payload: JwtPayloadType = {
+  private async generateToken(username: string, userId: string, role: Role): Promise<string> {
+    const payload: JwtPayload = {
       username: username.toLowerCase(),
+      role: role,
       id: userId,
     }
     return await this.jwt.signAsync(payload)
