@@ -13,13 +13,8 @@
 .env
 .env.test
 .env.dev
-.env.dev.docker
 .env.prod
-.env.prod.docker
-.env.docker.dev
-.env.docker.prod
-docker.env.prod
-docker.env.dev
+.docker.dev.env
 
 docker.env
 /files
