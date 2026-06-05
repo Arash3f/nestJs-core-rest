@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
-import type { Prisma, Role, Users } from "@prisma/client"
+import { Prisma, Role, Users } from "@prisma/client"
 import { AppException } from "@src/app.exception"
 import type { IdInput } from "@src/common/dto/id.input"
 import type { SuccessOutput } from "@src/common/dto/success.output"
@@ -13,7 +13,7 @@ import type { LoginOutput } from "@src/modules/auth/dto/login.output"
 import type { ReadUserInput } from "@src/modules/auth/dto/read-user.input"
 import type { ReadUserOutput } from "@src/modules/auth/dto/read-user.output"
 import type { UpdateUserInput } from "@src/modules/auth/dto/update-user.input"
-import type { UserModel } from "@src/modules/auth/model/user.model"
+import { UserModel } from "@src/modules/auth/model/user.model"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import * as argon2 from "argon2"
 import cleanDeep from "clean-deep"
@@ -87,7 +87,6 @@ export class AuthService {
    */
   async createUser(data: CreateUserInput): Promise<UserModel> {
     const { password, username, name, role } = data
-    await this.verifyDuplicateUsernameWithException(username)
     const hashedPassword = await this.generatedHashedPassword(password)
 
     const createUserInput: Prisma.UsersCreateInput = {
@@ -97,21 +96,31 @@ export class AuthService {
       role,
     }
 
-    const user = await this.prisma.users.create({
-      data: createUserInput,
-      select: {
-        id: true,
-        username: true,
-        active: true,
-        name: true,
-        role: true,
-        createdDate: true,
-        updatedDate: true,
-        passwordHash: false,
-      },
-    })
-
-    return user
+    try {
+      return await this.prisma.users.create({
+        data: createUserInput,
+        select: {
+          id: true,
+          username: true,
+          active: true,
+          name: true,
+          role: true,
+          createdDate: true,
+          updatedDate: true,
+          passwordHash: false,
+        },
+      })
+    } catch (error: unknown) {
+      this.prisma.handlePrismaErrors({
+        error: error,
+        duplicatedErrors: [
+          {
+            error: AuthErrors.UsernameIsDuplicated,
+            field: Prisma.UsersScalarFieldEnum.username,
+          },
+        ],
+      })
+    }
   }
 
   /**
@@ -167,32 +176,40 @@ export class AuthService {
       where: { id },
     } = input
 
-    const user = await this.verifyUserExistanceByUserId(id)
-    await this.verifyDuplicateUsernameWithException(data.username, user.username)
-
-    const updatedUser = await this.prisma.users.update({
-      where: {
-        id,
-      },
-      data: {
-        name: data.name,
-        username: data.username.toLowerCase(),
-        active: data.active,
-        role: data.role,
-      },
-      select: {
-        id: true,
-        username: true,
-        active: true,
-        name: true,
-        role: true,
-        createdDate: true,
-        updatedDate: true,
-        passwordHash: false,
-      },
-    })
-
-    return updatedUser
+    try {
+      return await this.prisma.users.update({
+        where: {
+          id,
+        },
+        data: {
+          name: data.name,
+          username: data.username.toLowerCase(),
+          active: data.active,
+          role: data.role,
+        },
+        select: {
+          id: true,
+          username: true,
+          active: true,
+          name: true,
+          role: true,
+          createdDate: true,
+          updatedDate: true,
+          passwordHash: false,
+        },
+      })
+    } catch (error: unknown) {
+      this.prisma.handlePrismaErrors({
+        error: error,
+        duplicatedErrors: [
+          {
+            error: AuthErrors.UsernameIsDuplicated,
+            field: Prisma.UsersScalarFieldEnum.username,
+          },
+        ],
+        notFoundError: AuthErrors.UserNotFound,
+      })
+    }
   }
 
   /**
@@ -203,14 +220,20 @@ export class AuthService {
    */
   async deleteUser(where: IdInput): Promise<SuccessOutput> {
     const { id } = where
-    await this.verifyUserExistanceByUserId(id)
 
-    await this.prisma.users.update({
-      where: { id },
-      data: { active: false },
-    })
+    try {
+      await this.prisma.users.update({
+        where: { id },
+        data: { active: false },
+      })
 
-    return { success: true }
+      return { success: true }
+    } catch (error: unknown) {
+      this.prisma.handlePrismaErrors({
+        error: error,
+        notFoundError: AuthErrors.UserNotFound,
+      })
+    }
   }
 
   /**
@@ -224,16 +247,21 @@ export class AuthService {
       data: { newPassword },
       where: { id },
     } = input
-
-    await this.verifyUserExistanceByUserId(id)
     const hashedPassword = await this.generatedHashedPassword(newPassword)
 
-    await this.prisma.users.update({
-      where: { id },
-      data: { passwordHash: hashedPassword },
-    })
+    try {
+      await this.prisma.users.update({
+        where: { id },
+        data: { passwordHash: hashedPassword },
+      })
 
-    return { success: true }
+      return { success: true }
+    } catch (error: unknown) {
+      this.prisma.handlePrismaErrors({
+        error: error,
+        notFoundError: AuthErrors.UserNotFound,
+      })
+    }
   }
 
   /**
@@ -267,7 +295,7 @@ export class AuthService {
    * @returns result of operation
    * @throws {UsernameIsDuplicated}
    */
-  private async verifyDuplicateUsernameWithException(
+  async verifyDuplicateUsernameWithException(
     username: string,
     exceptionName?: string,
   ): Promise<boolean> {
@@ -291,7 +319,7 @@ export class AuthService {
    * @returns User Object or throw Error
    * @throws {UserNotFound}
    */
-  private async verifyUserExistanceByUserId(userId: string): Promise<Users> {
+  async verifyUserExistanceByUserId(userId: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({
       where: {
         id: userId,
@@ -309,7 +337,7 @@ export class AuthService {
    * @returns User Object or throw Error
    * @throws {IncorrectUsernameOrPassword}
    */
-  private async verifyUserExistanceByUsername(username: string): Promise<Users> {
+  async verifyUserExistanceByUsername(username: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({
       where: {
         username: username.toLowerCase(),
@@ -327,7 +355,7 @@ export class AuthService {
    * @param userId user id
    * @returns user token
    */
-  private async generateToken(username: string, userId: string, role: Role): Promise<string> {
+  async generateToken(username: string, userId: string, role: Role): Promise<string> {
     const payload: JwtPayload = {
       username: username.toLowerCase(),
       role: role,

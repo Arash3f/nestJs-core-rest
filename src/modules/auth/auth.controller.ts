@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common"
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
 import { IdInput } from "@src/common/dto/id.input"
 import { SuccessOutput } from "@src/common/dto/success.output"
@@ -61,7 +61,6 @@ export class AuthController {
     type: UserModel,
     status: 200,
   })
-  @ApiBearerAuth()
   @UseGuards(IsLoggedInGuard)
   async me(@GetUserId() requesterId: string): Promise<UserModel> {
     return await this.authService.me(requesterId)
@@ -84,7 +83,6 @@ export class AuthController {
     type: UserModel,
     status: 201,
   })
-  @ApiBearerAuth()
   @UseGuards(IsAdminGuard)
   async createUser(@Body() data: CreateUserInput): Promise<UserModel> {
     return await this.authService.createUser(data)
@@ -106,8 +104,7 @@ export class AuthController {
     type: ReadUserOutput,
     status: 200,
   })
-  @ApiBearerAuth()
-  @UseGuards(IsLoggedInGuard)
+  // @UseGuards(IsLoggedInGuard)
   async readUsers(@Body() data: ReadUserInput): Promise<ReadUserOutput> {
     return await this.authService.readUsers(data)
   }
@@ -129,8 +126,7 @@ export class AuthController {
     type: UserModel,
     status: 200,
   })
-  @ApiBearerAuth()
-  @UseGuards(IsAdminGuard)
+  // @UseGuards(IsAdminGuard)
   async updateUser(@Body() data: UpdateUserInput): Promise<UserModel> {
     return await this.authService.updateUser(data)
   }
@@ -152,7 +148,6 @@ export class AuthController {
     type: SuccessOutput,
     status: 200,
   })
-  @ApiBearerAuth()
   @UseGuards(IsAdminGuard)
   async deleteUser(@Body() where: IdInput): Promise<SuccessOutput> {
     return await this.authService.deleteUser(where)
@@ -172,7 +167,6 @@ export class AuthController {
   })
   @ApiBody({ type: ChangePasswordInput })
   @ApiResponse({ type: SuccessOutput, status: 200 })
-  @ApiBearerAuth()
   @UseGuards(IsAdminGuard)
   async changePassword(@Body() data: ChangePasswordInput) {
     return await this.authService.changePassword(data)
