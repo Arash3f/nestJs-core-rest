@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { Role } from "@prisma/client"
-import { CreateUserInput } from "@src/modules/auth/dto/create-user.input"
 import { EnvConfigModel } from "@src/modules/config/model/env-config.model"
 import type { ConfigDatabaseType, EnvType } from "@src/modules/config/types/config.type"
+import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
 
 @Injectable()
 export class EnvConfigService {

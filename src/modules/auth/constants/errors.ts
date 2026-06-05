@@ -16,20 +16,6 @@ export const AuthErrors = {
     message: "Access denied",
     persianTranslation: "دسترسی داده نشد",
   },
-  UsernameIsDuplicated: {
-    code: 1,
-    statusCode: HttpStatus.BAD_REQUEST,
-    module: ModuleNames.AuthModule,
-    message: "Username is duplicate",
-    persianTranslation: "نام کاربری تکراری است",
-  },
-  UserNotFound: {
-    code: 2,
-    statusCode: HttpStatus.BAD_REQUEST,
-    module: ModuleNames.AuthModule,
-    message: "User not found",
-    persianTranslation: "کاربر پیدا نشد",
-  },
   InactiveUser: {
     code: 3,
     statusCode: HttpStatus.BAD_REQUEST,

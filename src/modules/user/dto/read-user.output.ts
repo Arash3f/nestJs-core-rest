@@ -1,5 +1,5 @@
 import { ApiResponseProperty } from "@nestjs/swagger"
-import { UserModel } from "@src/modules/auth/model/user.model"
+import { UserModel } from "@src/modules/user/model/user.model"
 import { Type } from "class-transformer"
 import { IsArray, IsNumber, ValidateNested } from "class-validator"
 
