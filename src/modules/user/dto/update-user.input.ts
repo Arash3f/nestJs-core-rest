@@ -13,14 +13,16 @@ export class UpdateUserDataInput {
    */
   @ApiProperty({ type: String })
   @IsString()
-  username: string
+  @IsOptional()
+  username?: string
 
   /**
    * user activity
    */
   @ApiProperty({ type: Boolean })
   @IsBoolean()
-  active: boolean
+  @IsOptional()
+  active?: boolean
 
   /**
    * user role
@@ -35,7 +37,8 @@ export class UpdateUserDataInput {
    */
   @ApiProperty({ type: String })
   @IsString()
-  name: string
+  @IsOptional()
+  name?: string
 }
 
 /**
