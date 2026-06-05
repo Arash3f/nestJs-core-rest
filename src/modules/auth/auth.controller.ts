@@ -1,11 +1,14 @@
 import { Body, Controller, Post, UseGuards } from "@nestjs/common"
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
 import { SuccessOutput } from "@src/common/dto/success.output"
 import { IsAdminGuard } from "@src/common/guards/is-admin.guard"
 import { AuthService } from "@src/modules/auth/auth.service"
+import { AuthErrors } from "@src/modules/auth/constants/errors"
 import { ChangePasswordInput } from "@src/modules/auth/dto/change-password.input"
 import { LoginInput } from "@src/modules/auth/dto/login.input"
 import { LoginOutput } from "@src/modules/auth/dto/login.output"
+import { UserErrors } from "@src/modules/user/constants/errors"
 
 /**
  * Auth Controller
@@ -34,6 +37,7 @@ export class AuthController {
   })
   @ApiBody({ type: LoginInput })
   @ApiResponse({ type: LoginOutput, status: 200 })
+  @apiErrorResponses([AuthErrors.IncorrectUsernameOrPassword])
   async logIn(@Body() data: LoginInput): Promise<LoginOutput> {
     return await this.authService.logIn(data)
   }
@@ -53,6 +57,7 @@ export class AuthController {
   @ApiBody({ type: ChangePasswordInput })
   @ApiResponse({ type: SuccessOutput, status: 200 })
   @UseGuards(IsAdminGuard)
+  @apiErrorResponses([UserErrors.UserNotFound])
   async changePassword(@Body() data: ChangePasswordInput) {
     return await this.authService.changePassword(data)
   }

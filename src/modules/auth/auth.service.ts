@@ -31,7 +31,7 @@ export class AuthService {
    * * Takes the user's information and after validate the information returns the user's jwt Token
    * @param input Necessary data for login user
    * @returns User's jwt Token
-   * @throws {IncorrectUsernameOrPassword}
+   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword - When username or password incorrect
    */
   async logIn(data: LoginInput): Promise<LoginOutput> {
     const { password, username } = data
@@ -47,7 +47,7 @@ export class AuthService {
    * * Take the information for find user and update password
    * @param input Necessary data for update user's password
    * @returns True value or throw Error
-   * @throws {UserNotFound}
+   * @throws {AppException} UserErrors.UserNotFound - When user not found
    */
   async changePassword(input: ChangePasswordInput): Promise<SuccessOutput> {
     const {
@@ -85,7 +85,7 @@ export class AuthService {
    * @param userPassword Target user password
    * @param password Target User password
    * @returns User Object or throw Error
-   * @throws {IncorrectUsernameOrPassword}
+   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword - When username or password incorrect
    */
   private async verifyUserPassword(userPassword: string, password: string): Promise<boolean> {
     const valid = await argon2.verify(userPassword, password)
@@ -114,7 +114,7 @@ export class AuthService {
    * * Verify User Existance By Username
    * @param username Target username for Verify
    * @returns User Object or throw Error
-   * @throws {IncorrectUsernameOrPassword}
+   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword - When username or password incorrect
    */
   async verifyUserExistanceByUsername(username: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({

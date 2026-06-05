@@ -32,6 +32,7 @@ export class UserService {
    * * return the requester informations by requester Token
    * @param requesterId Get the userId from the Token
    * @returns User informations
+   * @throws {AppException} UserErrors.UserNotFound - When user not found
    */
   async me(requesterId: string): Promise<UserModel> {
     const user = await this.prisma.users.findUnique({
@@ -61,7 +62,7 @@ export class UserService {
    * * Takes the user's information and after validate the information create new User
    * @param input Necessary data for create user
    * @returns New User informations or throw error
-   * @throws {UsernameIsDuplicated}
+   * @throws {AppException} UserErrors.UsernameIsDuplicated - When username is duplicated
    */
   async createUser(data: CreateUserInput): Promise<UserModel> {
     const { password, username, name, role } = data
@@ -146,7 +147,8 @@ export class UserService {
    * * Takes the necessary information for update user and sends the updated user
    * @param input Necessary data for update user
    * @returns Updated user Information or throw error
-   * @throws {UserNotFound, UsernameIsDuplicated}
+   * @throws {AppException} UserErrors.UserNotFound - When user not found
+   * @throws {AppException} UserErrors.UsernameIsDuplicated - When username is duplicated
    */
   async updateUser(input: UpdateUserInput): Promise<UserModel> {
     const {
@@ -198,7 +200,7 @@ export class UserService {
    * * Take the information for find user and delete it
    * @param where Information for find the user
    * @returns True value or throw Error
-   * @throws {UserNotFound}
+   * @throws {AppException} UserErrors.UserNotFound - When user not found
    */
   async deleteUser(where: IdInput): Promise<SuccessOutput> {
     const { id } = where
@@ -223,7 +225,7 @@ export class UserService {
    * @param username Target username for Verify
    * @param exceptionName The username that should not be considered in the verification operation (Optional)
    * @returns result of operation
-   * @throws {UsernameIsDuplicated}
+   * @throws {AppException} UserErrors.UsernameIsDuplicated - When username is duplicated
    */
   async verifyDuplicateUsernameWithException(
     username: string,
@@ -247,7 +249,7 @@ export class UserService {
    * * Verify User Existance By UserID
    * @param userId Target User Id for Verify Existance
    * @returns User Object or throw Error
-   * @throws {UserNotFound}
+   * @throws {AppException} UserErrors.UserNotFound - When user not found
    */
   async verifyUserExistanceByUserId(userId: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({

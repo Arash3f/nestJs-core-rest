@@ -1,10 +1,12 @@
 import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common"
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
 import { IdInput } from "@src/common/dto/id.input"
 import { SuccessOutput } from "@src/common/dto/success.output"
 import { IsAdminGuard } from "@src/common/guards/is-admin.guard"
 import { IsLoggedInGuard } from "@src/common/guards/is-logged-in.guard"
+import { UserErrors } from "@src/modules/user/constants/errors"
 import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
 import { ReadUserInput } from "@src/modules/user/dto/read-user.input"
 import { ReadUserOutput } from "@src/modules/user/dto/read-user.output"
@@ -40,6 +42,7 @@ export class UserController {
     status: 200,
   })
   @UseGuards(IsLoggedInGuard)
+  @apiErrorResponses([UserErrors.UserNotFound])
   async me(@GetUserId() requesterId: string): Promise<UserModel> {
     return await this.userService.me(requesterId)
   }
@@ -62,6 +65,7 @@ export class UserController {
     status: 201,
   })
   @UseGuards(IsAdminGuard)
+  @apiErrorResponses([UserErrors.UsernameIsDuplicated])
   async createUser(@Body() data: CreateUserInput): Promise<UserModel> {
     return await this.userService.createUser(data)
   }
@@ -82,7 +86,7 @@ export class UserController {
     type: ReadUserOutput,
     status: 200,
   })
-  // @UseGuards(IsLoggedInGuard)
+  @UseGuards(IsLoggedInGuard)
   async readUsers(@Body() data: ReadUserInput): Promise<ReadUserOutput> {
     return await this.userService.readUsers(data)
   }
@@ -104,7 +108,9 @@ export class UserController {
     type: UserModel,
     status: 200,
   })
-  // @UseGuards(IsAdminGuard)
+  @UseGuards(IsAdminGuard)
+  @apiErrorResponses([UserErrors.UserNotFound])
+  @apiErrorResponses([UserErrors.UsernameIsDuplicated])
   async updateUser(@Body() data: UpdateUserInput): Promise<UserModel> {
     return await this.userService.updateUser(data)
   }
@@ -127,6 +133,7 @@ export class UserController {
     status: 200,
   })
   @UseGuards(IsAdminGuard)
+  @apiErrorResponses([UserErrors.UserNotFound])
   async deleteUser(@Body() where: IdInput): Promise<SuccessOutput> {
     return await this.userService.deleteUser(where)
   }
