@@ -2,12 +2,12 @@ version: "3"
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:15
     container_name: nest-rest-core-dev-postgres
     ports:
       - 5435:5432
     env_file:
-      - docker.env.dev
+      - .docker.dev.env
     volumes:
       - /data/postgres:/data/postgres
 
@@ -22,4 +22,4 @@ services:
     depends_on:
       - postgres
     env_file:
-      - ".env.docker.dev"
+      - "../../.env.dev"
