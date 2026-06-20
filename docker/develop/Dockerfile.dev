@@ -4,9 +4,6 @@ FROM node:22.22.3-alpine AS development
 # Install pnpm globally without corepack
 RUN npm install -g pnpm@latest
 
-# Or install a specific version
-# RUN npm install -g pnpm@8.15.0
-
 WORKDIR /app
 
 ENV PNPM_IGNORE_AGE_POLICY=true
