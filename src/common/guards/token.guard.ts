@@ -29,12 +29,6 @@ export class TokenGuard implements CanActivate {
     if (!token) return true
 
     try {
-      const decoded = this.jwtService.decode<JwtPayload>(token)
-
-      if (!decoded) {
-        return true
-      }
-
       const payload = this.jwtService.verify<JwtPayload>(token)
 
       // Bind the token to its issuing device: a token replayed from a different

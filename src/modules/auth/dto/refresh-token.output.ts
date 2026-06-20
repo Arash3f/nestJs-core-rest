@@ -5,4 +5,8 @@ export class RefreshTokenOutput {
   @ApiResponseProperty({ type: String })
   @IsJWT()
   accessToken: string
+
+  @ApiResponseProperty({ type: String })
+  @IsJWT()
+  refreshToken: string
 }

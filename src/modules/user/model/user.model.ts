@@ -3,7 +3,7 @@ import { Role } from "@prisma/client"
 import { IsBoolean, IsDate, IsString, IsUUID } from "class-validator"
 
 /**
- * * User Model Class
+ * User Model Class
  */
 export class UserModel {
   /**
@@ -35,7 +35,7 @@ export class UserModel {
   active: boolean
 
   /**
-   * user roel
+   * user role
    */
   @ApiResponseProperty({ enum: Role })
   role: string

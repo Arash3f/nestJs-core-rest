@@ -4,7 +4,7 @@ import type { PaginationData } from "@src/common/dto/pagination.input"
  * The internal function that prepares the final object for pagination filter, used when working with Prisma
  * @returns pagination object
  * @example
- * In Auth module --> service.ts
+ * In User module --> service.ts
  * ```ts
  * const entity = this.prisma.users.findMany({
  * 		where: whereClause,

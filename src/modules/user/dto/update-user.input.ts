@@ -5,13 +5,13 @@ import { Type } from "class-transformer"
 import { IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from "class-validator"
 
 /**
- * * Data transfers object to Update User Input
+ * Data transfers object to Update User Input
  */
 export class UpdateUserDataInput {
   /**
    * user username
    */
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   username?: string
@@ -19,7 +19,7 @@ export class UpdateUserDataInput {
   /**
    * user activity
    */
-  @ApiProperty({ type: Boolean })
+  @ApiPropertyOptional({ type: Boolean })
   @IsBoolean()
   @IsOptional()
   active?: boolean
@@ -35,7 +35,7 @@ export class UpdateUserDataInput {
   /**
    * user name
    */
-  @ApiProperty({ type: String })
+  @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   name?: string
@@ -49,7 +49,7 @@ export class UpdateUserInput {
    * find target user
    */
   @Type(() => IdInput)
-  @ApiPropertyOptional({ type: IdInput })
+  @ApiProperty({ type: IdInput })
   @ValidateNested()
   where: IdInput
 
@@ -57,7 +57,7 @@ export class UpdateUserInput {
    * update data
    */
   @Type(() => UpdateUserDataInput)
-  @ApiPropertyOptional({ type: UpdateUserDataInput })
+  @ApiProperty({ type: UpdateUserDataInput })
   @ValidateNested()
   data: UpdateUserDataInput
 }

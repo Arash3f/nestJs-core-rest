@@ -240,7 +240,6 @@ export class AuthService {
    *
    * @param userId target user
    * @param refreshToken requested refresh token
-   * @param sKey user's per-user secret used as the argon2 secret
    *
    * @returns result of operation
    */

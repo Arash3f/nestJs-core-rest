@@ -39,11 +39,11 @@ function getSortableFields(model: Prisma.ModelName): ReadonlySet<string> {
  * @param model the Prisma model being queried; pass it to enable field validation
  * @returns a Prisma `orderBy` fragment (or `{}` when no field is requested)
  * @example
- * In Faq module --> service.ts
+ * In User module --> service.ts
  * ```ts
- * const entity = this.prisma.faq.findMany({
+ * const entity = this.prisma.users.findMany({
  * 		where: whereClause,
- * 		...convertSortByToPrismaFilter(input?.sortBy, Prisma.ModelName.Faq),
+ * 		...convertSortByToPrismaFilter(input?.sortBy, Prisma.ModelName.Users),
  * 		...convertPaginationToPrismaFilter(input?.pagination)
  * })
  * ```

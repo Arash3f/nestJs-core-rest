@@ -13,11 +13,9 @@ export class InitService implements OnApplicationBootstrap {
 
   /**
    * Import app services
-   * @param error error service for generate errors
    * @param prisma prisma service for connect to database
    */
   constructor(
-    // private error: ErrorService,
     private prisma: PrismaService,
     private readonly envConf: EnvConfigService,
   ) {}
@@ -47,10 +45,6 @@ export class InitService implements OnApplicationBootstrap {
 
   /**
    * Upserts a single user from the given config.
-   *
-   * The hash and `sKey` are always written together — on both create and
-   * update — so they never drift apart (a mismatch would lock the user out,
-   * since auth verifies the hash using the stored `sKey` as the argon2 secret).
    *
    * @param userConfig - Name, username, password and role of the user to seed
    *

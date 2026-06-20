@@ -4,7 +4,7 @@ import { Type } from "class-transformer"
 import { IsArray, IsNumber, ValidateNested } from "class-validator"
 
 /**
- * * Data transfers object to Read User Output
+ * Data transfers object to Read User Output
  */
 export class ReadUserOutput {
   /**
