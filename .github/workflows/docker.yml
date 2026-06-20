@@ -48,7 +48,7 @@ jobs:
 
       - name: Write app env file
         run: |
-          cat <<'EOF' > .env.dev
+          cat <<'EOF' > docker/develop/.env.docker.dev
           NODE_ENV=development
           SERVER_ADDRESS=0.0.0.0
           SERVER_PORT=3000

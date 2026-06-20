@@ -53,6 +53,7 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+docker/develop/.env.docker.dev
 docker/develop/docker.env.dev.sample
 docker/production/docker.env.prod.sample
 docker/develop/.env.docker2.dev
