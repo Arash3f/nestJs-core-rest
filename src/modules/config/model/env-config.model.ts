@@ -1,3 +1,4 @@
+import { ToBoolean, ToNumber } from "@src/modules/config/transforms"
 import { EnvType } from "@src/modules/config/types/config.type"
 import { IsBoolean, IsEnum, IsNumber, IsString } from "class-validator"
 
@@ -9,15 +10,18 @@ export class EnvConfigModel {
   SWAGGER_PATH: string
 
   @IsNumber()
+  @ToNumber()
   SERVER_PORT: number
 
   @IsString()
   JWT_SECRET: string
 
   @IsNumber()
+  @ToNumber()
   JWT_ACCESS_EXPIRE: number
 
   @IsNumber()
+  @ToNumber()
   JWT_REFRESH_EXPIRE: number
 
   @IsString()
@@ -45,6 +49,7 @@ export class EnvConfigModel {
   NODE_ENV: EnvType
 
   @IsBoolean()
+  @ToBoolean()
   SEED_ON_BOOT: boolean
 
   @IsString()
@@ -66,11 +71,14 @@ export class EnvConfigModel {
   MEMBER_USER_PASSWORD: string
 
   @IsNumber()
+  @ToNumber()
   PASSWORD_HASH_MEMORY_COST: number
 
   @IsNumber()
+  @ToNumber()
   PASSWORD_HASH_TIME_COST: number
 
   @IsNumber()
+  @ToNumber()
   PASSWORD_HASH_PARALLELISM: number
 }

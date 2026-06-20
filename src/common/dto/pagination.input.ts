@@ -1,52 +1,48 @@
 import { ApiPropertyOptional } from "@nestjs/swagger"
-import { IsNumber, Max, Min } from "class-validator"
+import { convertPaginationToPrismaFilter } from "@src/modules/prisma/utils/pagination.convert"
+import { IsNumber, IsOptional, Max, Min } from "class-validator"
 
 /**
- * * Data transfer object for Pagination Input
+ * Data transfer object for Pagination Input
  */
 export class PaginationData {
-  /**
-   * how many object take in response
-   */
   @ApiPropertyOptional({
     type: Number,
     default: 10,
     minimum: 0,
     maximum: 200,
   })
+  @IsOptional()
   @Min(0)
   @Max(200)
   @IsNumber()
   take?: number = 10
 
-  /**
-   * skip object
-   */
   @ApiPropertyOptional({
     type: Number,
+    default: 0,
     minimum: 0,
   })
+  @IsOptional()
   @Min(0)
   @IsNumber()
   skip?: number = 0
 
   /**
-   * The internal function that prepares the final object for pagination filter, used when working with Prisma
-   * @returns pagination object
+   * Prepares the final `{ take, skip }` object for a Prisma pagination filter.
+   *
+   * @returns a Prisma pagination fragment with the resolved `take` and `skip` values
    * @example
    * In Auth module --> service.ts
    * ```ts
    * const entity = this.prisma.users.findMany({
    * 		where: whereClause,
-   * 		...input?.sortBy?.convertToPrismaFilter(),
+   * 		...input?.sortBy?.convertToPrismaFilter(Prisma.ModelName.Users),
    * 		...input?.pagination?.convertToPrismaFilter()
    * })
    * ```
    */
   convertToPrismaFilter() {
-    return {
-      take: this.take,
-      skip: this.skip,
-    }
+    return convertPaginationToPrismaFilter(this)
   }
 }

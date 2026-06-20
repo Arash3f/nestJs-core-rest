@@ -26,7 +26,7 @@ import { ModuleNames } from "src/constants"
  * transforms it into a consistent `ErrorResponseBody` format.
  *
  * Key features:
- * - Handles `DomainException` (business logic errors)
+ * - Handles `AppException` (business logic errors)
  * - Handles NestJS `HttpException` (HTTP-specific errors)
  * - Handles generic JavaScript `Error` objects
  * - Sanitizes error details in production environment
@@ -49,15 +49,19 @@ import { ModuleNames } from "src/constants"
  * ```
  *
  * @example
- * Throwing DomainException (handled by this filter):
+ * Throwing AppException (handled by this filter):
  * ```ts
- * throw new DomainException({
- *   message: 'User not found',
- *   persianTranslation: 'کاربر یافت نشد',
- *   statusCode: HttpStatus.NOT_FOUND,
- *   code: 1001,
- *   module: ModuleNames.UserModule
- * });
+ * // Preferred: pass a predefined AppErrorDescriptor from the module's constants/errors.ts
+ * throw new AppException(AuthErrors.UserIsNotAuthorized);
+ *
+ * // The descriptor shape it carries:
+ * // {
+ * //   message: 'User not found',
+ * //   persianTranslation: 'کاربر یافت نشد',
+ * //   statusCode: HttpStatus.NOT_FOUND,
+ * //   code: 1001,
+ * //   module: ModuleNames.AuthModule,
+ * // }
  * ```
  *
  * @example
@@ -69,7 +73,7 @@ import { ModuleNames } from "src/constants"
  *
  * @remarks
  * **Error Response Structure:**
- * - Successfully processed exceptions (DomainException, HttpException) preserve their
+ * - Successfully processed exceptions (AppException, HttpException) preserve their
  *   specific status codes and messages
  * - Unknown exceptions are converted to 500 Internal Server Error
  * - In production (`NodeEnv.Production`), debug information is automatically stripped
@@ -78,7 +82,7 @@ import { ModuleNames } from "src/constants"
  * - Production: Only minimal error response (no debug info)
  * - Development/Staging: Full error details logged and returned
  *
- * @see {@link DomainException} - Business logic exceptions
+ * @see {@link AppException} - Business logic exceptions
  */
 @Catch()
 export class CoreExceptionFilter implements ExceptionFilter {
@@ -99,7 +103,7 @@ export class CoreExceptionFilter implements ExceptionFilter {
    *
    * @remarks
    * **Exception Processing Priority:**
-   * 1. DomainException (most specific, business logic)
+   * 1. AppException (most specific, business logic)
    * 2. HttpException (NestJS HTTP exceptions)
    * 3. Error (generic JavaScript errors)
    * 4. string (raw error messages)
@@ -126,7 +130,7 @@ export class CoreExceptionFilter implements ExceptionFilter {
     }
 
     /**
-     * Handle DomainException (business logic errors)
+     * Handle AppException (business logic errors)
      * Preserves all custom fields: message, translation, code, module
      */
     if (exception instanceof AppException) {

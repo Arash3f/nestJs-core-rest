@@ -22,7 +22,8 @@ export function validateEnv(config: Record<string, unknown>): EnvConfigModel {
   const logger = new Logger(EnvConfigService.name)
 
   const validatedConfig = plainToInstance(EnvConfigModel, config, {
-    enableImplicitConversion: true,
+    enableImplicitConversion: false,
+    exposeDefaultValues: true,
   })
   const validationErrors = validateSync(validatedConfig, {
     skipMissingProperties: false,

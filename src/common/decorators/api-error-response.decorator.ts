@@ -1,7 +1,8 @@
 import { applyDecorators } from "@nestjs/common"
 import { ApiResponse } from "@nestjs/swagger"
 import type { AppErrorDescriptor } from "@src/app.exception"
-import { AppExceptionResponseDto } from "@src/common/dto/error-response.dto"
+
+import { AppExceptionResponseDto } from "../dto/error-response.dto"
 
 /**
  * Groups errors by HTTP status code and creates Swagger documentation responses
@@ -16,12 +17,14 @@ import { AppExceptionResponseDto } from "@src/common/dto/error-response.dto"
  *
  * @example
  * ```typescript
- * // Define multiple errors with same and different status codes
- * const errors = [
- *   MinioErrors.FileNotFound,        // statusCode: 404
- *   MinioErrors.FileIsNotPending,    // statusCode: 400
- *   MinioErrors.FileNotFoundInStorage // statusCode: 404 (same as FileNotFound)
- * ];
+ * // Apply on a route — errors with the same status code are merged into one ApiResponse
+ * @apiErrorResponses([
+ *   MinioErrors.FileNotFound,         // statusCode: 404
+ *   MinioErrors.FileIsNotPending,     // statusCode: 400
+ *   MinioErrors.FileNotFoundInStorage // statusCode: 404 (merged with FileNotFound)
+ * ])
+ * @Post("downloadFile")
+ * downloadFile(@Body() input: DownloadFileInput) {}
  * ```
  */
 export function apiErrorResponses(errors: AppErrorDescriptor[]) {
@@ -37,19 +40,14 @@ export function apiErrorResponses(errors: AppErrorDescriptor[]) {
     {} as Record<number, AppErrorDescriptor[]>,
   )
 
-  // Create one ApiResponse per status code with combined description
-  const decorators = Object.entries(groupedErrors).map(([statusCode, errorGroup]) => {
-    const exampleList: AppErrorDescriptor[] = []
-    errorGroup.forEach((err: AppErrorDescriptor) => {
-      exampleList.push(err)
-    })
-
-    return ApiResponse({
+  // Create one ApiResponse per status code, using the grouped errors as the example list
+  const decorators = Object.entries(groupedErrors).map(([statusCode, errorGroup]) =>
+    ApiResponse({
       status: Number(statusCode),
       type: AppExceptionResponseDto,
-      example: exampleList,
-    })
-  })
+      example: errorGroup,
+    }),
+  )
 
   return applyDecorators(...decorators)
 }
