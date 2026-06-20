@@ -30,4 +30,18 @@ export const AuthErrors = {
     message: "The username or password is incorrect",
     persianTranslation: "نام کاربری یا پسورد اشتباه است",
   },
+  DeviceMismatch: {
+    code: 5,
+    statusCode: HttpStatus.UNAUTHORIZED,
+    module: ModuleNames.AuthModule,
+    message: "This token was issued for a different device",
+    persianTranslation: "این توکن برای دستگاه دیگری صادر شده است",
+  },
+  InValidRefreshToken: {
+    code: 6,
+    statusCode: HttpStatus.UNAUTHORIZED,
+    module: ModuleNames.AuthModule,
+    message: "user refreshtoken is incorrect",
+    persianTranslation: "refresh توکن اشتباه است",
+  },
 }

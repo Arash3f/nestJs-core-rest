@@ -8,7 +8,7 @@ import { CoreExceptionFilter } from "@src/common/filters/core-exception.filter"
 import { TokenGuard } from "@src/common/guards/token.guard"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { EnvType } from "@src/modules/config/types/config.type"
-import type { ServerResponse } from "http"
+import type { IncomingMessage, ServerResponse } from "http"
 
 /**
  * Webpack Hot Module Replacement (HMR) contract for Node.js bundles.
@@ -27,7 +27,7 @@ interface HotModule {
 declare const module: HotModule
 
 /**
- * * main function for run app
+ * main function for run app
  * @returns App
  */
 async function bootstrap() {
@@ -105,7 +105,7 @@ function setupSwagger(app: NestExpressApplication, configService: EnvConfigServi
 
   SwaggerModule.setup(configService.swaggerPath, app, document)
 
-  app.use(`/${configService.swaggerDocsPath}`, (_req: Request, res: ServerResponse) => {
+  app.use(`/${configService.swaggerDocsPath}`, (_req: IncomingMessage, res: ServerResponse) => {
     res.setHeader("Content-Type", "application/json")
     res.end(JSON.stringify(document))
   })
@@ -138,6 +138,7 @@ function setupGlobalValidation(app: NestExpressApplication, configService: EnvCo
     new ValidationPipe({
       transform: true,
       whitelist: true,
+      forbidNonWhitelisted: true,
     }),
   )
 }

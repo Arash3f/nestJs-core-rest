@@ -1,7 +1,9 @@
-// dto/error-response.dto.ts
 import { ApiProperty } from "@nestjs/swagger"
 import { ModuleNames } from "@src/constants"
 
+/**
+ * Data transfers object to Exception
+ */
 export class AppExceptionResponseDto {
   @ApiProperty({
     description: "HTTP status code",
@@ -44,5 +46,5 @@ export class AppExceptionResponseDto {
   @ApiProperty({
     description: "Request path",
   })
-  path?: string
+  path: string
 }

@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common"
-import { Role } from "@prisma/client"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
+import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
 import * as argon2 from "argon2"
 
 @Injectable()
@@ -22,22 +22,42 @@ export class InitService implements OnApplicationBootstrap {
     private readonly envConf: EnvConfigService,
   ) {}
 
+  /**
+   * Seeds the default super-user and member-user on application startup.
+   *
+   * No-op unless `SEED_ON_BOOT` is enabled. Each user is upserted so the seed
+   * is safe to run on every boot.
+   */
   async onApplicationBootstrap() {
     if (this.envConf.seedOnBoot !== true) return
 
-    this.logger.verbose("Seed Admin user started ...")
-    await this.seedAdmin()
+    try {
+      this.logger.verbose("Seed Admin user started ...")
+      await this.seedUser(this.envConf.defaultSuperUser)
 
-    this.logger.verbose("Seed Member user started ...")
-    await this.seedNormalUser()
+      this.logger.verbose("Seed Member user started ...")
+      await this.seedUser(this.envConf.defaultMemberUser)
 
-    this.logger.verbose("Seed service finished :)")
+      this.logger.verbose("Seed service finished :)")
+    } catch (error) {
+      this.logger.error("Seed service failed", error instanceof Error ? error.stack : error)
+      throw error
+    }
   }
 
-  private async seedAdmin() {
-    const name = this.envConf.defaultSuperUser.name
-    const username = this.envConf.defaultSuperUser.username
-    const password = this.envConf.defaultSuperUser.password
+  /**
+   * Upserts a single user from the given config.
+   *
+   * The hash and `sKey` are always written together — on both create and
+   * update — so they never drift apart (a mismatch would lock the user out,
+   * since auth verifies the hash using the stored `sKey` as the argon2 secret).
+   *
+   * @param userConfig - Name, username, password and role of the user to seed
+   *
+   * @returns A promise that resolves once the user has been upserted.
+   */
+  private async seedUser(userConfig: CreateUserInput): Promise<void> {
+    const { name, username, password, role } = userConfig
 
     const passwordHash = await argon2.hash(password, {
       type: argon2.argon2id,
@@ -46,53 +66,13 @@ export class InitService implements OnApplicationBootstrap {
       parallelism: this.envConf.parallelism,
     })
 
-    await this.prisma.users.upsert({
-      where: { username },
-      update: {
-        name,
-        username,
-        passwordHash,
-        role: Role.Admin,
-        active: true,
-      },
-      create: {
-        name,
-        username,
-        passwordHash,
-        role: Role.Admin,
-        active: true,
-      },
-    })
-  }
-
-  private async seedNormalUser() {
-    const memberUser = this.envConf.defaultMemberUser
-    if (memberUser === null) return
-
-    const { name, username, password } = memberUser
-
-    const passwordHash = await argon2.hash(password, {
-      type: argon2.argon2id,
-      memoryCost: this.envConf.memoryCost,
-      timeCost: this.envConf.timeCost,
-      parallelism: this.envConf.parallelism,
-    })
+    const fields = { name, username, role, active: true }
+    const createFields = { ...fields, passwordHash }
 
     await this.prisma.users.upsert({
       where: { username },
-      update: {
-        name,
-        passwordHash,
-        role: Role.Member,
-        active: true,
-      },
-      create: {
-        name,
-        username,
-        passwordHash,
-        role: Role.Member,
-        active: true,
-      },
+      update: fields,
+      create: createFields,
     })
   }
 }

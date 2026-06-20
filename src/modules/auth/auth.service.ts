@@ -1,13 +1,16 @@
 import { Injectable } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
-import { Role, Users } from "@prisma/client"
+import { Users } from "@prisma/client"
 import { AppException } from "@src/app.exception"
 import type { SuccessOutput } from "@src/common/dto/success.output"
-import { JwtPayload } from "@src/common/types/token.type"
+import { JwtPayload, Tokens } from "@src/common/types/request.type"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
 import type { ChangePasswordInput } from "@src/modules/auth/dto/change-password.input"
 import type { LoginInput } from "@src/modules/auth/dto/login.input"
 import type { LoginOutput } from "@src/modules/auth/dto/login.output"
+import { RefreshTokenInput } from "@src/modules/auth/dto/refresh-token.input"
+import { RefreshTokenOutput } from "@src/modules/auth/dto/refresh-token.output"
+import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import { UserErrors } from "@src/modules/user/constants/errors"
 import * as argon2 from "argon2"
@@ -24,39 +27,57 @@ export class AuthService {
    */
   constructor(
     private prisma: PrismaService,
+    private envConfig: EnvConfigService,
     private jwt: JwtService,
   ) {}
 
   /**
-   * * Takes the user's information and after validate the information returns the user's jwt Token
-   * @param input Necessary data for login user
+   * Takes the user's information and after validate the information returns the user's jwt Token
+   *
+   * @param data - Necessary data for login user
+   * @param deviceId - Fingerprint of the calling device; the issued tokens are bound to it.
+   *
    * @returns User's jwt Token
-   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword - When username or password incorrect
+   *
+   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword
    */
-  async logIn(data: LoginInput): Promise<LoginOutput> {
+  async logIn(data: LoginInput, deviceId: string): Promise<LoginOutput> {
     const { password, username } = data
 
     const user = await this.verifyUserExistanceByUsername(username)
     await this.verifyUserPassword(user.passwordHash, password)
-    const token = await this.generateToken(user.username, user.id, user.role)
+    const tokens = await this.generateToken(user.username, user.id, deviceId)
+    await this.storeRefreshToken(user.id, tokens.refreshToken)
 
-    return { jwt: token }
+    return tokens
+  }
+
+  async logout(userId: string): Promise<SuccessOutput> {
+    await this.removeRefreshToken(userId)
+    return { success: true }
   }
 
   /**
-   * * Take the information for find user and update password
-   * @param input Necessary data for update user's password
+   * Take the information for find user and update password
+   *
+   * @param input - Necessary data for update user's password
+   *
    * @returns True value or throw Error
-   * @throws {AppException} UserErrors.UserNotFound - When user not found
+   *
+   * @throws {AppException} UserErrors.UserNotFound
    */
-  async changePassword(input: ChangePasswordInput): Promise<SuccessOutput> {
+  async changePassword(userId: string, input: ChangePasswordInput): Promise<SuccessOutput> {
     const {
       data: { newPassword },
       where: { id },
     } = input
-    const hashedPassword = await this.generatedHashedPassword(newPassword)
 
     try {
+      const user = await this.prisma.users.findUnique({ where: { id: userId } })
+      if (!user) throw new AppException(AuthErrors.UserIsNotAuthorized)
+
+      const hashedPassword = await this.generatedHashedPassword(newPassword)
+
       await this.prisma.users.update({
         where: { id },
         data: { passwordHash: hashedPassword },
@@ -72,49 +93,105 @@ export class AuthService {
   }
 
   /**
-   * * Hash Password
-   * @param password The user's password to be Hashed
-   * @returns Hashed password
+   * refresh user token with refreshToken and get new tokens
+   *
+   * @param userId - requested user
+   * @param input - Necessary data for update user's token
+   * @param deviceId - Fingerprint of the calling device; must match the device the session was bound to.
+   *
+   * @returns New user tokens
+   *
+   * @throws {AppException} AuthErrors.UserIsNotAuthorized
+   * @throws {AppException} AuthErrors.DeviceMismatch - When the request comes from a different device than the one the session was issued to.
+   * @throws {AppException} AuthErrors.InValidRefreshToken
    */
-  async generatedHashedPassword(password: string): Promise<string> {
-    return await argon2.hash(password)
+  async refreshToken(input: RefreshTokenInput, deviceId: string): Promise<RefreshTokenOutput> {
+    const decodeToken = this.jwt.decode<JwtPayload>(input.refreshToken)
+    if (decodeToken.deviceId !== deviceId) {
+      throw new AppException(AuthErrors.DeviceMismatch)
+    }
+
+    const user = await this.prisma.users.findUnique({ where: { id: decodeToken.id } })
+    if (!user || !user?.reFreshTokenHash) throw new AppException(AuthErrors.UserIsNotAuthorized)
+
+    // Device binding: the request must come from the same device the refresh token was issued to.
+
+    const isValid = await this.validateRefreshToken(user.reFreshTokenHash, input.refreshToken)
+    if (!isValid) {
+      throw new AppException(AuthErrors.InValidRefreshToken)
+    }
+
+    const tokens = await this.generateToken(user.username, user.id, deviceId)
+    await this.storeRefreshToken(user.id, tokens.refreshToken)
+
+    return tokens
   }
 
   /**
-   * * Verify User with UserPassword
+   * Hash Password
+   *
+   * @param password The user's password to be Hashed
+   *
+   * @returns Hashed password
+   */
+  async generatedHashedPassword(password: string): Promise<string> {
+    return await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: this.envConfig.memoryCost,
+      timeCost: this.envConfig.timeCost,
+      parallelism: this.envConfig.parallelism,
+    })
+  }
+  /**
+   * Verify User with UserPassword
+   *
    * @param userPassword Target user password
    * @param password Target User password
-   * @returns User Object or throw Error
-   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword - When username or password incorrect
+   *
+   * @returns result operation
+   *
+   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword
    */
   private async verifyUserPassword(userPassword: string, password: string): Promise<boolean> {
     const valid = await argon2.verify(userPassword, password)
-
     if (!valid) throw new AppException(AuthErrors.IncorrectUsernameOrPassword)
 
     return valid
   }
 
   /**
-   * * Generate Token
+   * Generate Token
+   *
    * @param username user username
    * @param userId user id
-   * @returns user token
+   * @param deviceId device fingerprint the tokens are bound to
+   *
+   * @returns user tokens
    */
-  async generateToken(username: string, userId: string, role: Role): Promise<string> {
+  private async generateToken(username: string, userId: string, deviceId: string): Promise<Tokens> {
     const payload: JwtPayload = {
       username: username.toLowerCase(),
-      role: role,
       id: userId,
+      deviceId,
     }
-    return await this.jwt.signAsync(payload)
+
+    const accessToken = await this.jwt.signAsync(payload)
+
+    const refreshToken = await this.jwt.signAsync(payload, {
+      expiresIn: this.envConfig.jwtRefreshExpire,
+    })
+
+    return { accessToken, refreshToken }
   }
 
   /**
-   * * Verify User Existance By Username
+   * Verify User Existance By Username
+   *
    * @param username Target username for Verify
+   *
    * @returns User Object or throw Error
-   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword - When username or password incorrect
+   *
+   * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword
    */
   async verifyUserExistanceByUsername(username: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({
@@ -126,5 +203,52 @@ export class AuthService {
     if (!user) throw new AppException(AuthErrors.IncorrectUsernameOrPassword)
 
     return user
+  }
+
+  /**
+   * Remove refresh token
+   *
+   * @param userId Target username
+   *
+   * @returns void
+   */
+  private async removeRefreshToken(userId: string): Promise<void> {
+    await this.prisma.users.update({
+      where: { id: userId },
+      data: { reFreshTokenHash: null },
+    })
+  }
+
+  /**
+   * Verify Refresh token
+   *
+   * @param reFreshTokenHash database refresh token
+   * @param refreshToken requested refresh token
+   *
+   * @returns result of operation
+   */
+  private async validateRefreshToken(
+    reFreshTokenHash: string,
+    refreshToken: string,
+  ): Promise<boolean> {
+    const valid = await argon2.verify(reFreshTokenHash, refreshToken)
+    return valid
+  }
+
+  /**
+   * Store refresh Token in db
+   *
+   * @param userId target user
+   * @param refreshToken requested refresh token
+   * @param sKey user's per-user secret used as the argon2 secret
+   *
+   * @returns result of operation
+   */
+  private async storeRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    const hashedToken = await this.generatedHashedPassword(refreshToken)
+    await this.prisma.users.update({
+      where: { id: userId },
+      data: { reFreshTokenHash: hashedToken },
+    })
   }
 }

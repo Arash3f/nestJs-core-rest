@@ -46,15 +46,15 @@ export class EnvConfigService {
   }
 
   get memoryCost(): number {
-    return this.configService.get<number>("PASSWORD_HASH_MEMORY_COST") as number
+    return this.configService.getOrThrow("PASSWORD_HASH_MEMORY_COST")
   }
 
   get timeCost(): number {
-    return this.configService.get<number>("PASSWORD_HASH_TIME_COST") as number
+    return this.configService.getOrThrow("PASSWORD_HASH_TIME_COST")
   }
 
   get parallelism(): number {
-    return this.configService.get<number>("PASSWORD_HASH_PARALLELISM") as number
+    return this.configService.getOrThrow("PASSWORD_HASH_PARALLELISM")
   }
 
   get nodeEnv(): EnvType {

@@ -2,19 +2,42 @@ import type { CanActivate, ExecutionContext } from "@nestjs/common"
 import { Injectable } from "@nestjs/common"
 import { Role } from "@prisma/client"
 import { AppException } from "@src/app.exception"
-import { AuthenticatedRequest } from "@src/common/types/auth-request.type"
+import { AuthenticatedRequest } from "@src/common/types/request.type"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
+import { PrismaService } from "@src/modules/prisma/prisma.service"
 
 @Injectable()
 export class IsAdminGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  constructor(private prisma: PrismaService) {}
+
+  /**
+   * Allows the request only when the authenticated user has the `Admin` role.
+   *
+   * @param context - The execution context for the incoming request.
+   * @returns `true` when the user is an admin.
+   * @throws {AppException} AuthErrors.UserIsNotAuthorized - When no authenticated user is attached to the request.
+   * @throws {AppException} AuthErrors.AccessDenied - When the authenticated user is not an admin.
+   */
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>()
 
     if (!req.user) {
       throw new AppException(AuthErrors.UserIsNotAuthorized)
     }
 
-    if (req.user.role !== Role.Admin) {
+    /**
+     * Verify User Role
+     */
+    const findUser = await this.prisma.users.findUnique({
+      where: {
+        id: req.user.id,
+      },
+      select: {
+        role: true,
+      },
+    })
+
+    if (findUser?.role !== Role.Admin) {
       throw new AppException(AuthErrors.AccessDenied)
     }
 

@@ -9,8 +9,3 @@ export enum ModuleNames {
   PrismaModule = "PrismaModule",
   UserModule = "UserModule",
 }
-
-/**
- * This address is used for testing
- */
-export const serverAddress = `http://${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}`

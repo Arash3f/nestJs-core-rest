@@ -8,9 +8,14 @@ export type PrismaDuplicatedError = {
   field: string
   error: AppErrorDescriptor
 }
+export type PrismaForeignKeyError = {
+  field: string
+  error: AppErrorDescriptor
+}
 export type DriverAdapterCause = {
   kind?: string
   constraint?: {
     fields?: unknown
+    index?: unknown
   }
 }
