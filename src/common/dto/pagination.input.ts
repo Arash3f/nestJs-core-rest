@@ -33,7 +33,7 @@ export class PaginationData {
    *
    * @returns a Prisma pagination fragment with the resolved `take` and `skip` values
    * @example
-   * In Auth module --> service.ts
+   * In User module --> service.ts
    * ```ts
    * const entity = this.prisma.users.findMany({
    * 		where: whereClause,

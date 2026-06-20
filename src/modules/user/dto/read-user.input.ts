@@ -6,7 +6,7 @@ import { Type } from "class-transformer"
 import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator"
 
 /**
- * * Data transfers object to Read User Input
+ * Data transfers object to Read User Input
  */
 export class ReadUserWhereData {
   /**

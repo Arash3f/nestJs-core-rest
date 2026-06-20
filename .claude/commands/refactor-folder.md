@@ -41,6 +41,12 @@ conventions (CLAUDE.md), don't "fix" intentional typos in identifiers/messages.
 - Look for runtime bugs and edge cases: empty input, null/undefined, missing headers, etc.
 - Check **type correctness** too (e.g. misused generics). When unsure of a library's signature,
   read its real `.d.ts` under `node_modules/.../*.d.ts` instead of guessing.
+- For every DTO field, cross-check `class-validator` against `@nestjs/swagger`: a field with
+  `@IsOptional()` (and a `?` on the TS type) must use `@ApiPropertyOptional` (or
+  `@ApiProperty({ required: false })`) — never plain `@ApiProperty`. A field with no
+  `@IsOptional()` (required) must use `@ApiProperty`, not `@ApiPropertyOptional`. A mismatch
+  means the generated Swagger doc / typed API client lies about what the server actually
+  requires or accepts.
 - Report findings; apply fixes only after confirmation.
 
 ## Final — Validate

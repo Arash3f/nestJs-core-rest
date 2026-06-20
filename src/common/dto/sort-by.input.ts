@@ -26,7 +26,7 @@ export class SortByData {
    * @returns a Prisma `orderBy` fragment (or `{}` when no field is requested)
    * @throws {AppException} PrismaErrors.InvalidSortField - When `model` is provided and `field` is not a real column on that model
    * @example
-   * In Auth module --> service.ts
+   * In User module --> service.ts
    * ```ts
    * const entity = this.prisma.users.findMany({
    * 		where: whereClause,
