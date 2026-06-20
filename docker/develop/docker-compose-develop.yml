@@ -19,7 +19,7 @@ services:
       context: ../../
       dockerfile: docker/develop/Dockerfile.dev
     container_name: nest-rest-core-dev-app
-    command: sh -c "pnpm exec prisma migrate deploy && pnpm run start:dev:docker"
+    command: sh -c "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm run start:dev:docker"
     ports:
       - "3005:3000"
     depends_on:
