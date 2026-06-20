@@ -20,6 +20,4 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install
 
 COPY --chown=node:node . .
 
-RUN pnpm exec prisma generate
-
 EXPOSE 3000
