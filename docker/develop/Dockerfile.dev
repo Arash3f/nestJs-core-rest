@@ -13,11 +13,13 @@ ENV PNPM_IGNORE_AGE_POLICY=true
 ENV PNPM_IGNORE_PATH_POLICY=true
 ENV PNPM_IGNORE_REGISTRY_POLICY=true
 
-COPY --chown=node:node package.json pnpm-lock.yaml ./
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --offline
 
 COPY --chown=node:node . .
+
+RUN pnpm exec prisma generate
 
 EXPOSE 3000
