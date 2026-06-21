@@ -36,6 +36,7 @@ jobs:
           --health-retries 5
 
     env:
+      NODE_ENV: test
       SERVER_ADDRESS: localhost
       SERVER_PORT: 3000
       SWAGGER_DOCS_PATH: docs
@@ -100,6 +101,7 @@ jobs:
       - name: Write test env file
         run: |
           cat <<EOF > .env.test
+          NODE_ENV=${{ env.NODE_ENV }}
           SERVER_ADDRESS=${{ env.SERVER_ADDRESS }}
           SERVER_PORT=${{ env.SERVER_PORT }}
           SWAGGER_DOCS_PATH=${{ env.SWAGGER_DOCS_PATH }}
