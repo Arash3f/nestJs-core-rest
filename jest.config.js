@@ -10,7 +10,7 @@ module.exports = {
   coverageDirectory: "./coverage",
   coverageReporters: ["html"],
   testEnvironment: "node",
-  coveragePathIgnorePatterns: ["<rootDir>/src/utils"],
+  coveragePathIgnorePatterns: ["<rootDir>/src/utils", "<rootDir>/swagger"],
   transform: {
     "^.+\\.(t|j)s$": ["ts-jest"],
   },
