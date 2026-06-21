@@ -130,7 +130,6 @@ jobs:
       - name: Boot app for Swagger client generation
         run: |
           pnpm run start:dev:docker > app.log 2>&1 &
-          echo $! > app.pid
           for i in $(seq 1 30); do
             if curl -sf "http://${SERVER_ADDRESS}:${SERVER_PORT}/${SWAGGER_DOCS_PATH}" > /dev/null; then
               echo "App responded successfully"
@@ -148,9 +147,11 @@ jobs:
       - name: Stop app
         if: always()
         run: |
-          if [ -f app.pid ]; then
-            kill "$(cat app.pid)" || true
-          fi
+          # `nest start --webpack --watch` forks several layers of child
+          # processes (webpack, ts-checker workers, the compiled dist/main
+          # app); the dist/main process is the one actually bound to
+          # SERVER_PORT, so kill by port rather than by the top-level PID.
+          fuser -k "${SERVER_PORT}/tcp" 2>/dev/null || true
 
       - name: Run linting
         run: pnpm run lint
