@@ -125,6 +125,31 @@ jobs:
           PASSWORD_HASH_PARALLELISM=${{ env.PASSWORD_HASH_PARALLELISM }}
           EOF
 
+      - name: Boot app for Swagger client generation
+        run: |
+          pnpm run start:dev:docker > app.log 2>&1 &
+          echo $! > app.pid
+          for i in $(seq 1 30); do
+            if curl -sf "http://${SERVER_ADDRESS}:${SERVER_PORT}/${SWAGGER_DOCS_PATH}" > /dev/null; then
+              echo "App responded successfully"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "App did not become healthy in time"
+          cat app.log
+          exit 1
+
+      - name: Generate Swagger API client
+        run: npx ts-node scripts/generate-api.ts
+
+      - name: Stop app
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill "$(cat app.pid)" || true
+          fi
+
       - name: Run linting
         run: pnpm run lint
 
