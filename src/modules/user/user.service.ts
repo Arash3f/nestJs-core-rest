@@ -9,6 +9,7 @@ import { UserErrors } from "@src/modules/user/constants/errors"
 import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
 import { ReadUserInput } from "@src/modules/user/dto/read-user.input"
 import { ReadUserOutput } from "@src/modules/user/dto/read-user.output"
+import { UpdateMeInput } from "@src/modules/user/dto/update-me.input"
 import { UpdateUserInput } from "@src/modules/user/dto/update-user.input"
 import { UserModel } from "@src/modules/user/model/user.model"
 import cleanDeep from "clean-deep"
@@ -169,6 +170,53 @@ export class UserService {
       return await this.prisma.users.update({
         where: {
           id,
+        },
+        data: updateClause,
+        select: {
+          id: true,
+          username: true,
+          active: true,
+          name: true,
+          role: true,
+          createdDate: true,
+          updatedDate: true,
+          passwordHash: false,
+        },
+      })
+    } catch (error: unknown) {
+      this.prisma.handlePrismaErrors({
+        error: error,
+        duplicatedErrors: [
+          {
+            error: UserErrors.UsernameIsDuplicated,
+            field: Prisma.UsersScalarFieldEnum.username,
+          },
+        ],
+        notFoundError: UserErrors.UserNotFound,
+      })
+    }
+  }
+
+  /**
+   * * Lets a logged-in user update their own profile (name / username only)
+   * @param requesterId The user id taken from the requester's token
+   * @param data The fields the user is allowed to change about themselves
+   * @returns Updated user Information or throw error
+   * @throws {AppException} UserErrors.UserNotFound - When user not found
+   * @throws {AppException} UserErrors.UsernameIsDuplicated - When username is duplicated
+   */
+  async updateMe(requesterId: string, data: UpdateMeInput): Promise<UserModel> {
+    let updateClause: Prisma.UsersUpdateInput = {
+      name: data.name,
+      username: data.username?.toLowerCase(),
+    }
+
+    updateClause = cleanDeep(updateClause)
+
+    try {
+      return await this.prisma.users.update({
+        where: {
+          id: requesterId,
         },
         data: updateClause,
         select: {
