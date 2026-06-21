@@ -10,6 +10,7 @@ import { UserErrors } from "@src/modules/user/constants/errors"
 import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
 import { ReadUserInput } from "@src/modules/user/dto/read-user.input"
 import { ReadUserOutput } from "@src/modules/user/dto/read-user.output"
+import { UpdateMeInput } from "@src/modules/user/dto/update-me.input"
 import { UpdateUserInput } from "@src/modules/user/dto/update-user.input"
 import { UserModel } from "@src/modules/user/model/user.model"
 import { UserService } from "@src/modules/user/user.service"
@@ -45,6 +46,34 @@ export class UserController {
   @apiErrorResponses([UserErrors.UserNotFound])
   async me(@GetUserId() requesterId: string): Promise<UserModel> {
     return await this.userService.me(requesterId)
+  }
+
+  /**
+   * * Lets the requester update their own profile (name / username only)
+   * @param requesterId Get the userId from the Token
+   * @param data The fields the user is allowed to change about themselves
+   * @returns Updated user informations or throw error
+   * @throws {UserNotFound, UsernameIsDuplicated}
+   */
+  @Post("updateMe")
+  @ApiOperation({
+    operationId: "updateMe",
+    summary: "Update my own profile",
+    description: "Lets any logged-in user update their own name/username (not role or active).",
+  })
+  @ApiBody({ type: UpdateMeInput })
+  @ApiResponse({
+    type: UserModel,
+    status: 200,
+  })
+  @UseGuards(IsLoggedInGuard)
+  @apiErrorResponses([UserErrors.UserNotFound])
+  @apiErrorResponses([UserErrors.UsernameIsDuplicated])
+  async updateMe(
+    @GetUserId() requesterId: string,
+    @Body() data: UpdateMeInput,
+  ): Promise<UserModel> {
+    return await this.userService.updateMe(requesterId, data)
   }
 
   /**

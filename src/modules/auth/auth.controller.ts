@@ -13,6 +13,7 @@ import { LoginInput } from "@src/modules/auth/dto/login.input"
 import { LoginOutput } from "@src/modules/auth/dto/login.output"
 import { RefreshTokenInput } from "@src/modules/auth/dto/refresh-token.input"
 import { RefreshTokenOutput } from "@src/modules/auth/dto/refresh-token.output"
+import { RegisterInput } from "@src/modules/auth/dto/register.input"
 import { UserErrors } from "@src/modules/user/constants/errors"
 
 @ApiTags("Auth")
@@ -33,6 +34,23 @@ export class AuthController {
     @GetDeviceFingerprint() deviceId: string,
   ): Promise<LoginOutput> {
     return await this.authService.logIn(data, deviceId)
+  }
+
+  @Post("register")
+  @ApiOperation({
+    operationId: "register",
+    summary: "Register a new member account",
+    description:
+      "Public self-registration. Always creates a Member and returns tokens (auto-login).",
+  })
+  @ApiBody({ type: RegisterInput })
+  @apiErrorResponses([UserErrors.UsernameIsDuplicated])
+  @ApiResponse({ type: LoginOutput, status: 201 })
+  async register(
+    @Body() data: RegisterInput,
+    @GetDeviceFingerprint() deviceId: string,
+  ): Promise<LoginOutput> {
+    return await this.authService.register(data, deviceId)
   }
 
   @Post("logout")

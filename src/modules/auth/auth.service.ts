@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
-import { Users } from "@prisma/client"
+import { Prisma, Role, Users } from "@prisma/client"
 import { AppException } from "@src/app.exception"
 import type { SuccessOutput } from "@src/common/dto/success.output"
 import { JwtPayload, Tokens } from "@src/common/types/request.type"
@@ -10,6 +10,7 @@ import type { LoginInput } from "@src/modules/auth/dto/login.input"
 import type { LoginOutput } from "@src/modules/auth/dto/login.output"
 import { RefreshTokenInput } from "@src/modules/auth/dto/refresh-token.input"
 import { RefreshTokenOutput } from "@src/modules/auth/dto/refresh-token.output"
+import type { RegisterInput } from "@src/modules/auth/dto/register.input"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import { UserErrors } from "@src/modules/user/constants/errors"
@@ -55,6 +56,49 @@ export class AuthService {
   async logout(userId: string): Promise<SuccessOutput> {
     await this.removeRefreshToken(userId)
     return { success: true }
+  }
+
+  /**
+   * Public self-registration: create a new account and immediately log it in.
+   *
+   * The role is forced to `Member` here — it is never taken from the request —
+   * so a visitor can't sign themselves up as an Admin. Implemented directly
+   * against Prisma (rather than delegating to `UserService.createUser`) to keep
+   * `AuthService` free of a circular dependency on `UserService`.
+   *
+   * @param data - Name, username and password for the new account.
+   * @param deviceId - Fingerprint of the calling device; the issued tokens are bound to it.
+   *
+   * @returns The new user's jwt tokens (already logged in).
+   *
+   * @throws {AppException} UserErrors.UsernameIsDuplicated
+   */
+  async register(data: RegisterInput, deviceId: string): Promise<LoginOutput> {
+    const { name, username, password } = data
+    const hashedPassword = await this.generatedHashedPassword(password)
+
+    try {
+      await this.prisma.users.create({
+        data: {
+          name,
+          username: username.toLowerCase(),
+          passwordHash: hashedPassword,
+          role: Role.Member,
+        },
+      })
+    } catch (error: unknown) {
+      this.prisma.handlePrismaErrors({
+        error: error,
+        duplicatedErrors: [
+          {
+            error: UserErrors.UsernameIsDuplicated,
+            field: Prisma.UsersScalarFieldEnum.username,
+          },
+        ],
+      })
+    }
+
+    return await this.logIn({ username, password }, deviceId)
   }
 
   /**
