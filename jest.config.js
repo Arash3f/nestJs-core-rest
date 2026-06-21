@@ -1,5 +1,8 @@
 module.exports = {
   rootDir: ".",
+  // e2e specs each boot the app on the single configured port, so suites must
+  // run serially rather than in parallel workers.
+  maxWorkers: 1,
   moduleFileExtensions: ["js", "json", "ts"],
   extensionsToTreatAsEsm: [".ts"],
   modulePaths: ["<rootDir>"],
