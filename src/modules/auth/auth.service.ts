@@ -153,7 +153,15 @@ export class AuthService {
    * @throws {AppException} AuthErrors.InValidRefreshToken
    */
   async refreshToken(input: RefreshTokenInput, deviceId: string): Promise<RefreshTokenOutput> {
-    const decodeToken = this.jwt.decode<JwtPayload>(input.refreshToken)
+    // `verify` (not `decode`) so an expired or tampered refresh token is rejected
+    // here at the JWT layer instead of slipping through to the hash comparison below.
+    let decodeToken: JwtPayload
+    try {
+      decodeToken = this.jwt.verify<JwtPayload>(input.refreshToken)
+    } catch {
+      throw new AppException(AuthErrors.InValidRefreshToken)
+    }
+
     if (decodeToken.deviceId !== deviceId) {
       throw new AppException(AuthErrors.DeviceMismatch)
     }

@@ -28,7 +28,7 @@ export class AuthController {
   })
   @ApiBody({ type: LoginInput })
   @apiErrorResponses([AuthErrors.IncorrectUsernameOrPassword])
-  @ApiResponse({ type: LoginOutput, status: 200 })
+  @ApiResponse({ type: LoginOutput })
   async logIn(
     @Body() data: LoginInput,
     @GetDeviceFingerprint() deviceId: string,
@@ -58,7 +58,7 @@ export class AuthController {
     operationId: "logout",
     summary: "logout user",
   })
-  @ApiResponse({ type: SuccessOutput, status: 200 })
+  @ApiResponse({ type: SuccessOutput })
   @UseGuards(IsLoggedInGuard)
   async logout(@GetUserId() currentUserId: string): Promise<SuccessOutput> {
     return await this.authService.logout(currentUserId)

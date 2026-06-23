@@ -130,6 +130,14 @@ export class CoreExceptionFilter implements ExceptionFilter {
     }
 
     /**
+     * Whether the exception is an unexpected/unhandled one (generic Error, raw
+     * string, or unknown value) as opposed to an intentional, user-facing error
+     * (AppException / HttpException). Unhandled messages may leak internal details,
+     * so they are replaced with a generic message in production (see below).
+     */
+    let isUnhandled = false
+
+    /**
      * Handle AppException (business logic errors)
      * Preserves all custom fields: message, translation, code, module
      */
@@ -171,6 +179,7 @@ export class CoreExceptionFilter implements ExceptionFilter {
        * Handle standard JavaScript Error
        * Captures error name, message, and stack trace
        */
+      isUnhandled = true
       errorBody.message = exception.message
       errorBody.debugError = {
         name: exception.name,
@@ -182,6 +191,7 @@ export class CoreExceptionFilter implements ExceptionFilter {
        * Handle string exceptions
        * Some libraries or code may throw raw strings
        */
+      isUnhandled = true
       errorBody.message = exception
       errorBody.debugError = {
         name: "Error",
@@ -192,6 +202,7 @@ export class CoreExceptionFilter implements ExceptionFilter {
        * Fallback for unknown exception types
        * Ensures the application never crashes
        */
+      isUnhandled = true
       errorBody.message = "Internal server error"
       errorBody.debugError = {
         value: exception,
@@ -205,6 +216,10 @@ export class CoreExceptionFilter implements ExceptionFilter {
     if (this.env.nodeEnv === EnvType.Production) {
       delete errorBody.debugError
       delete errorBody.developerMessage
+      // Never leak the raw message of an unexpected error to the client in production.
+      if (isUnhandled) {
+        errorBody.message = "Internal server error"
+      }
     } else {
       // Non-production logging for debugging
       this.logger.error({ exception, errorBody })

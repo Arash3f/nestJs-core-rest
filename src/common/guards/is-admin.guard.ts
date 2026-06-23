@@ -11,12 +11,16 @@ export class IsAdminGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * Allows the request only when the authenticated user has the `Admin` role.
+   * Allows the request only when the authenticated user has the `Admin` role and is still active.
+   *
+   * The `active` flag is re-read from the database on every call so a soft-deleted
+   * (deactivated) admin loses access immediately, even though its previously issued
+   * — and still cryptographically valid — token keeps decoding.
    *
    * @param context - The execution context for the incoming request.
-   * @returns `true` when the user is an admin.
+   * @returns `true` when the user is an active admin.
    * @throws {AppException} AuthErrors.UserIsNotAuthorized - When no authenticated user is attached to the request.
-   * @throws {AppException} AuthErrors.AccessDenied - When the authenticated user is not an admin.
+   * @throws {AppException} AuthErrors.AccessDenied - When the authenticated user is not an active admin.
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>()
@@ -26,7 +30,7 @@ export class IsAdminGuard implements CanActivate {
     }
 
     /**
-     * Verify User Role
+     * Verify User Role and active state
      */
     const findUser = await this.prisma.users.findUnique({
       where: {
@@ -34,10 +38,11 @@ export class IsAdminGuard implements CanActivate {
       },
       select: {
         role: true,
+        active: true,
       },
     })
 
-    if (findUser?.role !== Role.Admin) {
+    if (!findUser?.active || findUser.role !== Role.Admin) {
       throw new AppException(AuthErrors.AccessDenied)
     }
 

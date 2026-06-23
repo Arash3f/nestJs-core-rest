@@ -91,6 +91,22 @@ describe("CoreExceptionFilter", () => {
     expect(body.module).toBe(ModuleNames.AppModule)
   })
 
+  it("hides the raw message of an unexpected Error in production", () => {
+    const { host, res } = buildHost()
+    filterFor(EnvType.Production).catch(new Error("db connection string leaked"), host)
+
+    const body = sentBody(res)
+    expect(body.message).toBe("Internal server error")
+    expect(body.debugError).toBeUndefined()
+  })
+
+  it("preserves an AppException message in production", () => {
+    const { host, res } = buildHost()
+    filterFor(EnvType.Production).catch(new AppException(UserErrors.UserNotFound), host)
+
+    expect(sentBody(res).message).toBe(UserErrors.UserNotFound.message)
+  })
+
   it("strips developerMessage and debugError in production", () => {
     const { host, res } = buildHost()
     filterFor(EnvType.Production).catch(

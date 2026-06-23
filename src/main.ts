@@ -34,7 +34,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   const configService = app.get(EnvConfigService)
 
-  setupGlobalValidation(app, configService)
+  setupGlobalPipesAndFilters(app, configService)
   setupGlobalGuard(app)
   setupSwagger(app, configService)
   setupCors(app)
@@ -123,16 +123,17 @@ function setupCors(app: NestExpressApplication) {
 }
 
 /**
- * Applies global validation pipeline and exception filter.
+ * Registers the global exception filter and the global validation pipe.
  *
  * @param app - NestJS application instance.
  * @param configService - Configuration provider.
  *
  * @remarks
+ * - `CoreExceptionFilter` normalizes every thrown error into one response shape.
  * - `transform: true` converts input payloads to DTO instances/types.
  * - `whitelist: true` removes unknown properties not present on the DTO.
  */
-function setupGlobalValidation(app: NestExpressApplication, configService: EnvConfigService) {
+function setupGlobalPipesAndFilters(app: NestExpressApplication, configService: EnvConfigService) {
   app.useGlobalFilters(new CoreExceptionFilter(configService))
   app.useGlobalPipes(
     new ValidationPipe({
