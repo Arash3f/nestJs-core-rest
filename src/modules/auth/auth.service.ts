@@ -41,11 +41,13 @@ export class AuthService {
    * @returns User's jwt Token
    *
    * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword
+   * @throws {AppException} AuthErrors.InactiveUser - When the account has been deactivated/soft-deleted.
    */
   async logIn(data: LoginInput, deviceId: string): Promise<LoginOutput> {
     const { password, username } = data
 
     const user = await this.verifyUserExistanceByUsername(username)
+    if (!user.active) throw new AppException(AuthErrors.InactiveUser)
     await this.verifyUserPassword(user.passwordHash, password)
     const tokens = await this.generateToken(user.username, user.id, deviceId)
     await this.storeRefreshToken(user.id, tokens.refreshToken)
@@ -102,26 +104,27 @@ export class AuthService {
   }
 
   /**
-   * Take the information for find user and update password
+   * Admin-only: set a new password for the user identified by `input.where.id`.
    *
-   * @param input - Necessary data for update user's password
+   * The target is taken from the request body (this is an admin endpoint guarded by
+   * `IsAdminGuard`), not from the caller's token. A non-existent target surfaces as
+   * `UserErrors.UserNotFound` via {@link PrismaService.handlePrismaErrors} (Prisma `P2025`).
    *
-   * @returns True value or throw Error
+   * @param input - Target user (`where.id`) and the new password (`data.newPassword`).
    *
-   * @throws {AppException} UserErrors.UserNotFound
+   * @returns `{ success: true }` once the password has been updated.
+   *
+   * @throws {AppException} UserErrors.UserNotFound - When no user matches `input.where.id`.
    */
-  async changePassword(userId: string, input: ChangePasswordInput): Promise<SuccessOutput> {
+  async changePassword(input: ChangePasswordInput): Promise<SuccessOutput> {
     const {
       data: { newPassword },
       where: { id },
     } = input
 
+    const hashedPassword = await this.generatedHashedPassword(newPassword)
+
     try {
-      const user = await this.prisma.users.findUnique({ where: { id: userId } })
-      if (!user) throw new AppException(AuthErrors.UserIsNotAuthorized)
-
-      const hashedPassword = await this.generatedHashedPassword(newPassword)
-
       await this.prisma.users.update({
         where: { id },
         data: { passwordHash: hashedPassword },

@@ -127,7 +127,7 @@ export class UserService {
     const count = await this.prisma.users.count({ where: whereClause })
     const data = await this.prisma.users.findMany({
       where: whereClause,
-      ...entryData?.sortBy?.convertToPrismaFilter(),
+      ...entryData?.sortBy?.convertToPrismaFilter(Prisma.ModelName.Users),
       ...entryData?.pagination?.convertToPrismaFilter(),
       select: {
         id: true,

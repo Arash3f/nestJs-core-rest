@@ -73,8 +73,8 @@ export class AuthController {
   @ApiResponse({ type: SuccessOutput, status: 200 })
   @apiErrorResponses([UserErrors.UserNotFound])
   @UseGuards(IsAdminGuard)
-  async changePassword(@GetUserId() currentUserId: string, @Body() data: ChangePasswordInput) {
-    return await this.authService.changePassword(currentUserId, data)
+  async changePassword(@Body() data: ChangePasswordInput) {
+    return await this.authService.changePassword(data)
   }
 
   @Post("refreshToken")
