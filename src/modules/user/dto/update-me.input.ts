@@ -1,28 +1,12 @@
-import { ApiPropertyOptional } from "@nestjs/swagger"
-import { IsOptional, IsString } from "class-validator"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfer object for a user updating their own profile.
- *
- * Deliberately a narrow subset of {@link UpdateUserDataInput}: only `name` and
- * `username` are editable here. `role` and `active` are omitted on purpose so a
- * regular member can't escalate their own privileges or reactivate themselves —
- * those remain admin-only via `POST /user/updateUser`.
- */
-export class UpdateMeInput {
-  /**
-   * user name
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  name?: string
+export const updateMeInputSchema = z
+  .object({
+    name: z.string().optional(),
+    username: z.string().optional(),
+  })
+  .strict()
+  .meta({ id: "UpdateMeInput", title: "UpdateMeInput" })
 
-  /**
-   * user username
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  username?: string
-}
+export class UpdateMeInput extends createZodDto(updateMeInputSchema) {}

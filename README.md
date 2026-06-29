@@ -5,7 +5,7 @@
 **A production-grade NestJS REST API boilerplate** — device-bound JWT auth, a centralized
 error system, Prisma/PostgreSQL, and a fully containerized dev environment.
 
-[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![NestJS](https://img.shields.io/badge/NestJS-12-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -46,22 +46,23 @@ that actually take time to get right on a real project:
 | 🤖 **Typed API client generation** | `pnpm run api` turns the live Swagger doc into a typed client |
 | 🐳 **Dockerized dev stack** | One command brings up Postgres + the app with migrations and seeding |
 | 🌱 **Boot-time seeding** | Idempotent super-user/member-user seed, gated by `SEED_ON_BOOT` |
-| 🧪 **Jest test suite** | Unit tests under `tests/unit`, e2e scaffolding under `tests/e2e` |
-| 🧹 **Strict tooling** | ESLint + Prettier + Husky + lint-staged, gitmoji commit convention |
+| 🧪 **Vitest test suite** | Unit tests under `tests/unit`, e2e scaffolding under `tests/e2e` |
+| 🧹 **Strict tooling** | oxlint + Prettier + Husky + lint-staged, gitmoji commit convention |
 
 ## 🏗️ Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | [NestJS 11](https://nestjs.com/) |
+| Framework | [NestJS 12](https://nestjs.com/) (ESM, Rspack) |
 | Language | TypeScript 5.9 |
 | ORM | [Prisma 7](https://www.prisma.io/) (`@prisma/adapter-pg`) |
 | Database | PostgreSQL 15 |
 | Auth | `@nestjs/jwt`, Argon2id password hashing |
-| Validation | `class-validator` / `class-transformer` |
-| Docs | `@nestjs/swagger` + `swagger-typescript-api` |
+| Validation | [Zod v4](https://zod.dev/) + [`zod-nest`](https://github.com/rodrigowbazevedo/zod-nest) |
+| Docs | `@nestjs/swagger` (OpenAPI 3.1) + `swagger-typescript-api` |
 | Containerization | Docker / Docker Compose |
-| Testing | Jest |
+| Testing | Vitest |
+| Lint | oxlint |
 | Package manager | pnpm |
 
 ## 📦 Modules
@@ -152,7 +153,7 @@ pnpm run test          # full suite
 pnpm run test:cov      # with coverage (src/utils excluded)
 
 # a single file
-env-cmd -f ./.env.test npx jest --config jest.config.js path/to/file.spec.ts
+env-cmd -f ./.env.test pnpm exec vitest run path/to/file.spec.ts
 ```
 
 Tests live under `tests/unit/` and `tests/e2e/`, matched by `*.spec.ts`.

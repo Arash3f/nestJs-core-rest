@@ -1,8 +1,14 @@
 allowBuilds:
-  '@nestjs/core': false
-  '@prisma/engines': false
-  '@scarf/scarf': false
-  '@swc/core': false
+  "@nestjs/core": false
+  "@prisma/engines": false
+  "@scarf/scarf": false
+  "@swc/core": false
   argon2: false
+  esbuild: false
   prisma: false
 enablePrePostScripts: true
+peerDependencyRules:
+  allowedVersions:
+    "@nestjs/common": "12"
+    "@nestjs/core": "12"
+    "@nestjs/swagger": "12"

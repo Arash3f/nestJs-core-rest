@@ -1,3 +1,4 @@
+import { vi } from "vitest"
 import type { ExecutionContext } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import { Role } from "@prisma/client"
@@ -15,10 +16,10 @@ const contextFor = (req: unknown): ExecutionContext =>
 
 describe("IsLoggedInGuard", () => {
   let guard: IsLoggedInGuard
-  const mockPrisma = { users: { findUnique: jest.fn() } }
+  const mockPrisma = { users: { findUnique: vi.fn() } }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     guard = new IsLoggedInGuard(mockPrisma as never)
   })
 
@@ -58,10 +59,10 @@ describe("IsLoggedInGuard", () => {
 
 describe("IsAdminGuard", () => {
   let guard: IsAdminGuard
-  const mockPrisma = { users: { findUnique: jest.fn() } }
+  const mockPrisma = { users: { findUnique: vi.fn() } }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     guard = new IsAdminGuard(mockPrisma as never)
   })
 
@@ -109,10 +110,10 @@ describe("IsAdminGuard", () => {
 
 describe("TokenGuard", () => {
   let guard: TokenGuard
-  const mockJwt = { verify: jest.fn() }
+  const mockJwt = { verify: vi.fn() }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     guard = new TokenGuard(mockJwt as unknown as JwtService)
   })
 

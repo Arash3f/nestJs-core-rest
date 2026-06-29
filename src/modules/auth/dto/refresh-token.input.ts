@@ -1,8 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsJWT } from "class-validator"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-export class RefreshTokenInput {
-  @ApiProperty({ type: String })
-  @IsJWT()
-  refreshToken: string
-}
+export const refreshTokenInputSchema = z
+  .object({
+    refreshToken: z.jwt(),
+  })
+  .strict()
+  .meta({ id: "RefreshTokenInput", title: "RefreshTokenInput" })
+
+export class RefreshTokenInput extends createZodDto(refreshTokenInputSchema) {}

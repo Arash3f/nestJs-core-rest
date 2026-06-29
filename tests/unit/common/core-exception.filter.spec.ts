@@ -1,3 +1,5 @@
+import type { Mock } from "vitest"
+import { vi } from "vitest"
 import type { ArgumentsHost } from "@nestjs/common"
 import { BadRequestException, HttpStatus, Logger, NotFoundException } from "@nestjs/common"
 import { AppException } from "@src/app.exception"
@@ -8,8 +10,8 @@ import { ModuleNames } from "@src/constants"
 
 const buildHost = () => {
   const res = {
-    status: jest.fn().mockReturnThis(),
-    send: jest.fn().mockReturnThis(),
+    status: vi.fn().mockReturnThis(),
+    send: vi.fn().mockReturnThis(),
   }
   const req = { url: "/test", originalUrl: "/test" }
   const host = {
@@ -18,12 +20,12 @@ const buildHost = () => {
   return { host, res }
 }
 
-const sentBody = (res: { send: jest.Mock }) => res.send.mock.calls[0][0]
+const sentBody = (res: { send: Mock }) => res.send.mock.calls[0][0]
 
 describe("CoreExceptionFilter", () => {
   // Silence the development-mode error logging so test output stays clean.
-  beforeAll(() => jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined))
-  afterAll(() => jest.restoreAllMocks())
+  beforeAll(() => vi.spyOn(Logger.prototype, "error").mockImplementation(() => undefined))
+  afterAll(() => vi.restoreAllMocks())
 
   const filterFor = (nodeEnv: EnvType) =>
     new CoreExceptionFilter({ nodeEnv } as never)

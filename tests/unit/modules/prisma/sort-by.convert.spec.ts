@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client"
 import { AppException } from "@src/app.exception"
-import type { SortByData } from "@src/common/dto/sort-by.input"
+import type { SortByDataInput } from "@src/common/dto/sort-by.input"
 import { PrismaErrors } from "@src/modules/prisma/constants/errors"
 import { convertSortByToPrismaFilter } from "@src/modules/prisma/utils/sort-by.convert"
 
-const sortBy = (data: Partial<SortByData>): SortByData => data as SortByData
+const sortBy = (data: Partial<SortByDataInput>): SortByDataInput => data as SortByDataInput
 
 describe("convertSortByToPrismaFilter", () => {
   it("returns an empty object when no field is provided", () => {

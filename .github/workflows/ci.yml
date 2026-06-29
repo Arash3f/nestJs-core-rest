@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: 22
   PNPM_VERSION: 10.33.0
 
 jobs:
@@ -142,15 +142,11 @@ jobs:
           exit 1
 
       - name: Generate Swagger API client
-        run: npx ts-node scripts/generate-api.ts
+        run: pnpm exec tsx scripts/generate-api.ts
 
       - name: Stop app
         if: always()
         run: |
-          # `nest start --webpack --watch` forks several layers of child
-          # processes (webpack, ts-checker workers, the compiled dist/main
-          # app); the dist/main process is the one actually bound to
-          # SERVER_PORT, so kill by port rather than by the top-level PID.
           fuser -k "${SERVER_PORT}/tcp" 2>/dev/null || true
 
       - name: Run linting

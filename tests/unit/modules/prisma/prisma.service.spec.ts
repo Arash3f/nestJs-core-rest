@@ -1,3 +1,4 @@
+import { vi } from "vitest"
 import { Prisma } from "@prisma/client"
 import { AppException } from "@src/app.exception"
 import { EnvType } from "@src/modules/config/types/config.type"
@@ -131,8 +132,8 @@ describe("PrismaService", () => {
   describe("onModuleInit", () => {
     it("connects and subscribes to query events in development", async () => {
       const service = buildService(EnvType.Development)
-      const connectSpy = jest.spyOn(service, "$connect").mockResolvedValue(undefined)
-      const onSpy = jest.spyOn(service, "$on" as never)
+      const connectSpy = vi.spyOn(service, "$connect").mockResolvedValue(undefined)
+      const onSpy = vi.spyOn(service, "$on" as never)
 
       await service.onModuleInit()
 
@@ -142,8 +143,8 @@ describe("PrismaService", () => {
 
     it("connects without subscribing to query events outside development", async () => {
       const service = buildService(EnvType.Production)
-      const connectSpy = jest.spyOn(service, "$connect").mockResolvedValue(undefined)
-      const onSpy = jest.spyOn(service, "$on" as never)
+      const connectSpy = vi.spyOn(service, "$connect").mockResolvedValue(undefined)
+      const onSpy = vi.spyOn(service, "$on" as never)
 
       await service.onModuleInit()
 
@@ -155,8 +156,8 @@ describe("PrismaService", () => {
   describe("onModuleDestroy", () => {
     it("disconnects prisma and closes the pg pool", async () => {
       const service = buildService()
-      const disconnectSpy = jest.spyOn(service, "$disconnect").mockResolvedValue(undefined)
-      const poolEndSpy = jest.spyOn(Pool.prototype, "end").mockResolvedValue(undefined as never)
+      const disconnectSpy = vi.spyOn(service, "$disconnect").mockResolvedValue(undefined)
+      const poolEndSpy = vi.spyOn(Pool.prototype, "end").mockResolvedValue(undefined as never)
 
       await service.onModuleDestroy()
 

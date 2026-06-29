@@ -4,6 +4,8 @@ import { AppException } from "@src/app.exception"
 import type { IdInput } from "@src/common/dto/id.input"
 import type { SuccessOutput } from "@src/common/dto/success.output"
 import { AuthService } from "@src/modules/auth/auth.service"
+import { convertPaginationToPrismaFilter } from "@src/modules/prisma/utils/pagination.convert"
+import { convertSortByToPrismaFilter } from "@src/modules/prisma/utils/sort-by.convert"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import { UserErrors } from "@src/modules/user/constants/errors"
 import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
@@ -127,8 +129,8 @@ export class UserService {
     const count = await this.prisma.users.count({ where: whereClause })
     const data = await this.prisma.users.findMany({
       where: whereClause,
-      ...entryData?.sortBy?.convertToPrismaFilter(Prisma.ModelName.Users),
-      ...entryData?.pagination?.convertToPrismaFilter(),
+      ...convertSortByToPrismaFilter(entryData.sortBy, Prisma.ModelName.Users),
+      ...convertPaginationToPrismaFilter(entryData.pagination),
       select: {
         id: true,
         username: true,

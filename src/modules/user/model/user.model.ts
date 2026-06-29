@@ -1,56 +1,18 @@
-import { ApiResponseProperty } from "@nestjs/swagger"
-import { Role } from "@prisma/client"
-import { IsBoolean, IsDate, IsString, IsUUID } from "class-validator"
+import { roleSchema } from "@src/common/zod/prisma-role.schema"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * User Model Class
- */
-export class UserModel {
-  /**
-   * user id
-   */
-  @ApiResponseProperty({ type: String })
-  @IsUUID()
-  id: string
+export const userModelSchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string(),
+    username: z.string(),
+    active: z.boolean(),
+    role: roleSchema,
+    createdDate: z.coerce.date(),
+    updatedDate: z.coerce.date(),
+  })
+  .strict()
+  .meta({ id: "UserModel", title: "UserModel" })
 
-  /**
-   * user name
-   */
-  @ApiResponseProperty({ type: String })
-  @IsString()
-  name: string
-
-  /**
-   * user username
-   */
-  @ApiResponseProperty({ type: String })
-  @IsString()
-  username: string
-
-  /**
-   * user activity
-   */
-  @ApiResponseProperty({ type: Boolean })
-  @IsBoolean()
-  active: boolean
-
-  /**
-   * user role
-   */
-  @ApiResponseProperty({ enum: Role })
-  role: string
-
-  /**
-   * user created date
-   */
-  @ApiResponseProperty({ type: Date })
-  @IsDate()
-  createdDate: Date
-
-  /**
-   * user updated date
-   */
-  @ApiResponseProperty({ type: Date })
-  @IsDate()
-  updatedDate: Date
-}
+export class UserModel extends createZodDto(userModelSchema) {}

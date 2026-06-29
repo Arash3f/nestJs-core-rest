@@ -1,50 +1,20 @@
-import { ApiProperty } from "@nestjs/swagger"
 import { ModuleNames } from "@src/constants"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfers object to Exception
- */
-export class AppExceptionResponseDto {
-  @ApiProperty({
-    description: "HTTP status code",
+export const appExceptionResponseSchema = z
+  .object({
+    statusCode: z.number(),
+    message: z.string(),
+    persianTranslation: z.string(),
+    developerMessage: z.string().optional(),
+    code: z.number(),
+    module: z.nativeEnum(ModuleNames),
+    timestamp: z.string(),
+    path: z.string(),
   })
-  statusCode: number
+  .strict()
+  .meta({ id: "AppExceptionResponse", title: "AppExceptionResponse" })
 
-  @ApiProperty({
-    description: "Error message in English",
-  })
-  message: string
-
-  @ApiProperty({
-    description: "Error message in Persian",
-  })
-  persianTranslation: string
-
-  @ApiProperty({
-    description: "Detailed error message for developers",
-    required: false,
-  })
-  developerMessage?: string
-
-  @ApiProperty({
-    description: "Module special error code",
-  })
-  code: number
-
-  @ApiProperty({
-    description: "Module where error occurred",
-    enum: ModuleNames,
-  })
-  module: ModuleNames
-
-  @ApiProperty({
-    description: "Timestamp of the error",
-    example: "2024-01-01T10:00:00.000Z",
-  })
-  timestamp: string
-
-  @ApiProperty({
-    description: "Request path",
-  })
-  path: string
-}
+/** Standardized error body shape returned by the global exception filter. */
+export class AppExceptionResponseDto extends createZodDto(appExceptionResponseSchema) {}

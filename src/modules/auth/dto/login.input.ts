@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsString } from "class-validator"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-export class LoginInput {
-  @ApiProperty({ type: String })
-  @IsString()
-  username: string
+export const loginInputSchema = z
+  .object({
+    username: z.string(),
+    password: z.string(),
+  })
+  .strict()
+  .meta({ id: "LoginInput", title: "LoginInput" })
 
-  @ApiProperty({ type: String })
-  @IsString()
-  password: string
-}
+export class LoginInput extends createZodDto(loginInputSchema) {}

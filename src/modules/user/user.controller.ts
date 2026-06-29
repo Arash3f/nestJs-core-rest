@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common"
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ZodResponse } from "zod-nest"
 import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
 import { IdInput } from "@src/common/dto/id.input"
@@ -38,10 +39,7 @@ export class UserController {
     summary: "Get my information",
     description: "return the requester informations by requester Token",
   })
-  @ApiResponse({
-    type: UserModel,
-    status: 200,
-  })
+  @ZodResponse({ type: UserModel, status: 200 })
   @UseGuards(IsLoggedInGuard)
   @apiErrorResponses([UserErrors.UserNotFound])
   async me(@GetUserId() requesterId: string): Promise<UserModel> {
@@ -61,11 +59,7 @@ export class UserController {
     summary: "Update my own profile",
     description: "Lets any logged-in user update their own name/username (not role or active).",
   })
-  @ApiBody({ type: UpdateMeInput })
-  @ApiResponse({
-    type: UserModel,
-    status: 200,
-  })
+  @ZodResponse({ type: UserModel, status: 200 })
   @UseGuards(IsLoggedInGuard)
   @apiErrorResponses([UserErrors.UserNotFound])
   @apiErrorResponses([UserErrors.UsernameIsDuplicated])
@@ -88,11 +82,7 @@ export class UserController {
     summary: "Create new user",
     description: "Takes the user's information and after validate the information create new User",
   })
-  @ApiBody({ type: CreateUserInput })
-  @ApiResponse({
-    type: UserModel,
-    status: 201,
-  })
+  @ZodResponse({ type: UserModel, status: 201 })
   @UseGuards(IsAdminGuard)
   @apiErrorResponses([UserErrors.UsernameIsDuplicated])
   async createUser(@Body() data: CreateUserInput): Promise<UserModel> {
@@ -110,11 +100,7 @@ export class UserController {
     summary: "Found users",
     description: "Takes the information for search and sends the found items",
   })
-  @ApiBody({ type: ReadUserInput })
-  @ApiResponse({
-    type: ReadUserOutput,
-    status: 200,
-  })
+  @ZodResponse({ type: ReadUserOutput, status: 200 })
   @UseGuards(IsLoggedInGuard)
   async readUsers(@Body() data: ReadUserInput): Promise<ReadUserOutput> {
     return await this.userService.readUsers(data)
@@ -132,11 +118,7 @@ export class UserController {
     summary: "Updated user",
     description: "Takes the necessary information for update user and sends the updated use",
   })
-  @ApiBody({ type: UpdateUserInput })
-  @ApiResponse({
-    type: UserModel,
-    status: 200,
-  })
+  @ZodResponse({ type: UserModel, status: 200 })
   @UseGuards(IsAdminGuard)
   @apiErrorResponses([UserErrors.UserNotFound])
   @apiErrorResponses([UserErrors.UsernameIsDuplicated])
@@ -156,11 +138,7 @@ export class UserController {
     summary: "Delete user",
     description: "Take the information for find user and delete it",
   })
-  @ApiBody({ type: IdInput })
-  @ApiResponse({
-    type: SuccessOutput,
-    status: 200,
-  })
+  @ZodResponse({ type: SuccessOutput, status: 200 })
   @UseGuards(IsAdminGuard)
   @apiErrorResponses([UserErrors.UserNotFound])
   async deleteUser(@Body() where: IdInput): Promise<SuccessOutput> {

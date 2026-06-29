@@ -33,7 +33,7 @@ describe("User", () => {
   } as const
 
   /**
-   * Asserts a request is rejected by the global `ValidationPipe`: a `400` whose
+   * Asserts a request is rejected by the global `ZodValidationPipe`: a `400` whose
    * body keeps the filter defaults (`code: 9999`, `module: "AppModule"`).
    *
    * @param request - A thunk performing the (expected-to-fail) request.

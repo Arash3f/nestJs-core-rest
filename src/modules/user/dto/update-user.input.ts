@@ -1,63 +1,23 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
-import { Role } from "@prisma/client"
-import { IdInput } from "@src/common/dto/id.input"
-import { Type } from "class-transformer"
-import { IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from "class-validator"
+import { idInputSchema } from "@src/common/dto/id.input"
+import { roleSchema } from "@src/common/zod/prisma-role.schema"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfers object to Update User Input
- */
-export class UpdateUserDataInput {
-  /**
-   * user username
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  username?: string
+const updateUserDataSchema = z
+  .object({
+    username: z.string().optional(),
+    active: z.boolean().optional(),
+    role: roleSchema.optional(),
+    name: z.string().optional(),
+  })
+  .strict()
 
-  /**
-   * user activity
-   */
-  @ApiPropertyOptional({ type: Boolean })
-  @IsBoolean()
-  @IsOptional()
-  active?: boolean
+export const updateUserInputSchema = z
+  .object({
+    where: idInputSchema,
+    data: updateUserDataSchema,
+  })
+  .strict()
+  .meta({ id: "UpdateUserInput", title: "UpdateUserInput" })
 
-  /**
-   * user role
-   */
-  @ApiPropertyOptional({ enum: Role })
-  @IsEnum(Role)
-  @IsOptional()
-  role?: Role
-
-  /**
-   * user name
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  name?: string
-}
-
-/**
- * update use input
- */
-export class UpdateUserInput {
-  /**
-   * find target user
-   */
-  @Type(() => IdInput)
-  @ApiProperty({ type: IdInput })
-  @ValidateNested()
-  where: IdInput
-
-  /**
-   * update data
-   */
-  @Type(() => UpdateUserDataInput)
-  @ApiProperty({ type: UpdateUserDataInput })
-  @ValidateNested()
-  data: UpdateUserDataInput
-}
+export class UpdateUserInput extends createZodDto(updateUserInputSchema) {}

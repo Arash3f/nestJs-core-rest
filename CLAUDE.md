@@ -12,7 +12,7 @@ NestJS REST API boilerplate using Prisma ORM (PostgreSQL), JWT auth with device-
 # Install
 pnpm install
 
-# Develop (uses .env.dev, webpack HMR)
+# Develop (uses .env.dev, Rspack watch)
 pnpm run start:dev
 
 # Build & run production (uses .env.prod)
@@ -25,16 +25,16 @@ pnpm run prisma:migrate:dev    # create/apply a migration
 pnpm run prisma:studio:dev     # open Prisma Studio
 pnpm run prisma:push:dev       # push schema without a migration
 
-# Lint / format
+# Lint / format (oxlint + prettier)
 pnpm run lint
 pnpm run format
 
-# Tests (uses .env.test)
+# Tests (uses .env.test, Vitest)
 pnpm run test
 pnpm run test:cov
 
 # Run a single test file
-env-cmd -f ./.env.test npx jest --config jest.config.js <path/to/file.spec.ts>
+env-cmd -f ./.env.test pnpm exec vitest run <path/to/file.spec.ts>
 
 # Generate the typed API client from the running Swagger doc
 pnpm run api
@@ -62,12 +62,15 @@ Refresh tokens are a separate flow (`auth.module`/`auth.service`, `dto/refresh-t
 - `convertPaginationToPrismaFilter(input?.pagination)` — defaults `take: 10, skip: 0`.
 - `convertSortByToPrismaFilter(input?.sortBy, Prisma.ModelName.X)` — pass the Prisma model name to validate the requested sort field against the real schema (via `Prisma.dmmf`) and throw `PrismaErrors.InvalidSortField` (400) instead of letting an invalid field reach Prisma and surface as a 500.
 
-**Config**: `EnvConfigService`/`EnvConfigModule` (`src/modules/config/`) validate and expose typed env vars (`validate-env.ts`, `transforms.ts`, `model/env-config.model.ts`); `EnvType` (`types/config.type.ts`) distinguishes `Development`/`Production` (e.g. for logger verbosity and stripping debug info in `CoreExceptionFilter`).
+**Config**: `EnvConfigService`/`EnvConfigModule` (`src/modules/config/`) validate and expose typed env vars (`validate-env.ts`, `env.schema.ts`); `EnvType` (`types/config.type.ts`) distinguishes `Development`/`Production` (e.g. for logger verbosity and stripping debug info in `CoreExceptionFilter`).
+
+**Validation — Zod + `zod-nest`**: DTOs are Zod schemas wrapped with `createZodDto` (`z.object(...).strict().meta({ id })`). `ZodNestModule.forRoot()` in `AppModule` registers `ZodValidationPipe` and `ZodSerializerInterceptor` globally. Controllers declare responses with `@ZodResponse({ type, status })`; `applyZodNest()` post-processes the Swagger document to OpenAPI 3.1. Env vars use the same Zod pattern in `env.schema.ts`.
 
 **Init module** (`src/modules/init/`): bootstrap-time seeding logic (e.g. super-user / member user creation, gated by `SEED_ON_BOOT`).
 
 ## Conventions
 
-- Path alias `@src/*` → `src/*` (configured in both `tsconfig.json` and `jest.config.js`); prefer it over relative imports across module boundaries.
+- Path alias `@src/*` → `src/*` (configured in `tsconfig.json` and `vitest.config.ts`); prefer it over relative imports across module boundaries.
+- **Toolchain (NestJS v12):** Rspack (`nest-cli.json` builder), oxlint (`oxlint.json`), Vitest (`vitest.config.ts`), ESM (`"type": "module"`).
 - JSDoc is expected on exported classes/functions, especially guards, filters, and utils: one-line summary, `@param`, `@returns`, and one `@throws` per `AppException` the function can raise; add `@example` when usage isn't obvious from the signature (see `token.guard.ts`, `core-exception.filter.ts`, `sort-by.convert.ts` for the expected density).
 - Commits follow `cz-customizable` + `commitlint-config-gitmoji` (gitmoji type + `(global)` scope only — see `.claude/commands/commit.md` for the full convention and type table).

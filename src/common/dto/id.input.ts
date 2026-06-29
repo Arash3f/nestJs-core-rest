@@ -1,11 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsUUID } from "class-validator"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfers object to Id Input
- */
-export class IdInput {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string
-}
+export const idInputSchema = z
+  .object({
+    id: z.uuid(),
+  })
+  .strict()
+  .meta({ id: "IdInput", title: "IdInput" })
+
+export class IdInput extends createZodDto(idInputSchema) {}

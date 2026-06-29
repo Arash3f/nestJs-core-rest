@@ -1,4 +1,7 @@
-import type { PaginationData } from "@src/common/dto/pagination.input"
+import type { z } from "zod"
+import { paginationDataSchema } from "@src/common/dto/pagination.input"
+
+type PaginationData = z.infer<typeof paginationDataSchema>
 
 /**
  * The internal function that prepares the final object for pagination filter, used when working with Prisma

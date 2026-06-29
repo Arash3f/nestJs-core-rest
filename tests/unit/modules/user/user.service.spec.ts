@@ -1,3 +1,5 @@
+import type { Mock } from "vitest"
+import { vi } from "vitest"
 import { Role } from "@prisma/client"
 import { AppException } from "@src/app.exception"
 import { UserErrors } from "@src/modules/user/constants/errors"
@@ -18,30 +20,30 @@ describe("UserService", () => {
   let service: UserService
   let prisma: {
     users: {
-      findUnique: jest.Mock
-      findFirst: jest.Mock
-      findMany: jest.Mock
-      count: jest.Mock
-      create: jest.Mock
-      update: jest.Mock
+      findUnique: Mock
+      findFirst: Mock
+      findMany: Mock
+      count: Mock
+      create: Mock
+      update: Mock
     }
-    handlePrismaErrors: jest.Mock
+    handlePrismaErrors: Mock
   }
-  const authService = { generatedHashedPassword: jest.fn().mockResolvedValue("hashed") }
+  const authService = { generatedHashedPassword: vi.fn().mockResolvedValue("hashed") }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     prisma = {
       users: {
-        findUnique: jest.fn(),
-        findFirst: jest.fn(),
-        findMany: jest.fn(),
-        count: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
+        findUnique: vi.fn(),
+        findFirst: vi.fn(),
+        findMany: vi.fn(),
+        count: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
       },
-      handlePrismaErrors: jest.fn(() => {
+      handlePrismaErrors: vi.fn(() => {
         throw new AppException(UserErrors.UsernameIsDuplicated)
       }),
     }
@@ -131,15 +133,13 @@ describe("UserService", () => {
       prisma.users.count.mockResolvedValue(0)
       prisma.users.findMany.mockResolvedValue([])
 
-      const sortBy = { convertToPrismaFilter: jest.fn().mockReturnValue({ orderBy: { name: "asc" } }) }
-      const pagination = { convertToPrismaFilter: jest.fn().mockReturnValue({ skip: 10, take: 5 }) }
+      await service.readUsers({
+        sortBy: { field: "name", descending: true },
+        pagination: { skip: 10, take: 5 },
+      })
 
-      await service.readUsers({ sortBy, pagination } as never)
-
-      expect(sortBy.convertToPrismaFilter).toHaveBeenCalled()
-      expect(pagination.convertToPrismaFilter).toHaveBeenCalled()
       expect(prisma.users.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ orderBy: { name: "asc" }, skip: 10, take: 5 }),
+        expect.objectContaining({ orderBy: { name: "desc" }, skip: 10, take: 5 }),
       )
     })
   })

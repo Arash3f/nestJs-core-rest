@@ -1,3 +1,5 @@
+import type { Mock, Mocked } from "vitest"
+import { vi } from "vitest"
 import { Role } from "@prisma/client"
 import { AppException } from "@src/app.exception"
 import { AuthService } from "@src/modules/auth/auth.service"
@@ -5,13 +7,13 @@ import { AuthErrors } from "@src/modules/auth/constants/errors"
 import { UserErrors } from "@src/modules/user/constants/errors"
 import * as argon2 from "argon2"
 
-jest.mock("argon2", () => ({
+vi.mock("argon2", () => ({
   argon2id: 2,
-  hash: jest.fn(),
-  verify: jest.fn(),
+  hash: vi.fn(),
+  verify: vi.fn(),
 }))
 
-const mockedArgon = argon2 as jest.Mocked<typeof argon2>
+const mockedArgon = argon2 as Mocked<typeof argon2>
 
 const buildUser = (overrides: Record<string, unknown> = {}) => ({
   id: "user-1",
@@ -27,29 +29,29 @@ const buildUser = (overrides: Record<string, unknown> = {}) => ({
 describe("AuthService", () => {
   let service: AuthService
   let prisma: {
-    users: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock }
-    handlePrismaErrors: jest.Mock
+    users: { findUnique: Mock; create: Mock; update: Mock }
+    handlePrismaErrors: Mock
   }
-  let jwt: { signAsync: jest.Mock; verify: jest.Mock; decode: jest.Mock }
+  let jwt: { signAsync: Mock; verify: Mock; decode: Mock }
   const envConfig = { memoryCost: 1, timeCost: 1, parallelism: 1, jwtRefreshExpire: "7d" }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     prisma = {
       users: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn().mockResolvedValue(undefined),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn().mockResolvedValue(undefined),
       },
-      handlePrismaErrors: jest.fn(() => {
+      handlePrismaErrors: vi.fn(() => {
         throw new AppException(UserErrors.UsernameIsDuplicated)
       }),
     }
     jwt = {
-      signAsync: jest.fn().mockResolvedValueOnce("access-token").mockResolvedValueOnce("refresh-token"),
-      verify: jest.fn(),
-      decode: jest.fn(),
+      signAsync: vi.fn().mockResolvedValueOnce("access-token").mockResolvedValueOnce("refresh-token"),
+      verify: vi.fn(),
+      decode: vi.fn(),
     }
 
     service = new AuthService(prisma as never, envConfig as never, jwt as never)

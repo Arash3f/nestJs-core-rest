@@ -1,9 +1,11 @@
-import { ApiResponseProperty } from "@nestjs/swagger"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfer object to Success Output
- */
-export class SuccessOutput {
-  @ApiResponseProperty({ type: Boolean })
-  success: boolean
-}
+export const successOutputSchema = z
+  .object({
+    success: z.boolean(),
+  })
+  .strict()
+  .meta({ id: "SuccessOutput", title: "SuccessOutput" })
+
+export class SuccessOutput extends createZodDto(successOutputSchema) {}

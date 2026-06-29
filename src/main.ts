@@ -1,4 +1,4 @@
-import { ValidationPipe } from "@nestjs/common"
+import { applyZodNest } from "zod-nest"
 import { NestFactory } from "@nestjs/core"
 import { JwtService } from "@nestjs/jwt"
 import type { NestExpressApplication } from "@nestjs/platform-express"
@@ -9,22 +9,6 @@ import { TokenGuard } from "@src/common/guards/token.guard"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { EnvType } from "@src/modules/config/types/config.type"
 import type { IncomingMessage, ServerResponse } from "http"
-
-/**
- * Webpack Hot Module Replacement (HMR) contract for Node.js bundles.
- *
- * @remarks
- * When HMR is enabled, Webpack injects a `module.hot` object that can:
- * - accept updated modules without restarting the process
- * - run cleanup logic before replacing the current module
- */
-interface HotModule {
-  hot: {
-    accept: () => void
-    dispose: (callback: () => Promise<void> | void) => void
-  }
-}
-declare const module: HotModule
 
 /**
  * main function for run app
@@ -50,14 +34,6 @@ async function bootstrap() {
   app.set("trust proxy", 1)
 
   await app.listen(configService.serverPort, configService.serverAddress)
-
-  /**
-   * HMR support (development only).
-   */
-  if (module.hot) {
-    module.hot.accept()
-    module.hot.dispose(() => app.close())
-  }
 
   return app
 }
@@ -101,7 +77,8 @@ function setupSwagger(app: NestExpressApplication, configService: EnvConfigServi
     .addBearerAuth()
     .build()
 
-  const document = SwaggerModule.createDocument(app, config)
+  const rawDocument = SwaggerModule.createDocument(app, config)
+  const document = applyZodNest(rawDocument)
 
   SwaggerModule.setup(configService.swaggerPath, app, document)
 
@@ -123,25 +100,17 @@ function setupCors(app: NestExpressApplication) {
 }
 
 /**
- * Registers the global exception filter and the global validation pipe.
+ * Registers the global exception filter.
  *
  * @param app - NestJS application instance.
  * @param configService - Configuration provider.
  *
  * @remarks
- * - `CoreExceptionFilter` normalizes every thrown error into one response shape.
- * - `transform: true` converts input payloads to DTO instances/types.
- * - `whitelist: true` removes unknown properties not present on the DTO.
+ * `ZodValidationPipe` and `ZodSerializerInterceptor` are registered globally via
+ * `ZodNestModule.forRoot()` in `AppModule`.
  */
 function setupGlobalPipesAndFilters(app: NestExpressApplication, configService: EnvConfigService) {
   app.useGlobalFilters(new CoreExceptionFilter(configService))
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  )
 }
 
 /**

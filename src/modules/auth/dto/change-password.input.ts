@@ -1,22 +1,19 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IdInput } from "@src/common/dto/id.input"
-import { Type } from "class-transformer"
-import { IsString, ValidateNested } from "class-validator"
+import { idInputSchema } from "@src/common/dto/id.input"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-export class ChangePasswordDataInput {
-  @ApiProperty({ type: String })
-  @IsString()
-  newPassword: string
-}
+const changePasswordDataSchema = z
+  .object({
+    newPassword: z.string(),
+  })
+  .strict()
 
-export class ChangePasswordInput {
-  @Type(() => IdInput)
-  @ApiProperty({ type: IdInput })
-  @ValidateNested()
-  where: IdInput
+export const changePasswordInputSchema = z
+  .object({
+    where: idInputSchema,
+    data: changePasswordDataSchema,
+  })
+  .strict()
+  .meta({ id: "ChangePasswordInput", title: "ChangePasswordInput" })
 
-  @Type(() => ChangePasswordDataInput)
-  @ApiProperty({ type: ChangePasswordDataInput })
-  @ValidateNested()
-  data: ChangePasswordDataInput
-}
+export class ChangePasswordInput extends createZodDto(changePasswordInputSchema) {}

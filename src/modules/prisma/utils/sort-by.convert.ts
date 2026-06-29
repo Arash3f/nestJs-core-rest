@@ -1,7 +1,10 @@
+import type { z } from "zod"
+import { sortByDataSchema } from "@src/common/dto/sort-by.input"
 import { Prisma } from "@prisma/client"
 import { AppException } from "@src/app.exception"
-import type { SortByData } from "@src/common/dto/sort-by.input"
 import { PrismaErrors } from "@src/modules/prisma/constants/errors"
+
+type SortByData = z.infer<typeof sortByDataSchema>
 
 /**
  * Lazily-built cache of sortable (non-relation) field names per model.

@@ -4,8 +4,16 @@ import { EnvConfigModule } from "@src/modules/config/env-config.module"
 import { InitModule } from "@src/modules/init/init.module"
 import { PrismaModule } from "@src/modules/prisma/prisma.module"
 import { UserModule } from "@src/modules/user/user.module"
+import { ZodNestModule } from "zod-nest"
 
 @Module({
-  imports: [PrismaModule, AuthModule, EnvConfigModule, InitModule, UserModule],
+  imports: [
+    ZodNestModule.forRoot(),
+    PrismaModule,
+    AuthModule,
+    EnvConfigModule,
+    InitModule,
+    UserModule,
+  ],
 })
 export class AppModule {}

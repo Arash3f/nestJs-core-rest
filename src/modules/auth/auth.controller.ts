@@ -1,5 +1,6 @@
 import { Body, Controller, Patch, Post, UseGuards } from "@nestjs/common"
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ZodResponse } from "zod-nest"
 import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
 import { GetDeviceFingerprint } from "@src/common/decorators/get-device-fingerprint.decorator"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
@@ -26,9 +27,8 @@ export class AuthController {
     operationId: "logIn",
     summary: "Login user",
   })
-  @ApiBody({ type: LoginInput })
   @apiErrorResponses([AuthErrors.IncorrectUsernameOrPassword])
-  @ApiResponse({ type: LoginOutput })
+  @ZodResponse({ type: LoginOutput, status: 200 })
   async logIn(
     @Body() data: LoginInput,
     @GetDeviceFingerprint() deviceId: string,
@@ -43,9 +43,8 @@ export class AuthController {
     description:
       "Public self-registration. Always creates a Member and returns tokens (auto-login).",
   })
-  @ApiBody({ type: RegisterInput })
   @apiErrorResponses([UserErrors.UsernameIsDuplicated])
-  @ApiResponse({ type: LoginOutput, status: 201 })
+  @ZodResponse({ type: LoginOutput, status: 201 })
   async register(
     @Body() data: RegisterInput,
     @GetDeviceFingerprint() deviceId: string,
@@ -58,7 +57,7 @@ export class AuthController {
     operationId: "logout",
     summary: "logout user",
   })
-  @ApiResponse({ type: SuccessOutput })
+  @ZodResponse({ type: SuccessOutput, status: 200 })
   @UseGuards(IsLoggedInGuard)
   async logout(@GetUserId() currentUserId: string): Promise<SuccessOutput> {
     return await this.authService.logout(currentUserId)
@@ -69,8 +68,7 @@ export class AuthController {
     operationId: "changePassword",
     summary: "Update user password",
   })
-  @ApiBody({ type: ChangePasswordInput })
-  @ApiResponse({ type: SuccessOutput, status: 200 })
+  @ZodResponse({ type: SuccessOutput, status: 200 })
   @apiErrorResponses([UserErrors.UserNotFound])
   @UseGuards(IsAdminGuard)
   async changePassword(@Body() data: ChangePasswordInput) {
@@ -82,8 +80,7 @@ export class AuthController {
     operationId: "refreshToken",
     summary: "refresh token",
   })
-  @ApiBody({ type: RefreshTokenInput })
-  @ApiResponse({ type: RefreshTokenOutput, status: 201 })
+  @ZodResponse({ type: RefreshTokenOutput, status: 201 })
   @apiErrorResponses([
     AuthErrors.UserIsNotAuthorized,
     AuthErrors.DeviceMismatch,

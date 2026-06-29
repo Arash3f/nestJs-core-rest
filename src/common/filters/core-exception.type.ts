@@ -1,4 +1,4 @@
-import type { ModuleNames } from "src/constants"
+import type { ModuleNames } from "@src/constants"
 
 /**
  * HTTP exception response body from NestJS native HttpException.

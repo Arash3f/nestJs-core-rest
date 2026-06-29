@@ -1,12 +1,11 @@
-import { ApiResponseProperty } from "@nestjs/swagger"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfers object to Link Output
- */
-export class LinkOutput {
-  /**
-   * response url link field
-   */
-  @ApiResponseProperty({ type: String })
-  url: string
-}
+export const linkOutputSchema = z
+  .object({
+    url: z.string(),
+  })
+  .strict()
+  .meta({ id: "LinkOutput", title: "LinkOutput" })
+
+export class LinkOutput extends createZodDto(linkOutputSchema) {}

@@ -380,14 +380,14 @@ describe("Auth", () => {
    * ! | Validation        | !
    * ! ------------------- !
    *
-   * Each input DTO is rejected by the global `ValidationPipe` before the handler
+   * Each input DTO is rejected by the global `ZodValidationPipe` before the handler
    * runs (a `400` whose body keeps the filter defaults `code: 9999`,
    * `module: "AppModule"`). Guards run before pipes, so the guarded
    * `ChangePassword` case relies on the admin context seeded in `beforeEach`.
    */
   describe("Validation", () => {
     /**
-     * Asserts a request is rejected by the global `ValidationPipe`.
+     * Asserts a request is rejected by the global `ZodValidationPipe`.
      *
      * @param request - A thunk performing the (expected-to-fail) request.
      */

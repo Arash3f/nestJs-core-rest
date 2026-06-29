@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2021",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
@@ -9,8 +10,7 @@
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["node", "jest"],
-    "noImplicitAny": true,
+    "types": ["node", "vitest/globals"],
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
@@ -18,9 +18,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
     "baseUrl": "./",
     "paths": {
-      "@src/*": ["src/*"]
+      "@src/*": ["src/*"],
+      "swagger/*": ["swagger/*"]
     },
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -32,12 +34,6 @@
     "out": "doc",
     "exclude": "**/node_modules/**"
   },
-  "include": [
-    "src/**/*",
-    "scripts/**/*",
-    "webpack-hmr.config.js",
-    "prisma.config.ts",
-    "tests/**/*"
-  ],
+  "include": ["src/**/*", "scripts/**/*", "prisma.config.ts", "tests/**/*", "vitest.config.ts"],
   "exclude": ["dist", "node_modules", "doc", "coverage", "zeus", "swagger"]
 }

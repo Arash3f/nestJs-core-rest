@@ -1,12 +1,12 @@
-import { ApiResponseProperty } from "@nestjs/swagger"
-import { IsJWT } from "class-validator"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-export class RefreshTokenOutput {
-  @ApiResponseProperty({ type: String })
-  @IsJWT()
-  accessToken: string
+export const refreshTokenOutputSchema = z
+  .object({
+    accessToken: z.jwt(),
+    refreshToken: z.jwt(),
+  })
+  .strict()
+  .meta({ id: "RefreshTokenOutput", title: "RefreshTokenOutput" })
 
-  @ApiResponseProperty({ type: String })
-  @IsJWT()
-  refreshToken: string
-}
+export class RefreshTokenOutput extends createZodDto(refreshTokenOutputSchema) {}

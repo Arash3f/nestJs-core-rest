@@ -1,5 +1,4 @@
 import type { INestApplication } from "@nestjs/common"
-import { ValidationPipe } from "@nestjs/common"
 import { NestFactory } from "@nestjs/core"
 import { JwtService } from "@nestjs/jwt"
 import type { NestExpressApplication } from "@nestjs/platform-express"
@@ -20,8 +19,8 @@ export interface E2eContext {
 
 /**
  * Boots the full `AppModule` over HTTP for e2e tests, wiring the same global
- * validation pipe, exception filter and token guard as `src/main.ts` so the
- * running app behaves identically to production.
+ * exception filter and token guard as `src/main.ts`. Request validation and
+ * response serialization come from `ZodNestModule.forRoot()` in `AppModule`.
  *
  * The `TokenGuard` is registered globally here (it is applied via
  * `app.useGlobalGuards` in `main.ts`, not via `APP_GUARD`), so without this the
@@ -51,13 +50,6 @@ export async function createE2eApp(): Promise<E2eContext> {
   const jwt = app.get(JwtService)
 
   app.useGlobalFilters(new CoreExceptionFilter(apiConfig))
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  )
   app.useGlobalGuards(new TokenGuard(jwt))
 
   app.set("trust proxy", 1)

@@ -1,25 +1,13 @@
-import { ApiResponseProperty } from "@nestjs/swagger"
-import { UserModel } from "@src/modules/user/model/user.model"
-import { Type } from "class-transformer"
-import { IsArray, IsNumber, ValidateNested } from "class-validator"
+import { userModelSchema } from "@src/modules/user/model/user.model"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfers object to Read User Output
- */
-export class ReadUserOutput {
-  /**
-   * users count
-   */
-  @ApiResponseProperty({ type: Number })
-  @IsNumber()
-  count: number
+export const readUserOutputSchema = z
+  .object({
+    count: z.number(),
+    data: z.array(userModelSchema),
+  })
+  .strict()
+  .meta({ id: "ReadUserOutput", title: "ReadUserOutput" })
 
-  /**
-   * users list
-   */
-  @ApiResponseProperty({ type: [UserModel] })
-  @IsArray()
-  @Type(() => UserModel)
-  @ValidateNested()
-  data: UserModel[]
-}
+export class ReadUserOutput extends createZodDto(readUserOutputSchema) {}

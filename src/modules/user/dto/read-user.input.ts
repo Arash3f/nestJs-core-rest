@@ -1,83 +1,26 @@
-import { ApiPropertyOptional } from "@nestjs/swagger"
-import { Role } from "@prisma/client"
-import { PaginationData } from "@src/common/dto/pagination.input"
-import { SortByData } from "@src/common/dto/sort-by.input"
-import { Type } from "class-transformer"
-import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator"
+import { paginationDataSchema } from "@src/common/dto/pagination.input"
+import { sortByDataSchema } from "@src/common/dto/sort-by.input"
+import { roleSchema } from "@src/common/zod/prisma-role.schema"
+import { z } from "zod"
+import { createZodDto } from "zod-nest"
 
-/**
- * Data transfers object to Read User Input
- */
-export class ReadUserWhereData {
-  /**
-   * user id
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsUUID()
-  id?: string
+const readUserWhereSchema = z
+  .object({
+    id: z.uuid().optional(),
+    username: z.string().optional(),
+    name: z.string().optional(),
+    role: roleSchema.optional(),
+    active: z.boolean().optional(),
+  })
+  .strict()
 
-  /**
-   * user username
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  username?: string
+export const readUserInputSchema = z
+  .object({
+    where: readUserWhereSchema.optional(),
+    pagination: paginationDataSchema.optional(),
+    sortBy: sortByDataSchema.optional(),
+  })
+  .strict()
+  .meta({ id: "ReadUserInput", title: "ReadUserInput" })
 
-  /**
-   * user name
-   */
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  name?: string
-
-  /**
-   * user role
-   */
-  @ApiPropertyOptional({ enum: Role })
-  @IsOptional()
-  @IsEnum(Role)
-  role?: Role
-
-  /**
-   * user activity
-   */
-  @ApiPropertyOptional({ type: Boolean })
-  @IsOptional()
-  @IsBoolean()
-  active?: boolean
-}
-
-/**
- * read user input
- */
-export class ReadUserInput {
-  /**
-   * find target user
-   */
-  @Type(() => ReadUserWhereData)
-  @ApiPropertyOptional({ type: ReadUserWhereData })
-  @IsOptional()
-  @ValidateNested()
-  where?: ReadUserWhereData
-
-  /**
-   * response pagination
-   */
-  @Type(() => PaginationData)
-  @ApiPropertyOptional({ type: PaginationData })
-  @IsOptional()
-  @ValidateNested()
-  pagination?: PaginationData
-
-  /**
-   * response sorting
-   */
-  @Type(() => SortByData)
-  @ApiPropertyOptional({ type: SortByData })
-  @IsOptional()
-  @ValidateNested()
-  sortBy?: SortByData
-}
+export class ReadUserInput extends createZodDto(readUserInputSchema) {}
