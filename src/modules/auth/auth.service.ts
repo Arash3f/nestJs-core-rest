@@ -46,7 +46,7 @@ export class AuthService {
   async logIn(data: LoginInput, deviceId: string): Promise<LoginOutput> {
     const { password, username } = data
 
-    const user = await this.verifyUserExistanceByUsername(username)
+    const user = await this.verifyUserExistenceByUsername(username)
     if (!user.active) throw new AppException(AuthErrors.InactiveUser)
     await this.verifyUserPassword(user.passwordHash, password)
     const tokens = await this.generateToken(user.username, user.id, deviceId)
@@ -127,7 +127,7 @@ export class AuthService {
     try {
       await this.prisma.users.update({
         where: { id },
-        data: { passwordHash: hashedPassword },
+        data: { passwordHash: hashedPassword, refreshTokenHash: null },
       })
 
       return { success: true }
@@ -167,11 +167,13 @@ export class AuthService {
     }
 
     const user = await this.prisma.users.findUnique({ where: { id: decodeToken.id } })
-    if (!user || !user?.reFreshTokenHash) throw new AppException(AuthErrors.UserIsNotAuthorized)
+    if (!user || !user.active || !user.refreshTokenHash) {
+      throw new AppException(AuthErrors.UserIsNotAuthorized)
+    }
 
     // Device binding: the request must come from the same device the refresh token was issued to.
 
-    const isValid = await this.validateRefreshToken(user.reFreshTokenHash, input.refreshToken)
+    const isValid = await this.validateRefreshToken(user.refreshTokenHash, input.refreshToken)
     if (!isValid) {
       throw new AppException(AuthErrors.InValidRefreshToken)
     }
@@ -248,7 +250,7 @@ export class AuthService {
    *
    * @throws {AppException} AuthErrors.IncorrectUsernameOrPassword
    */
-  async verifyUserExistanceByUsername(username: string): Promise<Users> {
+  async verifyUserExistenceByUsername(username: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({
       where: {
         username: username.toLowerCase(),
@@ -270,23 +272,23 @@ export class AuthService {
   private async removeRefreshToken(userId: string): Promise<void> {
     await this.prisma.users.update({
       where: { id: userId },
-      data: { reFreshTokenHash: null },
+      data: { refreshTokenHash: null },
     })
   }
 
   /**
    * Verify Refresh token
    *
-   * @param reFreshTokenHash database refresh token
+   * @param refreshTokenHash database refresh token
    * @param refreshToken requested refresh token
    *
    * @returns result of operation
    */
   private async validateRefreshToken(
-    reFreshTokenHash: string,
+    refreshTokenHash: string,
     refreshToken: string,
   ): Promise<boolean> {
-    const valid = await argon2.verify(reFreshTokenHash, refreshToken)
+    const valid = await argon2.verify(refreshTokenHash, refreshToken)
     return valid
   }
 
@@ -302,7 +304,7 @@ export class AuthService {
     const hashedToken = await this.generatedHashedPassword(refreshToken)
     await this.prisma.users.update({
       where: { id: userId },
-      data: { reFreshTokenHash: hashedToken },
+      data: { refreshTokenHash: hashedToken },
     })
   }
 }

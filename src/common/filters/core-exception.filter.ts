@@ -11,10 +11,10 @@ import {
   ErrorResponseBody,
   HttpExceptionResponseBody,
 } from "@src/common/filters/core-exception.type"
+import { ModuleNames } from "@src/constants"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { EnvType } from "@src/modules/config/types/config.type"
 import type { Request, Response } from "express"
-import { ModuleNames } from "src/constants"
 
 /**
  * Global exception filter that catches all unhandled exceptions and transforms them

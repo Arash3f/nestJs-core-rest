@@ -1,5 +1,6 @@
-import { Body, Controller, Patch, Post, UseGuards } from "@nestjs/common"
+import { Body, Controller, HttpCode, HttpStatus, Patch, Post, UseGuards } from "@nestjs/common"
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { ThrottlerGuard } from "@nestjs/throttler"
 import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
 import { GetDeviceFingerprint } from "@src/common/decorators/get-device-fingerprint.decorator"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
@@ -22,6 +23,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post("logIn")
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({
     operationId: "logIn",
     summary: "Login user",
@@ -37,6 +39,8 @@ export class AuthController {
   }
 
   @Post("register")
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({
     operationId: "register",
     summary: "Register a new member account",
@@ -78,6 +82,7 @@ export class AuthController {
   }
 
   @Post("refreshToken")
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({
     operationId: "refreshToken",
     summary: "refresh token",

@@ -20,7 +20,7 @@ const buildUser = (overrides: Record<string, unknown> = {}) => ({
   active: true,
   role: Role.Member,
   passwordHash: "stored-hash",
-  reFreshTokenHash: "stored-refresh-hash",
+  refreshTokenHash: "stored-refresh-hash",
   ...overrides,
 })
 
@@ -70,7 +70,7 @@ describe("AuthService", () => {
       // refresh token hash is stored
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: { id: "user-1" },
-        data: { reFreshTokenHash: "hashed" },
+        data: { refreshTokenHash: "hashed" },
       })
       // the device fingerprint is baked into the signed payload
       expect(jwt.signAsync).toHaveBeenCalledWith(
@@ -112,7 +112,7 @@ describe("AuthService", () => {
       expect(result).toEqual({ success: true })
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: { id: "user-1" },
-        data: { reFreshTokenHash: null },
+        data: { refreshTokenHash: null },
       })
     })
   })
@@ -155,7 +155,7 @@ describe("AuthService", () => {
       expect(result).toEqual({ success: true })
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: { id: "user-9" },
-        data: { passwordHash: "hashed" },
+        data: { passwordHash: "hashed", refreshTokenHash: null },
       })
     })
 
@@ -184,7 +184,7 @@ describe("AuthService", () => {
       expect(tokens).toEqual({ accessToken: "access-token", refreshToken: "refresh-token" })
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: { id: "user-1" },
-        data: { reFreshTokenHash: "hashed" },
+        data: { refreshTokenHash: "hashed" },
       })
     })
 
@@ -209,11 +209,21 @@ describe("AuthService", () => {
 
     it("throws UserIsNotAuthorized when the user has no stored refresh-token hash", async () => {
       jwt.verify.mockReturnValue({ id: "user-1", deviceId: "device-1" })
-      prisma.users.findUnique.mockResolvedValue(buildUser({ reFreshTokenHash: null }))
+      prisma.users.findUnique.mockResolvedValue(buildUser({ refreshTokenHash: null }))
 
       await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
         AuthErrors.UserIsNotAuthorized.message,
       )
+    })
+
+    it("throws UserIsNotAuthorized when the account has been deactivated", async () => {
+      jwt.verify.mockReturnValue({ id: "user-1", deviceId: "device-1" })
+      prisma.users.findUnique.mockResolvedValue(buildUser({ active: false }))
+
+      await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
+        AuthErrors.UserIsNotAuthorized.message,
+      )
+      expect(mockedArgon.verify).not.toHaveBeenCalled()
     })
 
     it("throws InValidRefreshToken when the token does not match the stored hash", async () => {

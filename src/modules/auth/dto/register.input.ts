@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsString } from "class-validator"
+import { PASSWORD_MIN_LENGTH } from "@src/common/constants/password"
+import { IsString, MinLength } from "class-validator"
 
 /**
  * Data transfer object for public self-registration.
@@ -26,10 +27,9 @@ export class RegisterInput {
 
   /**
    * user password
-   *
-   * ! No length limit
    */
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: String, minLength: PASSWORD_MIN_LENGTH })
   @IsString()
+  @MinLength(PASSWORD_MIN_LENGTH)
   password: string
 }

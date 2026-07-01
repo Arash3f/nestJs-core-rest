@@ -130,12 +130,12 @@ describe("TokenGuard", () => {
     expect(mockJwt.verify).not.toHaveBeenCalled()
   })
 
-  it("attaches req.user for a valid token without a device claim", () => {
+  it("leaves req.user unset when the token has no device claim", () => {
     const req = requestWith("tok")
     mockJwt.verify.mockReturnValue({ id: "1", username: "u" })
 
     expect(guard.canActivate(contextFor(req))).toBe(true)
-    expect((req as Record<string, unknown>).user).toEqual({ id: "1", username: "u" })
+    expect((req as Record<string, unknown>).user).toBeUndefined()
   })
 
   it("attaches req.user when the device fingerprint matches the token claim", () => {

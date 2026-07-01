@@ -9,6 +9,15 @@ export class EnvConfigModel {
   @IsString()
   SWAGGER_PATH: string
 
+  @IsString()
+  SWAGGER_TITLE: string
+
+  @IsString()
+  SWAGGER_DESCRIPTION: string
+
+  @IsString()
+  CORS_ORIGINS: string
+
   @IsNumber()
   @ToNumber()
   SERVER_PORT: number
@@ -81,4 +90,12 @@ export class EnvConfigModel {
   @IsNumber()
   @ToNumber()
   PASSWORD_HASH_PARALLELISM: number
+
+  @IsNumber()
+  @ToNumber()
+  THROTTLE_TTL_MS: number
+
+  @IsNumber()
+  @ToNumber()
+  THROTTLE_LIMIT: number
 }

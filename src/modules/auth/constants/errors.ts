@@ -4,14 +4,14 @@ import { ModuleNames } from "@src/constants"
 export const AuthErrors = {
   UserIsNotAuthorized: {
     code: 1,
-    statusCode: HttpStatus.BAD_REQUEST,
+    statusCode: HttpStatus.UNAUTHORIZED,
     module: ModuleNames.AuthModule,
     message: "User is not authorized",
     persianTranslation: "ابتدا وارد شوید",
   },
   AccessDenied: {
     code: 2,
-    statusCode: HttpStatus.BAD_REQUEST,
+    statusCode: HttpStatus.UNAUTHORIZED,
     module: ModuleNames.AuthModule,
     message: "Access denied",
     persianTranslation: "دسترسی داده نشد",

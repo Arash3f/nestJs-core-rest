@@ -1,83 +1,70 @@
 import { ApiPropertyOptional } from "@nestjs/swagger"
 import { Role } from "@prisma/client"
-import { PaginationData } from "@src/common/dto/pagination.input"
-import { SortByData } from "@src/common/dto/sort-by.input"
-import { Type } from "class-transformer"
-import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator"
+import { ToBoolean, ToNumber } from "@src/modules/config/transforms"
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  Min,
+} from "class-validator"
 
 /**
- * Data transfers object to Read User Input
+ * Query parameters for listing users (`GET /user`).
  */
-export class ReadUserWhereData {
-  /**
-   * user id
-   */
+export class ReadUserQuery {
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsUUID()
   id?: string
 
-  /**
-   * user username
-   */
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   username?: string
 
-  /**
-   * user name
-   */
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   name?: string
 
-  /**
-   * user role
-   */
   @ApiPropertyOptional({ enum: Role })
   @IsOptional()
   @IsEnum(Role)
   role?: Role
 
-  /**
-   * user activity
-   */
   @ApiPropertyOptional({ type: Boolean })
   @IsOptional()
+  @ToBoolean()
   @IsBoolean()
   active?: boolean
-}
 
-/**
- * read user input
- */
-export class ReadUserInput {
-  /**
-   * find target user
-   */
-  @Type(() => ReadUserWhereData)
-  @ApiPropertyOptional({ type: ReadUserWhereData })
+  @ApiPropertyOptional({ type: Number, default: 10, minimum: 0, maximum: 200 })
   @IsOptional()
-  @ValidateNested()
-  where?: ReadUserWhereData
+  @ToNumber()
+  @Min(0)
+  @Max(200)
+  @IsNumber()
+  take?: number
 
-  /**
-   * response pagination
-   */
-  @Type(() => PaginationData)
-  @ApiPropertyOptional({ type: PaginationData })
+  @ApiPropertyOptional({ type: Number, default: 0, minimum: 0 })
   @IsOptional()
-  @ValidateNested()
-  pagination?: PaginationData
+  @ToNumber()
+  @Min(0)
+  @IsNumber()
+  skip?: number
 
-  /**
-   * response sorting
-   */
-  @Type(() => SortByData)
-  @ApiPropertyOptional({ type: SortByData })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @ValidateNested()
-  sortBy?: SortByData
+  @IsString()
+  sortField?: string
+
+  @ApiPropertyOptional({ type: Boolean, default: true })
+  @IsOptional()
+  @ToBoolean()
+  @IsBoolean()
+  sortDescending?: boolean
 }

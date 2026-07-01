@@ -41,6 +41,11 @@ jobs:
       SERVER_PORT: 3000
       SWAGGER_DOCS_PATH: docs
       SWAGGER_PATH: api_docs
+      SWAGGER_TITLE: NestJS Core Rest
+      SWAGGER_DESCRIPTION: Production-grade NestJS REST API boilerplate
+      CORS_ORIGINS: "*"
+      THROTTLE_TTL_MS: 60000
+      THROTTLE_LIMIT: 10
       JWT_SECRET: mySecasdasdasdasdasdasdasdasdretTsadasc
       JWT_ACCESS_EXPIRE: 10000
       JWT_REFRESH_EXPIRE: 10000
@@ -106,6 +111,11 @@ jobs:
           SERVER_PORT=${{ env.SERVER_PORT }}
           SWAGGER_DOCS_PATH=${{ env.SWAGGER_DOCS_PATH }}
           SWAGGER_PATH=${{ env.SWAGGER_PATH }}
+          SWAGGER_TITLE=${{ env.SWAGGER_TITLE }}
+          SWAGGER_DESCRIPTION=${{ env.SWAGGER_DESCRIPTION }}
+          CORS_ORIGINS=${{ env.CORS_ORIGINS }}
+          THROTTLE_TTL_MS=${{ env.THROTTLE_TTL_MS }}
+          THROTTLE_LIMIT=${{ env.THROTTLE_LIMIT }}
           JWT_SECRET=${{ env.JWT_SECRET }}
           JWT_ACCESS_EXPIRE=${{ env.JWT_ACCESS_EXPIRE }}
           JWT_REFRESH_EXPIRE=${{ env.JWT_REFRESH_EXPIRE }}

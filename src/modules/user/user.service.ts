@@ -5,9 +5,11 @@ import type { IdInput } from "@src/common/dto/id.input"
 import type { SuccessOutput } from "@src/common/dto/success.output"
 import { AuthService } from "@src/modules/auth/auth.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
+import { convertPaginationToPrismaFilter } from "@src/modules/prisma/utils/pagination.convert"
+import { convertSortByToPrismaFilter } from "@src/modules/prisma/utils/sort-by.convert"
 import { UserErrors } from "@src/modules/user/constants/errors"
 import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
-import { ReadUserInput } from "@src/modules/user/dto/read-user.input"
+import { ReadUserQuery } from "@src/modules/user/dto/read-user.input"
 import { ReadUserOutput } from "@src/modules/user/dto/read-user.output"
 import { UpdateMeInput } from "@src/modules/user/dto/update-me.input"
 import { UpdateUserInput } from "@src/modules/user/dto/update-user.input"
@@ -108,18 +110,16 @@ export class UserService {
    * @param input Information for search, pagination, sort
    * @returns Users found
    */
-  async readUsers(entryData: ReadUserInput): Promise<ReadUserOutput> {
-    const rawWhere = entryData.where || {}
-
+  async readUsers(query: ReadUserQuery): Promise<ReadUserOutput> {
     let whereClause: Prisma.UsersWhereInput = {
-      id: rawWhere.id,
-      active: rawWhere.active,
+      id: query.id,
+      active: query.active,
       username: {
         mode: "insensitive",
-        contains: rawWhere.username,
+        contains: query.username,
       },
-      name: { mode: "insensitive", contains: rawWhere.name },
-      role: rawWhere.role,
+      name: { mode: "insensitive", contains: query.name },
+      role: query.role,
     }
 
     whereClause = cleanDeep(whereClause)
@@ -127,8 +127,11 @@ export class UserService {
     const count = await this.prisma.users.count({ where: whereClause })
     const data = await this.prisma.users.findMany({
       where: whereClause,
-      ...entryData?.sortBy?.convertToPrismaFilter(Prisma.ModelName.Users),
-      ...entryData?.pagination?.convertToPrismaFilter(),
+      ...convertSortByToPrismaFilter(
+        { field: query.sortField, descending: query.sortDescending ?? true },
+        Prisma.ModelName.Users,
+      ),
+      ...convertPaginationToPrismaFilter({ take: query.take, skip: query.skip }),
       select: {
         id: true,
         username: true,
@@ -256,7 +259,7 @@ export class UserService {
     try {
       await this.prisma.users.update({
         where: { id },
-        data: { active: false },
+        data: { active: false, refreshTokenHash: null },
       })
 
       return { success: true }
@@ -299,7 +302,7 @@ export class UserService {
    * @returns User Object or throw Error
    * @throws {AppException} UserErrors.UserNotFound - When user not found
    */
-  async verifyUserExistanceByUserId(userId: string): Promise<Users> {
+  async verifyUserExistenceByUserId(userId: string): Promise<Users> {
     const user = await this.prisma.users.findUnique({
       where: {
         id: userId,

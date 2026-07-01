@@ -30,6 +30,7 @@ export class PrismaService
 
   constructor(env: EnvConfigService) {
     const isDev = env.nodeEnv === EnvType.Development
+    const isTest = env.nodeEnv === EnvType.Test
 
     const log: Prisma.LogDefinition[] = isDev
       ? [
@@ -38,7 +39,9 @@ export class PrismaService
           { emit: "stdout", level: "warn" },
           { emit: "stdout", level: "error" },
         ]
-      : [{ emit: "stdout", level: "error" }]
+      : isTest
+        ? []
+        : [{ emit: "stdout", level: "error" }]
 
     const pool = new Pool({
       connectionString: env.databaseConfig.connectionUrl,

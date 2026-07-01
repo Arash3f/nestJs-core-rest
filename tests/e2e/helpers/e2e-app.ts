@@ -23,10 +23,9 @@ export interface E2eContext {
  * validation pipe, exception filter and token guard as `src/main.ts` so the
  * running app behaves identically to production.
  *
- * The `TokenGuard` is registered globally here (it is applied via
- * `app.useGlobalGuards` in `main.ts`, not via `APP_GUARD`), so without this the
- * non-blocking JWT decoding that populates `req.user` would never run and every
- * guarded route would reject as unauthorized.
+ * The `TokenGuard` is registered globally here (via `app.useGlobalGuards`, matching
+ * `src/main.ts`). Without this, the non-blocking JWT decoding that populates
+ * `req.user` would never run and every guarded route would reject as unauthorized.
  *
  * The app listens on `EnvConfigService.serverPort`; because every spec binds
  * that single port, the e2e suite must run serially.

@@ -13,7 +13,9 @@ import type { PaginationData } from "@src/common/dto/pagination.input"
  * })
  * ```
  */
-export function convertPaginationToPrismaFilter(input: PaginationData | undefined) {
+export function convertPaginationToPrismaFilter(
+  input: Pick<PaginationData, "take" | "skip"> | undefined,
+) {
   return {
     take: input?.take ?? 10,
     skip: input?.skip ?? 0,

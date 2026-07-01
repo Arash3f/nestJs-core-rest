@@ -49,7 +49,7 @@ function getSortableFields(model: Prisma.ModelName): ReadonlySet<string> {
  * ```
  */
 export function convertSortByToPrismaFilter(
-  input: SortByData | undefined,
+  input: Pick<SortByData, "field" | "descending"> | undefined,
   model?: Prisma.ModelName,
 ) {
   if (!input?.field) return {}

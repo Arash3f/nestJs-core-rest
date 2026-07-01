@@ -5,7 +5,7 @@ import { UserErrors } from "@src/modules/user/constants/errors"
 import { TestApiCaller } from "@src/utils/test-utils"
 import type { INestApplication } from "@nestjs/common"
 import type { AxiosError } from "node_modules/axios/index.cjs"
-import type { CreateUserInput, ReadUserInput, UpdateUserInput } from "swagger/Api"
+import type { CreateUserInput, UpdateUserInput } from "swagger/Api"
 
 import { createE2eApp } from "./helpers/e2e-app"
 
@@ -233,22 +233,27 @@ describe("User", () => {
    */
   describe("ReadUsers", () => {
     it("+ returns the two seeded users with no filter", async () => {
-      const { data } = await api.main.user.readUsers({})
+      const { data } = await api.main.user.readUsers()
 
       expect(data.count).toBe(2)
       expect(data.data.length).toBe(2)
     })
 
-    it("+ is readable by a non-admin member", async () => {
+    it("- AccessDenied for a non-admin member", async () => {
       await api.setMemberMode()
 
-      const { data } = await api.main.user.readUsers({})
-      expect(data.count).toBe(2)
+      try {
+        await api.main.user.readUsers()
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.AccessDenied)
+      }
     })
 
     it("+ filters by username (case-insensitive contains)", async () => {
       const { data } = await api.main.user.readUsers({
-        where: { username: adminUsername.toUpperCase() },
+        username: adminUsername.toUpperCase(),
       })
 
       expect(data.count).toBe(1)
@@ -256,7 +261,7 @@ describe("User", () => {
     })
 
     it("+ filters by role", async () => {
-      const { data } = await api.main.user.readUsers({ where: { role: "Admin" } })
+      const { data } = await api.main.user.readUsers({ role: "Admin" })
 
       expect(data.count).toBe(1)
       expect(data.data[0].role).toBe("Admin")
@@ -268,24 +273,26 @@ describe("User", () => {
         data: { active: false },
       })
 
-      const { data: actives } = await api.main.user.readUsers({ where: { active: true } })
+      const { data: actives } = await api.main.user.readUsers({ active: true })
       expect(actives.count).toBe(1)
       expect(actives.data[0].username).toBe(adminUsername)
 
-      const { data: inactives } = await api.main.user.readUsers({ where: { active: false } })
+      const { data: inactives } = await api.main.user.readUsers({ active: false })
       expect(inactives.count).toBe(1)
       expect(inactives.data[0].username).toBe(memberUsername)
     })
 
     it("+ paginates results", async () => {
       const { data: page1 } = await api.main.user.readUsers({
-        pagination: { take: 1, skip: 0 },
+        take: 1,
+        skip: 0,
       })
       expect(page1.count).toBe(2)
       expect(page1.data.length).toBe(1)
 
       const { data: page2 } = await api.main.user.readUsers({
-        pagination: { take: 1, skip: 1 },
+        take: 1,
+        skip: 1,
       })
       expect(page2.data.length).toBe(1)
       expect(page2.data[0].id).not.toBe(page1.data[0].id)
@@ -293,20 +300,22 @@ describe("User", () => {
 
     it("+ sorts by username ascending and descending", async () => {
       const { data: asc } = await api.main.user.readUsers({
-        sortBy: { field: "username", descending: false },
+        sortField: "username",
+        sortDescending: false,
       })
       const ascNames = asc.data.map((u) => u.username)
       expect(ascNames).toEqual([...ascNames].sort())
 
       const { data: desc } = await api.main.user.readUsers({
-        sortBy: { field: "username", descending: true },
+        sortField: "username",
+        sortDescending: true,
       })
       const descNames = desc.data.map((u) => u.username)
       expect(descNames).toEqual([...ascNames].reverse())
     })
 
     it("+ empty result for an unknown filter", async () => {
-      const { data } = await api.main.user.readUsers({ where: { id: FAKEID } })
+      const { data } = await api.main.user.readUsers({ id: FAKEID })
       expect(data.count).toBe(0)
       expect(data.data).toHaveLength(0)
     })
@@ -315,7 +324,7 @@ describe("User", () => {
       api.setAnonymousMode()
 
       try {
-        await api.main.user.readUsers({})
+        await api.main.user.readUsers()
         fail("Test failed!")
       } catch (err) {
         const error = err as AxiosError
@@ -393,16 +402,39 @@ describe("User", () => {
     it("+ soft-deletes a user (sets active to false)", async () => {
       const { data: created } = await api.main.user.createUser(mockUser)
 
-      const { data: res } = await api.main.user.deleteUser({ id: created.id })
+      const { data: res } = await api.main.user.deleteUser(created.id)
       expect(res.success).toBe(true)
 
       const persisted = await prisma.users.findUniqueOrThrow({ where: { id: created.id } })
       expect(persisted.active).toBe(false)
+      expect(persisted.refreshTokenHash).toBeNull()
+    })
+
+    it("- revokes refresh tokens when a user is soft-deleted", async () => {
+      const { data: created } = await api.main.user.createUser(mockUser)
+
+      api.setAnonymousMode()
+      const { data: session } = await api.main.auth.logIn({
+        username: mockUser.username,
+        password: mockUser.password,
+      })
+      await api.setAdminMode()
+
+      await api.main.user.deleteUser(created.id)
+
+      api.setAnonymousMode()
+      try {
+        await api.main.auth.refreshToken({ refreshToken: session.refreshToken })
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
+      }
     })
 
     it("- UserNotFound for an unknown id", async () => {
       try {
-        await api.main.user.deleteUser({ id: FAKEID })
+        await api.main.user.deleteUser(FAKEID)
         fail("Test failed!")
       } catch (err) {
         const error = err as AxiosError
@@ -415,7 +447,7 @@ describe("User", () => {
       await api.setMemberMode()
 
       try {
-        await api.main.user.deleteUser({ id: created.id })
+        await api.main.user.deleteUser(created.id)
         fail("Test failed!")
       } catch (err) {
         const error = err as AxiosError
@@ -447,17 +479,17 @@ describe("User", () => {
     })
 
     it("- 400 for a non-uuid id filter on ReadUsers", async () => {
-      await expectValidationError(() => api.main.user.readUsers({ where: { id: "not-a-uuid" } }))
+      await expectValidationError(() => api.main.user.readUsers({ id: "not-a-uuid" }))
     })
 
     it("- 400 for an unknown filter field on ReadUsers (whitelist)", async () => {
       await expectValidationError(() =>
-        api.main.user.readUsers({ where: { foo: "bar" } } as unknown as ReadUserInput),
+        api.main.user.readUsers({ foo: "bar" } as never),
       )
     })
 
     it("- 400 when ReadUsers pagination take exceeds the maximum", async () => {
-      await expectValidationError(() => api.main.user.readUsers({ pagination: { take: 999 } }))
+      await expectValidationError(() => api.main.user.readUsers({ take: 999 }))
     })
 
     it("- 400 when UpdateUser targets a non-uuid id", async () => {

@@ -101,7 +101,7 @@ describe("Auth", () => {
       const row = await prisma.users.findUniqueOrThrow({
         where: { username: member.username.toLowerCase() },
       })
-      expect(row.reFreshTokenHash).not.toBeNull()
+      expect(row.refreshTokenHash).not.toBeNull()
     })
 
     it("- IncorrectUsernameOrPassword for a wrong password", async () => {
@@ -140,7 +140,8 @@ describe("Auth", () => {
     it("+ creates a Member, auto-logs in, and returns tokens", async () => {
       api.setAnonymousMode()
 
-      const { data } = await api.main.auth.register(NEW_USER)
+      const { data, status } = await api.main.auth.register(NEW_USER)
+      expect(status).toBe(201)
       expectJwt(data.accessToken)
       expectJwt(data.refreshToken)
 
@@ -192,7 +193,7 @@ describe("Auth", () => {
       const row = await prisma.users.findUniqueOrThrow({
         where: { username: member.username.toLowerCase() },
       })
-      expect(row.reFreshTokenHash).toBeNull()
+      expect(row.refreshTokenHash).toBeNull()
     })
 
     it("- UserIsNotAuthorized for an anonymous request", async () => {
@@ -221,14 +222,27 @@ describe("Auth", () => {
         where: { username: member.username.toLowerCase() },
       })
 
+      api.setAnonymousMode()
+      const { data: sessionBeforeChange } = await api.main.auth.logIn(member)
+      await api.setAdminMode()
+
       const { data } = await api.main.auth.changePassword({
         where: { id: row.id },
         data: { newPassword: NEW_PASSWORD },
       })
       expect(data.success).toBe(true)
 
-      // the old password no longer authenticates
+      // refresh tokens issued before the password change are revoked
       api.setAnonymousMode()
+      try {
+        await api.main.auth.refreshToken({ refreshToken: sessionBeforeChange.refreshToken })
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
+      }
+
+      // the old password no longer authenticates
       try {
         await api.main.auth.logIn(member)
         fail("Test failed!")
@@ -371,6 +385,24 @@ describe("Auth", () => {
       } catch (err) {
         const error = err as AxiosError
         expect(error.response?.data).toMatchObject(AuthErrors.DeviceMismatch)
+      }
+    })
+
+    it("- UserIsNotAuthorized when the account has been deactivated", async () => {
+      api.setAnonymousMode()
+      const { data } = await api.main.auth.logIn(member)
+
+      await prisma.users.update({
+        where: { username: member.username.toLowerCase() },
+        data: { active: false },
+      })
+
+      try {
+        await api.main.auth.refreshToken({ refreshToken: data.refreshToken })
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
       }
     })
   })

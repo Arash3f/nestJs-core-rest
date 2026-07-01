@@ -37,7 +37,7 @@ async function bootstrap() {
   setupGlobalPipesAndFilters(app, configService)
   setupGlobalGuard(app)
   setupSwagger(app, configService)
-  setupCors(app)
+  setupCors(app, configService)
   setupLogger(app, configService)
 
   /**
@@ -94,9 +94,13 @@ function setupLogger(app: NestExpressApplication, configService: EnvConfigServic
  * @returns The generated OpenAPI document.
  */
 function setupSwagger(app: NestExpressApplication, configService: EnvConfigService) {
+  if (configService.nodeEnv === EnvType.Production) {
+    return undefined
+  }
+
   const config = new DocumentBuilder()
-    .setTitle("My Project APIs")
-    .setDescription("The Project APIs description")
+    .setTitle(configService.swaggerTitle)
+    .setDescription(configService.swaggerDescription)
     .setVersion("1.0")
     .addBearerAuth()
     .build()
@@ -117,9 +121,17 @@ function setupSwagger(app: NestExpressApplication, configService: EnvConfigServi
  * Enables Cross-Origin Resource Sharing (CORS).
  *
  * @param app - NestJS application instance.
+ * @param configService - Configuration provider.
  */
-function setupCors(app: NestExpressApplication) {
-  app.enableCors()
+function setupCors(app: NestExpressApplication, configService: EnvConfigService) {
+  const origins = configService.corsOrigins
+
+  if (origins.length === 1 && origins[0] === "*") {
+    app.enableCors()
+    return
+  }
+
+  app.enableCors({ origin: origins, credentials: true })
 }
 
 /**

@@ -31,9 +31,9 @@ export class TokenGuard implements CanActivate {
     try {
       const payload = this.jwtService.verify<JwtPayload>(token)
 
-      // Bind the token to its issuing device: a token replayed from a different
-      // device has a mismatching fingerprint and is treated as unauthenticated.
-      if (payload.deviceId && payload.deviceId !== getDeviceFingerprint(req)) {
+      // Bind the token to its issuing device: tokens without a device claim or
+      // replayed from a different device are treated as unauthenticated.
+      if (!payload.deviceId || payload.deviceId !== getDeviceFingerprint(req)) {
         return true
       }
 

@@ -1,14 +1,14 @@
-import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common"
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
-import { IdInput } from "@src/common/dto/id.input"
 import { SuccessOutput } from "@src/common/dto/success.output"
 import { IsAdminGuard } from "@src/common/guards/is-admin.guard"
 import { IsLoggedInGuard } from "@src/common/guards/is-logged-in.guard"
+import { ParseUUIDPipe } from "@src/common/pipes/uuid.pipe"
 import { UserErrors } from "@src/modules/user/constants/errors"
 import { CreateUserInput } from "@src/modules/user/dto/create-user.input"
-import { ReadUserInput } from "@src/modules/user/dto/read-user.input"
+import { ReadUserQuery } from "@src/modules/user/dto/read-user.input"
 import { ReadUserOutput } from "@src/modules/user/dto/read-user.output"
 import { UpdateMeInput } from "@src/modules/user/dto/update-me.input"
 import { UpdateUserInput } from "@src/modules/user/dto/update-user.input"
@@ -104,20 +104,19 @@ export class UserController {
    * @param data Information for search, pagination, sort
    * @returns Users found
    */
-  @Post("readUsers")
+  @Get()
   @ApiOperation({
     operationId: "readUsers",
-    summary: "Found users",
-    description: "Takes the information for search and sends the found items",
+    summary: "List users",
+    description: "Returns users matching the optional query filters, with pagination and sorting.",
   })
-  @ApiBody({ type: ReadUserInput })
   @ApiResponse({
     type: ReadUserOutput,
     status: 200,
   })
-  @UseGuards(IsLoggedInGuard)
-  async readUsers(@Body() data: ReadUserInput): Promise<ReadUserOutput> {
-    return await this.userService.readUsers(data)
+  @UseGuards(IsAdminGuard)
+  async readUsers(@Query() query: ReadUserQuery): Promise<ReadUserOutput> {
+    return await this.userService.readUsers(query)
   }
 
   /**
@@ -150,20 +149,19 @@ export class UserController {
    * @returns True value or throw Error
    * @throws {UserNotFound}
    */
-  @Delete("deleteUser")
+  @Delete(":id")
   @ApiOperation({
     operationId: "deleteUser",
     summary: "Delete user",
-    description: "Take the information for find user and delete it",
+    description: "Soft-deletes the user identified by the path id (sets active to false).",
   })
-  @ApiBody({ type: IdInput })
   @ApiResponse({
     type: SuccessOutput,
     status: 200,
   })
   @UseGuards(IsAdminGuard)
   @apiErrorResponses([UserErrors.UserNotFound])
-  async deleteUser(@Body() where: IdInput): Promise<SuccessOutput> {
-    return await this.userService.deleteUser(where)
+  async deleteUser(@Param("id", ParseUUIDPipe) id: string): Promise<SuccessOutput> {
+    return await this.userService.deleteUser({ id })
   }
 }

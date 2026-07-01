@@ -111,7 +111,7 @@ describe("UserService", () => {
       prisma.users.count.mockResolvedValue(1)
       prisma.users.findMany.mockResolvedValue(rows)
 
-      const result = await service.readUsers({ where: { username: "jo", role: Role.Member } })
+      const result = await service.readUsers({ username: "jo", role: Role.Member })
 
       expect(result).toEqual({ count: 1, data: rows })
       expect(prisma.users.count).toHaveBeenCalledTimes(1)
@@ -131,13 +131,13 @@ describe("UserService", () => {
       prisma.users.count.mockResolvedValue(0)
       prisma.users.findMany.mockResolvedValue([])
 
-      const sortBy = { convertToPrismaFilter: jest.fn().mockReturnValue({ orderBy: { name: "asc" } }) }
-      const pagination = { convertToPrismaFilter: jest.fn().mockReturnValue({ skip: 10, take: 5 }) }
+      await service.readUsers({
+        sortField: "name",
+        sortDescending: false,
+        take: 5,
+        skip: 10,
+      })
 
-      await service.readUsers({ sortBy, pagination } as never)
-
-      expect(sortBy.convertToPrismaFilter).toHaveBeenCalled()
-      expect(pagination.convertToPrismaFilter).toHaveBeenCalled()
       expect(prisma.users.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ orderBy: { name: "asc" }, skip: 10, take: 5 }),
       )
@@ -200,7 +200,7 @@ describe("UserService", () => {
       expect(result).toEqual({ success: true })
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: { id: "user-1" },
-        data: { active: false },
+        data: { active: false, refreshTokenHash: null },
       })
     })
 
@@ -232,18 +232,18 @@ describe("UserService", () => {
     })
   })
 
-  describe("verifyUserExistanceByUserId", () => {
+  describe("verifyUserExistenceByUserId", () => {
     it("returns the user when found", async () => {
       const user = buildUser()
       prisma.users.findUnique.mockResolvedValue(user)
 
-      await expect(service.verifyUserExistanceByUserId("user-1")).resolves.toBe(user)
+      await expect(service.verifyUserExistenceByUserId("user-1")).resolves.toBe(user)
     })
 
     it("throws UserNotFound when the user does not exist", async () => {
       prisma.users.findUnique.mockResolvedValue(null)
 
-      await expect(service.verifyUserExistanceByUserId("ghost")).rejects.toThrow(
+      await expect(service.verifyUserExistenceByUserId("ghost")).rejects.toThrow(
         UserErrors.UserNotFound.message,
       )
     })
