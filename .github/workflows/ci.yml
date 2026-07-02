@@ -55,7 +55,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm exec prisma generate
+        run: env-cmd -f ./.env.test.sample pnpm exec prisma generate
 
       - name: Apply database migrations
         run: env-cmd -f ./.env.test.sample pnpm exec prisma migrate deploy
