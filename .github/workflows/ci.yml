@@ -54,14 +54,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma client
-        run: env-cmd -f ./.env.test.sample pnpm exec prisma generate
-
-      - name: Apply database migrations
-        run: env-cmd -f ./.env.test.sample pnpm exec prisma migrate deploy
-
       - name: Write test env file
         run: cp .env.test.sample .env.test
+
+      - name: Generate Prisma client
+        run: pnpm run prisma:generate:test
+
+      - name: Apply database migrations
+        run: pnpm exec env-cmd -f ./.env.test pnpm exec prisma migrate deploy
 
       - name: Boot app for Swagger client generation
         run: |
@@ -81,7 +81,7 @@ jobs:
           exit 1
 
       - name: Generate Swagger API client
-        run: env-cmd -f ./.env.test npx ts-node scripts/generate-api.ts
+        run: pnpm exec env-cmd -f ./.env.test npx ts-node scripts/generate-api.ts
 
       - name: Stop app
         if: always()
