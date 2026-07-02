@@ -1,9 +1,9 @@
 import { EnvConfigService } from "@src/modules/config/env-config.service"
-import { TestApiCaller } from "@src/utils/test-utils"
+import { TestApiCaller } from "@src/tests/e2e/helpers/test-utils"
 import type { INestApplication } from "@nestjs/common"
 import axios from "axios"
 
-import { createE2eApp } from "./helpers/e2e-app"
+import { createE2eApp } from "@src/tests/e2e/helpers/e2e-app"
 
 describe("Health", () => {
   const api = new TestApiCaller()

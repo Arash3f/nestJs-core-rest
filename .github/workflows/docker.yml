@@ -54,6 +54,11 @@ jobs:
           SERVER_PORT=3000
           SWAGGER_DOCS_PATH=docs
           SWAGGER_PATH=api_docs
+          SWAGGER_TITLE=NestJS Core Rest
+          SWAGGER_DESCRIPTION=Production-grade NestJS REST API boilerplate
+          CORS_ORIGINS=*
+          THROTTLE_TTL_MS=60000
+          THROTTLE_LIMIT=10
           JWT_SECRET=ciDockerDevSecretXXXXXXXXXXXXXXXXXXXXXXXXXX
           JWT_ACCESS_EXPIRE=10000
           JWT_REFRESH_EXPIRE=10000
@@ -81,13 +86,14 @@ jobs:
       - name: Wait for app to become healthy
         run: |
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:3005/api_docs > /dev/null; then
+            if curl -sf http://localhost:3005/health > /dev/null; then
               echo "App responded successfully"
               exit 0
             fi
             sleep 3
           done
           echo "App did not become healthy in time"
+          docker compose -f docker/develop/docker-compose-develop.yml logs app
           exit 1
 
       - name: Show container logs

@@ -1,8 +1,7 @@
 import { applyDecorators } from "@nestjs/common"
 import { ApiResponse } from "@nestjs/swagger"
 import type { AppErrorDescriptor } from "@src/app.exception"
-
-import { AppExceptionResponseDto } from "../dto/error-response.dto"
+import { AppExceptionResponseDto } from "@src/common/dto/error-response.dto"
 
 /**
  * Groups errors by HTTP status code and creates Swagger documentation responses

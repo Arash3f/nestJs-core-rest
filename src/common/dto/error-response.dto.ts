@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { ModuleNames } from "@src/constants"
+import { ModuleNames } from "@src/common/constants"
 
 /**
  * Data transfers object to Exception

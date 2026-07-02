@@ -2,12 +2,12 @@ import { AuthErrors } from "@src/modules/auth/constants/errors"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { PrismaService } from "@src/modules/prisma/prisma.service"
 import { UserErrors } from "@src/modules/user/constants/errors"
-import { TestApiCaller } from "@src/utils/test-utils"
+import { TestApiCaller } from "@src/tests/e2e/helpers/test-utils"
 import type { INestApplication } from "@nestjs/common"
 import type { AxiosError } from "node_modules/axios/index.cjs"
 import type { ChangePasswordInput, LoginInput, RefreshTokenInput, RegisterInput } from "swagger/Api"
 
-import { createE2eApp } from "./helpers/e2e-app"
+import { createE2eApp } from "@src/tests/e2e/helpers/e2e-app"
 
 describe("Auth", () => {
   const api = new TestApiCaller()

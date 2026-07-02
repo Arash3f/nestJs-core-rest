@@ -7,11 +7,11 @@ import {
   Logger,
 } from "@nestjs/common"
 import { AppException } from "@src/app.exception"
+import { ModuleNames } from "@src/common/constants"
 import {
   ErrorResponseBody,
   HttpExceptionResponseBody,
 } from "@src/common/filters/core-exception.type"
-import { ModuleNames } from "@src/constants"
 import { EnvConfigService } from "@src/modules/config/env-config.service"
 import { EnvType } from "@src/modules/config/types/config.type"
 import type { Request, Response } from "express"

@@ -58,7 +58,7 @@ that actually take time to get right on a real project:
 | Framework | [NestJS 11](https://nestjs.com/) |
 | Language | TypeScript 5.9 |
 | ORM | [Prisma 7](https://www.prisma.io/) (`@prisma/adapter-pg`) |
-| Database | PostgreSQL 15 |
+| Database | PostgreSQL 15+ (Docker: 15, CI: 16) |
 | Auth | `@nestjs/jwt`, Argon2id password hashing, `@nestjs/throttler` |
 | Validation | `class-validator` / `class-transformer` |
 | Docs | `@nestjs/swagger` + `swagger-typescript-api` |
@@ -70,8 +70,9 @@ that actually take time to get right on a real project:
 
 ```
 src/
-├── common/          guards, filters, decorators, pipes, pagination & sort DTOs
+├── common/          guards, filters, decorators, pipes, DTOs, shared constants
 ├── app.exception.ts AppException — the only error type for business-logic failures
+├── tests/e2e/       e2e bootstrapping helpers (TestApiCaller, createE2eApp)
 └── modules/
     ├── auth/        login, register, logout, refresh-token rotation, change password
     ├── user/        user CRUD, "me" endpoint, soft delete
@@ -79,6 +80,10 @@ src/
     ├── health/      GET /health — liveness probe
     ├── init/        boot-time super-user/member-user seeding
     └── prisma/      PrismaService, error-code mapping, pagination/sort-by utils
+
+tests/
+├── unit/            isolated service/guard/pipe tests
+└── e2e/             full HTTP integration tests (auth, user, health)
 ```
 
 ## 📡 API endpoints
@@ -201,15 +206,42 @@ Swagger UI: `http://localhost:3000/api_docs` · Health: `http://localhost:3000/h
 
 ## 🧪 Testing
 
+### 1. Configure the test environment
+
+```bash
+cp .env.test.sample .env.test
+# adjust DATABASE_* if your Postgres is not on localhost:5432
+```
+
+### 2. Prepare the database
+
+```bash
+pnpm run prisma:generate:test
+pnpm run prisma:migrate:test
+```
+
+### 3. Generate the Swagger client (required for e2e tests)
+
+E2e specs drive the app through the generated typed client in `swagger/`. Start the
+dev server, then generate the client:
+
+```bash
+pnpm run start:dev    # in one terminal
+pnpm run api          # in another — needs the app running
+```
+
+### 4. Run the suite
+
 ```bash
 pnpm run test          # full suite
-pnpm run test:cov      # with coverage (src/utils excluded)
+pnpm run test:cov      # with coverage (generated swagger/ excluded)
 
 # a single file
 env-cmd -f ./.env.test npx jest --config jest.config.js path/to/file.spec.ts
 ```
 
-Tests live under `tests/unit/` and `tests/e2e/`, matched by `*.spec.ts`.
+Tests live under `tests/unit/` and `tests/e2e/`, matched by `*.spec.ts`. E2e helpers
+(including `TestApiCaller`) live under `src/tests/e2e/helpers/` and are imported via `@src`.
 
 ## 🐳 Docker reference
 

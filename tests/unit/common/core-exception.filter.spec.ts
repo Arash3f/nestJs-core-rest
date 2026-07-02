@@ -4,7 +4,7 @@ import { AppException } from "@src/app.exception"
 import { CoreExceptionFilter } from "@src/common/filters/core-exception.filter"
 import { UserErrors } from "@src/modules/user/constants/errors"
 import { EnvType } from "@src/modules/config/types/config.type"
-import { ModuleNames } from "@src/constants"
+import { ModuleNames } from "@src/common/constants"
 
 const buildHost = () => {
   const res = {
