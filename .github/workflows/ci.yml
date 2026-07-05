@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: 22
   PNPM_VERSION: 10.33.0
 
 jobs:
@@ -64,13 +64,11 @@ jobs:
         run: pnpm exec env-cmd -f ./.env.test pnpm exec prisma migrate deploy
 
       - name: Boot app for Swagger client generation
+        shell: bash
         run: |
-          set -a
-          source .env.test
-          set +a
-          pnpm run start:dev:docker > app.log 2>&1 &
+          pnpm exec env-cmd -f ./.env.test pnpm run start:dev:docker > app.log 2>&1 &
           for i in $(seq 1 45); do
-            if curl -sf "http://${SERVER_ADDRESS}:${SERVER_PORT}/health" > /dev/null; then
+            if curl -sf "http://localhost:3000/docs" > /dev/null; then
               echo "App responded successfully"
               exit 0
             fi
