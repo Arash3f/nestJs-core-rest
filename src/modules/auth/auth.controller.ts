@@ -2,7 +2,6 @@ import { Body, Controller, HttpCode, HttpStatus, Patch, Post, UseGuards } from "
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { ThrottlerGuard } from "@nestjs/throttler"
 import { apiErrorResponses } from "@src/common/decorators/api-error-response.decorator"
-import { GetDeviceFingerprint } from "@src/common/decorators/get-device-fingerprint.decorator"
 import { GetUserId } from "@src/common/decorators/get-user-id.decorator"
 import { SuccessOutput } from "@src/common/dto/success.output"
 import { IsAdminGuard } from "@src/common/guards/is-admin.guard"
@@ -31,11 +30,8 @@ export class AuthController {
   @ApiBody({ type: LoginInput })
   @apiErrorResponses([AuthErrors.IncorrectUsernameOrPassword])
   @ApiResponse({ type: LoginOutput })
-  async logIn(
-    @Body() data: LoginInput,
-    @GetDeviceFingerprint() deviceId: string,
-  ): Promise<LoginOutput> {
-    return await this.authService.logIn(data, deviceId)
+  async logIn(@Body() data: LoginInput): Promise<LoginOutput> {
+    return await this.authService.logIn(data)
   }
 
   @Post("register")
@@ -50,11 +46,8 @@ export class AuthController {
   @ApiBody({ type: RegisterInput })
   @apiErrorResponses([UserErrors.UsernameIsDuplicated])
   @ApiResponse({ type: LoginOutput, status: 201 })
-  async register(
-    @Body() data: RegisterInput,
-    @GetDeviceFingerprint() deviceId: string,
-  ): Promise<LoginOutput> {
-    return await this.authService.register(data, deviceId)
+  async register(@Body() data: RegisterInput): Promise<LoginOutput> {
+    return await this.authService.register(data)
   }
 
   @Post("logout")
@@ -89,12 +82,8 @@ export class AuthController {
   })
   @ApiBody({ type: RefreshTokenInput })
   @ApiResponse({ type: RefreshTokenOutput, status: 201 })
-  @apiErrorResponses([
-    AuthErrors.UserIsNotAuthorized,
-    AuthErrors.DeviceMismatch,
-    AuthErrors.InValidRefreshToken,
-  ])
-  async refresh(@Body() input: RefreshTokenInput, @GetDeviceFingerprint() deviceId: string) {
-    return await this.authService.refreshToken(input, deviceId)
+  @apiErrorResponses([AuthErrors.UserIsNotAuthorized, AuthErrors.InValidRefreshToken])
+  async refresh(@Body() input: RefreshTokenInput) {
+    return await this.authService.refreshToken(input)
   }
 }
