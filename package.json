@@ -25,7 +25,7 @@
     "start:dev:docker": "nest start --webpack --webpackPath ./webpack-hmr.config.js --watch",
     "test": "env-cmd -f ./.env.test jest --config jest.config.js --detectOpenHandles --forceExit",
     "test:cov": "env-cmd -f ./.env.test jest --config jest.config.js  --detectOpenHandles --forceExit --coverage",
-    "api": "env-cmd -f ./.env.dev npx ts-node scripts/generate-api.ts"
+    "api": "env-cmd -f ./.env.dev ts-node scripts/generate-api.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.21",

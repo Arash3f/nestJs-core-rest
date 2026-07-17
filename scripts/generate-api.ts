@@ -16,11 +16,14 @@ async function generateSwagger() {
 
   const schemaPath = `${serverAddress}/${process.env.SWAGGER_DOCS_PATH}`
   const outputPath = "swagger"
-  const command = `npx swagger-typescript-api generate -p ${schemaPath} -o ${outputPath} --axios`
+  const command = `pnpm exec swagger-typescript-api generate -p ${schemaPath} -o ${outputPath} --axios`
   const { stderr, stdout } = await execAsync(command)
-  Logger.verbose(stdout)
-  if (stderr) {
-    Logger.error(stderr)
+  if (stdout.trim()) {
+    Logger.verbose(stdout.trim())
+  }
+  const stderrOutput = stderr.trim()
+  if (stderrOutput && !stderrOutput.includes("npm warn Unknown env config")) {
+    Logger.error(stderrOutput)
   }
 }
 
