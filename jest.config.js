@@ -8,7 +8,7 @@ module.exports = {
   modulePaths: ["<rootDir>"],
   testRegex: ".spec.ts$",
   coverageDirectory: "./coverage",
-  coverageReporters: ["html"],
+  coverageReporters: ["html", "lcov", "text-summary"],
   testEnvironment: "node",
   coveragePathIgnorePatterns: ["<rootDir>/swagger"],
   transform: {

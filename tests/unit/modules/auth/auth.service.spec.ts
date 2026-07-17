@@ -62,7 +62,7 @@ describe("AuthService", () => {
     it("returns tokens and persists the refresh-token hash on valid credentials", async () => {
       prisma.users.findUnique.mockResolvedValue(buildUser())
 
-      const tokens = await service.logIn({ username: "John", password: "pw" }, "device-1")
+      const tokens = await service.logIn({ username: "John", password: "pw" })
 
       expect(tokens).toEqual({ accessToken: "access-token", refreshToken: "refresh-token" })
       // username is looked up case-insensitively (lowercased)
@@ -72,16 +72,15 @@ describe("AuthService", () => {
         where: { id: "user-1" },
         data: { refreshTokenHash: "hashed" },
       })
-      // the device fingerprint is baked into the signed payload
       expect(jwt.signAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "user-1", deviceId: "device-1" }),
+        expect.objectContaining({ id: "user-1", username: "john" }),
       )
     })
 
     it("throws IncorrectUsernameOrPassword when the user does not exist", async () => {
       prisma.users.findUnique.mockResolvedValue(null)
 
-      await expect(service.logIn({ username: "ghost", password: "pw" }, "d")).rejects.toThrow(
+      await expect(service.logIn({ username: "ghost", password: "pw" })).rejects.toThrow(
         AuthErrors.IncorrectUsernameOrPassword.message,
       )
     })
@@ -89,7 +88,7 @@ describe("AuthService", () => {
     it("throws InactiveUser when the account has been deactivated", async () => {
       prisma.users.findUnique.mockResolvedValue(buildUser({ active: false }))
 
-      await expect(service.logIn({ username: "john", password: "pw" }, "d")).rejects.toThrow(
+      await expect(service.logIn({ username: "john", password: "pw" })).rejects.toThrow(
         AuthErrors.InactiveUser.message,
       )
       expect(mockedArgon.verify).not.toHaveBeenCalled()
@@ -99,7 +98,7 @@ describe("AuthService", () => {
       prisma.users.findUnique.mockResolvedValue(buildUser())
       mockedArgon.verify.mockResolvedValue(false as never)
 
-      await expect(service.logIn({ username: "john", password: "bad" }, "d")).rejects.toThrow(
+      await expect(service.logIn({ username: "john", password: "bad" })).rejects.toThrow(
         AuthErrors.IncorrectUsernameOrPassword.message,
       )
     })
@@ -122,10 +121,7 @@ describe("AuthService", () => {
       prisma.users.create.mockResolvedValue(buildUser())
       prisma.users.findUnique.mockResolvedValue(buildUser())
 
-      const tokens = await service.register(
-        { name: "John", username: "John", password: "pw" },
-        "device-1",
-      )
+      const tokens = await service.register({ name: "John", username: "John", password: "pw" })
 
       expect(prisma.users.create).toHaveBeenCalledWith({
         data: expect.objectContaining({ username: "john", role: Role.Member }),
@@ -137,7 +133,7 @@ describe("AuthService", () => {
       prisma.users.create.mockRejectedValue(new Error("unique constraint"))
 
       await expect(
-        service.register({ name: "John", username: "john", password: "pw" }, "d"),
+        service.register({ name: "John", username: "john", password: "pw" }),
       ).rejects.toThrow(UserErrors.UsernameIsDuplicated.message)
       expect(prisma.handlePrismaErrors).toHaveBeenCalled()
     })
@@ -175,10 +171,10 @@ describe("AuthService", () => {
     const input = { refreshToken: "rt" }
 
     it("verifies the token, rotates it, and returns new tokens", async () => {
-      jwt.verify.mockReturnValue({ id: "user-1", deviceId: "device-1" })
+      jwt.verify.mockReturnValue({ id: "user-1" })
       prisma.users.findUnique.mockResolvedValue(buildUser())
 
-      const tokens = await service.refreshToken(input, "device-1")
+      const tokens = await service.refreshToken(input)
 
       expect(jwt.verify).toHaveBeenCalledWith("rt")
       expect(tokens).toEqual({ accessToken: "access-token", refreshToken: "refresh-token" })
@@ -193,45 +189,37 @@ describe("AuthService", () => {
         throw new Error("jwt expired")
       })
 
-      await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
+      await expect(service.refreshToken(input)).rejects.toThrow(
         AuthErrors.InValidRefreshToken.message,
       )
       expect(prisma.users.findUnique).not.toHaveBeenCalled()
     })
 
-    it("throws DeviceMismatch when the token was issued to another device", async () => {
-      jwt.verify.mockReturnValue({ id: "user-1", deviceId: "other-device" })
-
-      await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
-        AuthErrors.DeviceMismatch.message,
-      )
-    })
-
     it("throws UserIsNotAuthorized when the user has no stored refresh-token hash", async () => {
-      jwt.verify.mockReturnValue({ id: "user-1", deviceId: "device-1" })
+      jwt.verify.mockReturnValue({ id: "user-1" })
       prisma.users.findUnique.mockResolvedValue(buildUser({ refreshTokenHash: null }))
 
-      await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
+      await expect(service.refreshToken(input)).rejects.toThrow(
         AuthErrors.UserIsNotAuthorized.message,
       )
     })
 
     it("throws UserIsNotAuthorized when the account has been deactivated", async () => {
-      jwt.verify.mockReturnValue({ id: "user-1", deviceId: "device-1" })
+      jwt.verify.mockReturnValue({ id: "user-1" })
       prisma.users.findUnique.mockResolvedValue(buildUser({ active: false }))
 
-      await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
+      await expect(service.refreshToken(input)).rejects.toThrow(
         AuthErrors.UserIsNotAuthorized.message,
       )
       expect(mockedArgon.verify).not.toHaveBeenCalled()
     })
 
     it("throws InValidRefreshToken when the token does not match the stored hash", async () => {
-      jwt.verify.mockReturnValue({ id: "user-1", deviceId: "device-1" })
+      jwt.verify.mockReturnValue({ id: "user-1" })
       prisma.users.findUnique.mockResolvedValue(buildUser())
       mockedArgon.verify.mockResolvedValue(false as never)
 
-      await expect(service.refreshToken(input, "device-1")).rejects.toThrow(
+      await expect(service.refreshToken(input)).rejects.toThrow(
         AuthErrors.InValidRefreshToken.message,
       )
     })

@@ -315,13 +315,6 @@ describe("Auth", () => {
    * ! ------------------- !
    */
   describe("RefreshToken", () => {
-    /**
-     * A `User-Agent` that differs from axios' default, used to simulate a
-     * request coming from a device the session was not bound to (the fingerprint
-     * is a SHA-256 of the `User-Agent`).
-     */
-    const OTHER_DEVICE = { headers: { "User-Agent": "OtherDevice/1.0" } }
-
     it("+ exchanges a valid refresh token for a fresh, usable token pair", async () => {
       api.setAnonymousMode()
       const { data: first } = await api.main.auth.logIn(member)
@@ -372,19 +365,6 @@ describe("Auth", () => {
       } catch (err) {
         const error = err as AxiosError
         expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
-      }
-    })
-
-    it("- DeviceMismatch when refreshing from a different device", async () => {
-      api.setAnonymousMode()
-      const { data } = await api.main.auth.logIn(member)
-
-      try {
-        await api.main.auth.refreshToken({ refreshToken: data.refreshToken }, OTHER_DEVICE)
-        fail("Test failed!")
-      } catch (err) {
-        const error = err as AxiosError
-        expect(error.response?.data).toMatchObject(AuthErrors.DeviceMismatch)
       }
     })
 
