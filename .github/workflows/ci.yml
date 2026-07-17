@@ -81,6 +81,9 @@ jobs:
       - name: Generate Swagger API client
         run: pnpm exec env-cmd -f ./.env.test npx ts-node scripts/generate-api.ts
 
+      - name: Verify generated API client is current
+        run: git diff --exit-code -- swagger/Api.ts
+
       - name: Stop app
         if: always()
         run: |
