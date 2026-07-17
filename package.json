@@ -4,6 +4,7 @@
   "description": "NestJs Core Rest",
   "author": "Arash Alfooneh",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "license": "MIT",
   "scripts": {
     "prepare": "husky",
