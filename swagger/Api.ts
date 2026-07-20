@@ -51,7 +51,10 @@ export interface LoginOutput {
 export interface RegisterInput {
   name: string;
   username: string;
-  /** @minLength 8 */
+  /**
+   * @minLength 8
+   * @maxLength 128
+   */
   password: string;
 }
 
@@ -64,7 +67,10 @@ export interface IdInput {
 }
 
 export interface ChangePasswordDataInput {
-  /** @minLength 8 */
+  /**
+   * @minLength 8
+   * @maxLength 128
+   */
   newPassword: string;
 }
 
@@ -75,7 +81,10 @@ export interface ChangePasswordInput {
 
 export interface ChangeMyPasswordInput {
   currentPassword: string;
-  /** @minLength 8 @maxLength 128 */
+  /**
+   * @minLength 8
+   * @maxLength 128
+   */
   newPassword: string;
 }
 
@@ -108,7 +117,10 @@ export interface UpdateMeInput {
 export interface CreateUserInput {
   name: string;
   username: string;
-  /** @minLength 8 */
+  /**
+   * @minLength 8
+   * @maxLength 128
+   */
   password: string;
   role: "Admin" | "Member";
 }
@@ -392,7 +404,10 @@ export class Api<
      * @summary Change the current user's password
      * @request PATCH:/auth/changeMyPassword
      */
-    changeMyPassword: (data: ChangeMyPasswordInput, params: RequestParams = {}) =>
+    changeMyPassword: (
+      data: ChangeMyPasswordInput,
+      params: RequestParams = {},
+    ) =>
       this.request<SuccessOutput, AppExceptionResponseDto>({
         path: `/auth/changeMyPassword`,
         method: "PATCH",
