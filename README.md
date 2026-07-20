@@ -15,10 +15,11 @@ and unit/end-to-end tests.
 
 - Signed access and refresh JWTs with independently configured expiration times.
 - Refresh-token rotation with only the Argon2id hash stored in PostgreSQL.
+- Self-service password change for logged-in users (`changeMyPassword`) plus admin password reset.
 - Public member registration plus admin/member authorization guards.
 - Immediate authorization checks against the current database role and active state.
 - A single application error format with stable module-local codes and English/Persian messages.
-- Strict DTO validation with transformation, allow-listing, and rejection of unknown properties.
+- Strict DTO validation with transformation, allow-listing, rejection of unknown properties, and bounded password length (8–128).
 - Prisma helpers for bounded pagination and schema-validated sorting.
 - Runtime validation of all required environment variables.
 - Swagger UI, raw OpenAPI JSON, and generated Axios/TypeScript client support.
@@ -91,6 +92,7 @@ served at `/docs` by default. Both paths are configurable.
 | `POST` | `/auth/refreshToken` | Public, throttled | Rotate a valid refresh token |
 | `POST` | `/auth/logout` | Logged in | Revoke the stored refresh token |
 | `PATCH` | `/auth/changePassword` | Admin | Replace a user's password and revoke refresh access |
+| `PATCH` | `/auth/changeMyPassword` | Logged in | Replace the caller's password after verifying the current one |
 | `GET` | `/user/me` | Logged in | Read the current profile |
 | `POST` | `/user/updateMe` | Logged in | Change the current user's name or username |
 | `GET` | `/user` | Admin | Filter, sort, and paginate users |
@@ -154,7 +156,7 @@ generic production message.
 3. The global token guard verifies a bearer token and attaches the authenticated user to the request.
 4. Route guards query the database to enforce the user's current active state and role.
 5. Refresh validates the JWT, current user state, and stored Argon2id hash before rotating the pair.
-6. Logout, password replacement, and soft deletion clear the stored refresh-token hash.
+6. Logout, password replacement (admin or self-service), and soft deletion clear the stored refresh-token hash.
 
 The current schema stores one refresh-token hash per user, so a later login replaces the previous
 refresh session. Access tokens are stateless and remain valid until expiry unless the user is
@@ -262,7 +264,7 @@ required.
 
 ## Testing
 
-The repository currently contains 12 suites and 146 test cases: 88 unit cases and 58 end-to-end cases.
+The repository currently contains 12 suites and 153 test cases across unit and end-to-end coverage.
 The end-to-end suites start the real Nest application, use PostgreSQL, reset the configured test
 database between cases, and call HTTP endpoints through the generated Swagger client.
 

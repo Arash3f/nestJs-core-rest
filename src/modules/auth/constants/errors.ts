@@ -37,4 +37,11 @@ export const AuthErrors = {
     message: "user refreshtoken is incorrect",
     persianTranslation: "refresh توکن اشتباه است",
   },
+  IncorrectCurrentPassword: {
+    code: 7,
+    statusCode: HttpStatus.BAD_REQUEST,
+    module: ModuleNames.AuthModule,
+    message: "The current password is incorrect",
+    persianTranslation: "رمز عبور فعلی اشتباه است",
+  },
 }

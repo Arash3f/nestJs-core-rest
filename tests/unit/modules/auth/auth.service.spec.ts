@@ -167,6 +167,42 @@ describe("AuthService", () => {
     })
   })
 
+  describe("changeMyPassword", () => {
+    it("verifies the current password, updates the hash, and clears refresh access", async () => {
+      prisma.users.findUnique.mockResolvedValue(buildUser())
+      prisma.users.update.mockResolvedValue(buildUser())
+
+      const result = await service.changeMyPassword("user-1", {
+        currentPassword: "old-pw",
+        newPassword: "new-pw",
+      })
+
+      expect(result).toEqual({ success: true })
+      expect(mockedArgon.verify).toHaveBeenCalledWith("stored-hash", "old-pw")
+      expect(prisma.users.update).toHaveBeenCalledWith({
+        where: { id: "user-1" },
+        data: { passwordHash: "hashed", refreshTokenHash: null },
+      })
+    })
+
+    it("throws UserNotFound when the requester no longer exists", async () => {
+      prisma.users.findUnique.mockResolvedValue(null)
+
+      await expect(
+        service.changeMyPassword("ghost", { currentPassword: "a", newPassword: "b" }),
+      ).rejects.toThrow(UserErrors.UserNotFound.message)
+    })
+
+    it("throws IncorrectCurrentPassword when the current password does not match", async () => {
+      prisma.users.findUnique.mockResolvedValue(buildUser())
+      mockedArgon.verify.mockResolvedValue(false as never)
+
+      await expect(
+        service.changeMyPassword("user-1", { currentPassword: "wrong", newPassword: "b" }),
+      ).rejects.toThrow(AuthErrors.IncorrectCurrentPassword.message)
+    })
+  })
+
   describe("refreshToken", () => {
     const input = { refreshToken: "rt" }
 

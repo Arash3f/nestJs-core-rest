@@ -311,6 +311,75 @@ describe("Auth", () => {
 
   /**
    * ! ------------------- !
+   * ! | ChangeMyPassword  | !
+   * ! ------------------- !
+   */
+  describe("ChangeMyPassword", () => {
+    const NEW_PASSWORD = "MyN3wP@ssw0rd"
+
+    it("+ lets a member change their own password and clears the refresh hash", async () => {
+      await api.setMemberMode()
+
+      const { data } = await api.main.auth.changeMyPassword({
+        currentPassword: member.password,
+        newPassword: NEW_PASSWORD,
+      })
+      expect(data.success).toBe(true)
+
+      const row = await prisma.users.findUniqueOrThrow({
+        where: { username: member.username.toLowerCase() },
+      })
+      expect(row.refreshTokenHash).toBeNull()
+
+      api.setAnonymousMode()
+      try {
+        await api.main.auth.logIn(member)
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.IncorrectUsernameOrPassword)
+      }
+
+      const { data: tokens } = await api.main.auth.logIn({
+        username: member.username,
+        password: NEW_PASSWORD,
+      })
+      expectJwt(tokens.accessToken)
+    })
+
+    it("- IncorrectCurrentPassword when the current password is wrong", async () => {
+      await api.setMemberMode()
+
+      try {
+        await api.main.auth.changeMyPassword({
+          currentPassword: "definitely-wrong",
+          newPassword: NEW_PASSWORD,
+        })
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.IncorrectCurrentPassword)
+      }
+    })
+
+    it("- UserIsNotAuthorized for an anonymous request", async () => {
+      api.setAnonymousMode()
+
+      try {
+        await api.main.auth.changeMyPassword({
+          currentPassword: member.password,
+          newPassword: NEW_PASSWORD,
+        })
+        fail("Test failed!")
+      } catch (err) {
+        const error = err as AxiosError
+        expect(error.response?.data).toMatchObject(AuthErrors.UserIsNotAuthorized)
+      }
+    })
+  })
+
+  /**
+   * ! ------------------- !
    * ! | RefreshToken      | !
    * ! ------------------- !
    */
@@ -452,6 +521,16 @@ describe("Auth", () => {
       api.setAnonymousMode()
       await expectValidationError(() =>
         api.main.auth.refreshToken({ refreshToken: "notajwt" } as unknown as RefreshTokenInput),
+      )
+    })
+
+    it("- 400 when ChangeMyPassword newPassword is too short", async () => {
+      await api.setMemberMode()
+      await expectValidationError(() =>
+        api.main.auth.changeMyPassword({
+          currentPassword: member.password,
+          newPassword: "short",
+        }),
       )
     })
   })

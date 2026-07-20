@@ -8,6 +8,7 @@ import { IsAdminGuard } from "@src/common/guards/is-admin.guard"
 import { IsLoggedInGuard } from "@src/common/guards/is-logged-in.guard"
 import { AuthService } from "@src/modules/auth/auth.service"
 import { AuthErrors } from "@src/modules/auth/constants/errors"
+import { ChangeMyPasswordInput } from "@src/modules/auth/dto/change-my-password.input"
 import { ChangePasswordInput } from "@src/modules/auth/dto/change-password.input"
 import { LoginInput } from "@src/modules/auth/dto/login.input"
 import { LoginOutput } from "@src/modules/auth/dto/login.output"
@@ -72,6 +73,24 @@ export class AuthController {
   @UseGuards(IsAdminGuard)
   async changePassword(@Body() data: ChangePasswordInput) {
     return await this.authService.changePassword(data)
+  }
+
+  @Patch("changeMyPassword")
+  @ApiOperation({
+    operationId: "changeMyPassword",
+    summary: "Change the current user's password",
+    description:
+      "Self-service password change. Requires the current password before applying the new one.",
+  })
+  @ApiBody({ type: ChangeMyPasswordInput })
+  @ApiResponse({ type: SuccessOutput, status: 200 })
+  @apiErrorResponses([UserErrors.UserNotFound, AuthErrors.IncorrectCurrentPassword])
+  @UseGuards(IsLoggedInGuard)
+  async changeMyPassword(
+    @GetUserId() requesterId: string,
+    @Body() data: ChangeMyPasswordInput,
+  ): Promise<SuccessOutput> {
+    return await this.authService.changeMyPassword(requesterId, data)
   }
 
   @Post("refreshToken")

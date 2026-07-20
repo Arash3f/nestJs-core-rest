@@ -73,6 +73,12 @@ export interface ChangePasswordInput {
   data: ChangePasswordDataInput;
 }
 
+export interface ChangeMyPasswordInput {
+  currentPassword: string;
+  /** @minLength 8 @maxLength 128 */
+  newPassword: string;
+}
+
 export interface RefreshTokenInput {
   refreshToken: string;
 }
@@ -371,6 +377,24 @@ export class Api<
     changePassword: (data: ChangePasswordInput, params: RequestParams = {}) =>
       this.request<SuccessOutput, AppExceptionResponseDto>({
         path: `/auth/changePassword`,
+        method: "PATCH",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Self-service password change. Requires the current password before applying the new one.
+     *
+     * @tags Auth
+     * @name ChangeMyPassword
+     * @summary Change the current user's password
+     * @request PATCH:/auth/changeMyPassword
+     */
+    changeMyPassword: (data: ChangeMyPasswordInput, params: RequestParams = {}) =>
+      this.request<SuccessOutput, AppExceptionResponseDto>({
+        path: `/auth/changeMyPassword`,
         method: "PATCH",
         body: data,
         type: ContentType.Json,
